@@ -71,6 +71,16 @@ RSpec.describe "OSM importers" do
       expect(hotel.reload).to have_attributes(name: "Hotel Sample Bay & Spa", latitude: 43.3002)
     end
 
+    it "keeps details edited on reviewed properties and only fills blanks" do
+      run(described_class)
+      hotel = Property.find_by!(osm_id: 501)
+      hotel.update!(qa_status: "approved", address: "Obala 1a, Sampleville", stars: nil)
+
+      run(described_class)
+
+      expect(hotel.reload).to have_attributes(address: "Obala 1a, Sampleville", stars: 4)
+    end
+
     it "updates the geometry of properties still pending review" do
       run(described_class)
       hotel = Property.find_by!(osm_id: 501)

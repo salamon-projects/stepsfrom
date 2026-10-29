@@ -19,6 +19,8 @@ module Admin
       scope = scope.where(destination_id: params[:destination_id]) if params[:destination_id].present?
       scope = scope.where("properties.name ILIKE ?", "%#{Property.sanitize_sql_like(params[:q])}%") if params[:q].present?
       @pagy, @properties = pagy(scope.by_waterfront, limit: 50)
+      return if redirect_past_last_page(@pagy)
+
       @untracked_providers = Affiliate::Provider.all.values.reject(&:tracking_configured?)
     end
 

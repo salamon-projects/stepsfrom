@@ -3,6 +3,8 @@ class Destination < ApplicationRecord
 
   has_many :properties, dependent: :restrict_with_error
 
+  normalizes :country_code, with: ->(code) { code.strip.upcase }
+
   attribute :south, :float
   attribute :west, :float
   attribute :north, :float

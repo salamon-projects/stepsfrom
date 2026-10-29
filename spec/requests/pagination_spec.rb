@@ -22,11 +22,10 @@ RSpec.describe "Pagination" do
     expect(names).to eq([ "Hotel 20" ])
   end
 
-  it "renders an empty page beyond the last one" do
-    get destination_path(destination, page: 9)
+  it "sends pages beyond the last one to the last page, keeping the filters" do
+    get destination_path(destination, category: "direct", page: 9)
 
-    expect(response).to have_http_status(:ok)
-    expect(response.body).to include("No verified properties match these filters yet.")
+    expect(response).to redirect_to(destination_path(destination, category: "direct", page: 2))
   end
 
   it "pages the admin list by 50" do

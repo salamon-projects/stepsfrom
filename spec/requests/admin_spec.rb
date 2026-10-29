@@ -85,6 +85,15 @@ RSpec.describe "Admin" do
       expect(response.body).to include("Measurement", "Booking.com", "data-map=")
     end
 
+    it "renders the review note without nesting paragraphs" do
+      candidate.update!(qa_note: "Checked on satellite.\n\nRoad is a footpath.")
+
+      get admin_property_path(candidate), headers: auth
+
+      expect(Nokogiri::HTML5(response.body, max_errors: 10).errors).to be_empty
+      expect(response.body).to include("Road is a footpath.")
+    end
+
     it "re-renders the form on invalid input" do
       post admin_properties_path, headers: auth, params: { property: { destination_id: destination.id, name: "" } }
 
@@ -131,6 +140,14 @@ RSpec.describe "Admin" do
       }
 
       expect(Destination.find_by!(slug: "zadar-riviera").bbox).to eq([ 44.0, 15.1, 44.2, 15.4 ])
+    end
+
+    it "accepts a lower-case country code" do
+      post admin_destinations_path, headers: auth, params: {
+        destination: { name: "Krk", country_code: " hr ", south: "45.0", west: "14.4", north: "45.2", east: "14.8" }
+      }
+
+      expect(Destination.find_by!(slug: "krk").country_code).to eq("HR")
     end
 
     it "queues an OSM import" do

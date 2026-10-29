@@ -1,8 +1,8 @@
 module Osm
   module Importers
     # Named tourism=* accommodation. New properties start pending review.
-    # Reviewed (approved or rejected) properties keep their geometry, so a
-    # re-import never overrides a manual coordinate correction.
+    # Reviewed (approved or rejected) properties keep their geometry and any
+    # details already set, so a re-import never overrides a manual correction.
     class Accommodations < Base
       KINDS = { "hotel" => "hotel", "motel" => "motel", "guest_house" => "guest_house", "hostel" => "hostel",
                 "apartment" => "apartment", "chalet" => "chalet", "camp_site" => "camp_site" }.freeze
@@ -29,8 +29,11 @@ module Osm
         if property.new_record?
           property.assign_attributes(destination:, name:, kind: KINDS.fetch(element.tags["tourism"], "hotel"))
         end
-        property.assign_attributes(details(element.tags))
-        property.assign_attributes(lonlat: point, footprint: element.polygon) if property.new_record? || property.qa_pending?
+        unreviewed = property.new_record? || property.qa_pending?
+        details = details(element.tags)
+        details = details.select { |attribute, _| property.public_send(attribute).blank? } unless unreviewed
+        property.assign_attributes(details)
+        property.assign_attributes(lonlat: point, footprint: element.polygon) if unreviewed
         property.save!
         true
       rescue ActiveRecord::RecordInvalid => e

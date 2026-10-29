@@ -59,7 +59,7 @@
 .admin-card
   %h2= "Review: #{@property.qa_status}"
   - if @property.qa_note.present?
-    %p= simple_format(@property.qa_note)
+    = simple_format(@property.qa_note)
   = form_with url: approve_admin_property_path(@property), class: "admin-form" do
     .field
       = label_tag :qa_note, "Note (optional)"
