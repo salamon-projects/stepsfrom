@@ -1,0 +1,69 @@
+- content_for :title, "Properties"
+
+.admin-page__header
+  %h1 Properties
+  = link_to "Add property manually", new_admin_property_path, class: "button"
+
+- if @untracked_providers.any?
+  %p.flash.flash--alert
+    Affiliate tracking not configured for:
+    = @untracked_providers.map { |p| "#{p.name} (#{p.tracking_env})" }.join(", ")
+    — those buttons link directly to the booking site.
+
+%nav.admin-tabs{ "aria-label": "Views" }
+  - Admin::PropertiesController::VIEWS.each do |key, label|
+    = link_to label, admin_properties_path(view: key, destination_id: params[:destination_id], q: params[:q]),
+      class: ("is-active" if key == @view)
+
+= form_with url: admin_properties_path, method: :get, class: "admin-filters" do
+  = hidden_field_tag :view, @view
+  .field
+    = label_tag :destination_id, "Destination"
+    = select_tag :destination_id, options_from_collection_for_select(@destinations, :id, :name, params[:destination_id]), include_blank: "All"
+  .field
+    = label_tag :q, "Name"
+    = search_field_tag :q, params[:q]
+  = submit_tag "Filter", name: nil, class: "button"
+
+%p= pluralize(@pagy.count, "property")
+
+.table-wrap
+  %table.admin-table
+    %thead
+      %tr
+        %th Property
+        %th Destination
+        %th Result
+        %th Distance
+        %th Flags
+        %th Listings
+        %th QA
+        %th
+    %tbody
+      - @properties.each do |property|
+        %tr
+          %td
+            = link_to property.name, admin_property_path(property)
+            %br
+            %small= property_kind(property)
+          %td= property.destination.name
+          %td= waterfront_badge(property)
+          %td= property.distance_to_water_m ? "#{property.distance_to_water_m} m" : "–"
+          %td
+            - if property.crosses_road?
+              %span.flag road between
+            - if property.coordinate_mismatch?
+              %span.flag= "position #{property.coord_mismatch_m} m off"
+            - if property.listings.any? { |l| l.claims_beachfront } && !property.waterfront_direct?
+              %span.flag OTA says beachfront
+          %td= property.listings.map(&:provider_name).join(", ").presence || "–"
+          %td= property.qa_status
+          %td
+            .actions
+              - unless property.qa_approved?
+                = button_to "Approve", approve_admin_property_path(property), class: "button button--small"
+              - unless property.qa_rejected?
+                = button_to "Reject", reject_admin_property_path(property), class: "button button--small button--danger"
+
+.pagination
+  != pagy_nav(@pagy) if @pagy.pages > 1

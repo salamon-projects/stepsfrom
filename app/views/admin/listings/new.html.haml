@@ -1,0 +1,3 @@
+- content_for :title, "Add listing"
+%h1= "Add listing for #{@property.name}"
+= render "form", property: @property, listing: @listing

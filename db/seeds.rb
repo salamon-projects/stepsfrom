@@ -1,6 +1,7 @@
 # Launch destinations. Bounding boxes are approximate and can be adjusted in
 # the admin; they only decide which OSM data `bin/rails osm:import[slug]`
-# fetches. Properties come from that import, never from seeds.
+# fetches. Properties come from that import, never from seeds. Destinations
+# start unpublished: publish them in the admin once properties are reviewed.
 #
 # In development, `bin/rails db:seed` also loads a small fictional demo bay
 # (db/seeds/demo.rb) so the site can be tried without an OSM import.
@@ -30,7 +31,7 @@ DESTINATIONS.each_with_index do |attrs, position|
   destination = Destination.find_or_initialize_by(name: attrs[:name])
   next if destination.persisted?
 
-  destination.update!(attrs.merge(position:, published: true))
+  destination.update!(attrs.merge(position:, published: false))
 end
 
 load Rails.root.join("db/seeds/demo.rb") if Rails.env.development?

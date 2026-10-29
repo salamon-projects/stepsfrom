@@ -1,0 +1,50 @@
+= form_with model: [ :admin, destination ], class: "admin-form" do |f|
+  = render "admin/shared/errors", record: destination
+  .admin-form__row
+    .field
+      = f.label :name
+      = f.text_field :name, required: true
+    .field
+      = f.label :country_code, "Country code (ISO, e.g. HR)"
+      = f.text_field :country_code, maxlength: 2, required: true
+  - if destination.persisted?
+    .field
+      = f.label :slug
+      = f.text_field :slug
+  .field
+    = f.label :sea_name, "Sea name shown to visitors (e.g. Adriatic Sea)"
+    = f.text_field :sea_name
+  .field
+    = f.label :summary
+    = f.text_area :summary, rows: 2
+  %fieldset.admin-form__row
+    %legend Bounding box (decimal degrees)
+    .field
+      = f.label :south
+      = f.number_field :south, step: "any", required: true
+    .field
+      = f.label :west
+      = f.number_field :west, step: "any", required: true
+    .field
+      = f.label :north
+      = f.number_field :north, step: "any", required: true
+    .field
+      = f.label :east
+      = f.number_field :east, step: "any", required: true
+  .admin-form__row
+    .field
+      = f.label :zoom, "Map zoom"
+      = f.number_field :zoom, in: 3..18
+    .field
+      = f.label :position, "Order"
+      = f.number_field :position
+  .checkbox
+    = f.check_box :published
+    = f.label :published, "Show on the site"
+  .actions
+    = f.submit class: "button button--primary"
+    = link_to "Cancel", admin_destinations_path, class: "button"
+- if destination.persisted?
+  .admin-card
+    %h2 Danger zone
+    = button_to "Delete destination", admin_destination_path(destination), method: :delete, class: "button button--danger"

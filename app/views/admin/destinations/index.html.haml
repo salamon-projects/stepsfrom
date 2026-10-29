@@ -1,0 +1,36 @@
+- content_for :title, "Destinations"
+
+.admin-page__header
+  %h1 Destinations
+  = link_to "New destination", new_admin_destination_path, class: "button"
+
+%p
+  “Import from OSM” fetches coastline, lakes, beaches, roads and accommodation inside the bounding box from the
+  Overpass API, then measures every property. New properties land in the review queue.
+
+.table-wrap
+  %table.admin-table
+    %thead
+      %tr
+        %th Destination
+        %th Country
+        %th Water
+        %th Bounding box (S, W, N, E)
+        %th Properties
+        %th Listed
+        %th Published
+        %th
+    %tbody
+      - @destinations.each do |destination|
+        %tr
+          %td= link_to destination.name, admin_properties_path(view: "all", destination_id: destination.id)
+          %td= destination.country_name
+          %td= destination.sea_name
+          %td= destination.bbox.map { |v| v.round(4) }.join(", ")
+          %td= @property_counts.fetch(destination.id, 0)
+          %td= @listed_counts.fetch(destination.id, 0)
+          %td= destination.published? ? "Yes" : "No"
+          %td
+            .actions
+              = link_to "Edit", edit_admin_destination_path(destination), class: "button button--small"
+              = button_to "Import from OSM", import_admin_destination_path(destination), class: "button button--small"

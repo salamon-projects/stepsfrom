@@ -16,6 +16,17 @@
 .admin-page {
   padding: 1.5rem 1rem 3rem;
 
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+
+    form {
+      margin: 0;
+    }
+  }
+
   &__header {
     display: flex;
     flex-wrap: wrap;
@@ -84,15 +95,6 @@
     text-transform: uppercase;
   }
 
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-
-    form {
-      margin: 0;
-    }
-  }
 }
 
 .admin-card {
@@ -147,9 +149,9 @@
 
 .measure-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
   gap: 0.5rem 1rem;
-  margin: 0;
+  margin: 1rem 0 0;
 
   dt {
     color: $muted;

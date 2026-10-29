@@ -1,0 +1,27 @@
+= form_with model: [ :admin, property, listing ], class: "admin-form" do |f|
+  = render "admin/shared/errors", record: listing
+  .field
+    = f.label :provider, "Booking site"
+    = f.select :provider, Affiliate::Provider.all.values.map { |p| [ p.name, p.key ] }
+  .field
+    = f.label :url, "Property page URL"
+    = f.url_field :url, required: true, placeholder: "https://www.booking.com/hotel/hr/…"
+  .field
+    = f.label :external_id, "Site's property ID (optional)"
+    = f.text_field :external_id
+  .admin-form__row
+    .field
+      = f.label :reported_latitude, "Latitude shown on the site"
+      = f.number_field :reported_latitude, step: "any"
+    .field
+      = f.label :reported_longitude, "Longitude shown on the site"
+      = f.number_field :reported_longitude, step: "any"
+  .field
+    = f.label :claims_beachfront, "Does the site call it beachfront?"
+    = f.select :claims_beachfront, [ [ "Unknown", "" ], [ "Yes", true ], [ "No", false ] ]
+  .checkbox
+    = f.check_box :active
+    = f.label :active, "Show this listing to visitors"
+  .actions
+    = f.submit class: "button button--primary"
+    = link_to "Cancel", admin_property_path(property), class: "button"

@@ -1,0 +1,27 @@
+!!!
+%html{ lang: "en" }
+  %head
+    %meta{ charset: "utf-8" }
+    %title= [ content_for(:title).presence, "Admin", t("site_name") ].compact.join(" · ")
+    %meta{ name: "viewport", content: "width=device-width,initial-scale=1" }
+    %meta{ name: "robots", content: "noindex, nofollow" }
+    = csrf_meta_tags
+    = csp_meta_tag
+    %link{ rel: "icon", href: "/icon.svg", type: "image/svg+xml" }
+    = stylesheet_link_tag "application"
+    = yield :head
+  %body.admin
+    %header.site-header
+      .container.site-header__inner
+        = link_to admin_root_path, class: "brand" do
+          %span.brand__mark{ "aria-hidden": "true" } ≈
+          %span.brand__name Admin
+        %nav.site-nav{ "aria-label": "Admin" }
+          = link_to "Properties", admin_properties_path
+          = link_to "Destinations", admin_destinations_path
+          = link_to "View site", root_path
+    - flash.each do |type, message|
+      .flash{ class: "flash--#{type}", role: "status" }
+        .container= message
+    %main.container.admin-page= yield
+    = yield :scripts

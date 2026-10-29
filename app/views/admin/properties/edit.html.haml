@@ -1,0 +1,6 @@
+- content_for :title, "Edit #{@property.name}"
+%h1= "Edit #{@property.name}"
+= render "form", property: @property
+.admin-card
+  %h2 Danger zone
+  = button_to "Delete property permanently", admin_property_path(@property), method: :delete, class: "button button--danger"

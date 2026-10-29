@@ -1,0 +1,40 @@
+= form_with model: [ :admin, property ], class: "admin-form" do |f|
+  = render "admin/shared/errors", record: property
+  .field
+    = f.label :destination_id
+    = f.collection_select :destination_id, Destination.ordered, :id, :name
+  .field
+    = f.label :name
+    = f.text_field :name, required: true
+  .admin-form__row
+    .field
+      = f.label :kind
+      = f.select :kind, Property::KINDS.map { |k| [ t("properties.kinds.#{k}"), k ] }
+    .field
+      = f.label :stars
+      = f.select :stars, 1..5, include_blank: "–"
+    - if property.persisted?
+      .field
+        = f.label :slug
+        = f.text_field :slug
+  .admin-form__row
+    .field
+      = f.label :latitude
+      = f.number_field :latitude, step: "any", required: true
+    .field
+      = f.label :longitude
+      = f.number_field :longitude, step: "any", required: true
+  %p
+    %small Changing the coordinates measures the property again. Approved properties are not moved by later OSM imports.
+  .field
+    = f.label :address
+    = f.text_field :address
+  .field
+    = f.label :website
+    = f.url_field :website
+  .field
+    = f.label :qa_note, "Review note"
+    = f.text_area :qa_note, rows: 3
+  .actions
+    = f.submit class: "button button--primary"
+    = link_to "Cancel", property.persisted? ? admin_property_path(property) : admin_properties_path, class: "button"

@@ -1,0 +1,100 @@
+- content_for :title, @property.name
+= render "layouts/map_assets"
+
+.admin-page__header
+  %div
+    %h1= @property.name
+    %p
+      = property_kind(@property)
+      = "· #{@property.destination.name}"
+      - if @property.osm_id
+        = "·"
+        = link_to "OSM #{@property.osm_type}/#{@property.osm_id}", "https://www.openstreetmap.org/#{@property.osm_type}/#{@property.osm_id}", rel: "noopener", target: "_blank"
+      - if @property.listed?
+        = "·"
+        = link_to "Public page", property_path(@property)
+  .actions
+    = link_to "Edit", edit_admin_property_path(@property), class: "button"
+    = button_to "Measure again", reclassify_admin_property_path(@property), class: "button"
+
+.admin-card
+  %h2 Measurement
+  = render "shared/waterfront_summary", property: @property
+  %dl.measure-grid
+    %div
+      %dt Category
+      %dd= t("waterfront.categories.#{@property.waterfront_category}")
+    %div
+      %dt Distance to water
+      %dd= @property.distance_to_water_m ? "#{@property.distance_to_water_m} m (#{@property.water_kind})" : "–"
+    %div
+      %dt Measured from
+      %dd= @property.footprint ? "Building outline" : "Point"
+    %div
+      %dt Distance to beach
+      %dd= @property.distance_to_beach_m ? "#{@property.distance_to_beach_m} m (#{@property.beach_surface || 'surface unknown'})" : "–"
+    %div
+      %dt Road or railway between
+      %dd= @property.crosses_road? ? "Yes" : "No"
+    %div
+      %dt Promenade between
+      %dd= @property.crosses_promenade? ? "Yes" : "No"
+    %div
+      %dt Booking-site position
+      %dd
+        - if @property.coord_mismatch_m
+          = "#{@property.coord_mismatch_m} m from ours"
+          - if @property.coordinate_mismatch?
+            %span.flag check
+        - else
+          No reported positions
+    %div
+      %dt Coordinates
+      %dd= "#{@property.latitude.round(6)}, #{@property.longitude.round(6)}"
+    %div
+      %dt Measured at
+      %dd= @property.classified_at ? l(@property.classified_at, format: :short) : "Not yet"
+  = map_tag(property_map_data(@property), css_class: "map map--property", label: "Map of #{@property.name}")
+
+.admin-card
+  %h2= "Review: #{@property.qa_status}"
+  - if @property.qa_note.present?
+    %p= simple_format(@property.qa_note)
+  = form_with url: approve_admin_property_path(@property), class: "admin-form" do
+    .field
+      = label_tag :qa_note, "Note (optional)"
+      = text_area_tag :qa_note, nil, rows: 2
+    .actions
+      = submit_tag "Approve", class: "button button--primary", name: nil
+      = submit_tag "Reject", class: "button button--danger", name: nil, formaction: reject_admin_property_path(@property)
+
+.admin-card
+  .admin-page__header
+    %h2 Booking-site listings
+    - if @property.listings.size < Affiliate::Provider.keys.size
+      = link_to "Add listing", new_admin_property_listing_path(@property), class: "button button--small"
+  - if @property.listings.empty?
+    %p No listings yet. Add the property's page on each booking site so visitors can book it.
+  - else
+    .table-wrap
+      %table.admin-table
+        %thead
+          %tr
+            %th Site
+            %th URL
+            %th Says beachfront
+            %th Reported position
+            %th Active
+            %th
+        %tbody
+          - @property.listings.sort_by(&:provider).each do |listing|
+            %tr
+              %td= listing.provider_name
+              %td= link_to listing.url.truncate(60), listing.url, rel: "noopener", target: "_blank"
+              %td= { true => "Yes", false => "No", nil => "?" }.fetch(listing.claims_beachfront)
+              %td= listing.reported_lonlat ? "#{listing.reported_latitude.round(5)}, #{listing.reported_longitude.round(5)}" : "–"
+              %td= listing.active? ? "Yes" : "No"
+              %td
+                .actions
+                  = link_to "Edit", edit_admin_property_listing_path(@property, listing), class: "button button--small"
+                  = button_to "Remove", admin_property_listing_path(@property, listing), method: :delete, class: "button button--small button--danger"
