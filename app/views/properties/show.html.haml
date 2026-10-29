@@ -18,8 +18,20 @@
         = "· #{@property.address}"
 
 .container.property-layout
-  .property-layout__main
+  .property-layout__summary
     = render "shared/waterfront_summary", property: @property, large: true
+
+  %aside.property-layout__booking
+    .booking-panel
+      %h2.booking-panel__title Compare booking sites
+      = form_with url: property_path(@property), method: :get, class: "filter-form filter-form--compact" do
+        = render "shared/stay_fields", stay: @stay
+        .field.field--submit
+          = submit_tag "Check prices", name: nil, class: "button button--primary"
+      = render "shared/offers", offers: @offers
+      %p.booking-panel__disclosure= t("offers.disclosure")
+
+  .property-layout__details
     = map_tag(property_map_data(@property), css_class: "map map--property", label: "Map of #{@property.name} and the nearest shoreline")
 
     %section.checks
@@ -42,13 +54,3 @@
               = "#{@property.distance_to_beach_m} m away"
         %li.checklist__item.checklist__item--ok Position and result reviewed by our team
       %p.checks__more= link_to "How we verify", how_we_verify_path, class: "text-link"
-
-  %aside.property-layout__booking
-    .booking-panel
-      %h2.booking-panel__title Compare booking sites
-      = form_with url: property_path(@property), method: :get, class: "filter-form filter-form--compact" do
-        = render "shared/stay_fields", stay: @stay
-        .field.field--submit
-          = submit_tag "Check prices", name: nil, class: "button button--primary"
-      = render "shared/offers", offers: @offers
-      %p.booking-panel__disclosure= t("offers.disclosure")

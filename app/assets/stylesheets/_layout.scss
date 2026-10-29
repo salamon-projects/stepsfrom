@@ -9,9 +9,9 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem 1.5rem;
-    padding-top: 0.9rem;
-    padding-bottom: 0.9rem;
+    gap: 0 1.5rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
   }
 }
 
@@ -19,6 +19,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: 2.75rem;
   color: $sea;
   font-weight: 800;
   font-size: 1.2rem;
@@ -40,6 +41,9 @@
   gap: 1.25rem;
 
   a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     color: $ink;
     font-weight: 600;
     text-decoration: none;
@@ -65,8 +69,14 @@
   &__links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    margin-bottom: 1rem;
+    gap: 0 1.5rem;
+    margin-bottom: 0.5rem;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.75rem;
+    }
   }
 }
 
@@ -91,10 +101,17 @@
 .breadcrumbs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
+  align-items: center;
+  gap: 0 0.4rem;
+  margin-bottom: 0.25rem;
   color: $muted;
   font-size: 0.9rem;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
 }
 
 .listing-layout,
@@ -104,6 +121,8 @@
   padding-top: 1.5rem;
 }
 
+// Phones get summary, booking panel, then map and checks; wide screens keep
+// the booking panel in a sticky right-hand column.
 @media (min-width: $bp-lg) {
   .listing-layout {
     grid-template-columns: 17rem 1fr;
@@ -112,7 +131,23 @@
 
   .property-layout {
     grid-template-columns: 1fr 22rem;
-    align-items: start;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "summary booking"
+      "details booking";
+  }
+
+  .property-layout__summary {
+    grid-area: summary;
+  }
+
+  .property-layout__details {
+    grid-area: details;
+  }
+
+  .property-layout__booking {
+    grid-area: booking;
+    align-self: start;
   }
 
   .listing-layout__filters,

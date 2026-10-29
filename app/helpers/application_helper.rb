@@ -31,7 +31,7 @@ module ApplicationHelper
   end
 
   def map_tag(data, css_class: "map", label: nil)
-    tag.div(class: css_class, role: "img", "aria-label": label,
+    tag.div(class: css_class, role: "region", "aria-label": label,
             data: { map: data.merge(tiles: Rails.configuration.x.map_tile_url).to_json })
   end
 end

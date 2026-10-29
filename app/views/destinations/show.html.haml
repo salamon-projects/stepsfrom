@@ -3,6 +3,8 @@
 - if params.keys.intersect?(%w[check_in check_out adults category surface kind sort page])
   - content_for :noindex, true
 = render "layouts/map_assets"
+- content_for :scripts do
+  = javascript_include_tag "filters", defer: true
 
 %section.page-header
   .container
@@ -20,28 +22,34 @@
 
 .container.listing-layout
   %aside.listing-layout__filters
-    = form_with url: destination_path(@destination), method: :get, class: "filter-form" do
-      = render "shared/stay_fields", stay: @stay
-      .field
-        = label_tag :category, t("search.category")
-        = select_tag :category,
-          options_for_select(Property::LISTED_CATEGORIES.map { |c| [ t("waterfront.categories.#{c}"), c ] }, @search.category),
-          include_blank: t("search.any_category")
-      .field
-        = label_tag :surface, t("search.surface")
-        = select_tag :surface,
-          options_for_select(PropertySearch::SURFACES.map { |s| [ t("waterfront.beach_surfaces.#{s}"), s ] }, @search.surface),
-          include_blank: t("search.any_surface")
-      .field
-        = label_tag :kind, t("search.kind")
-        = select_tag :kind,
-          options_for_select(Property::KINDS.map { |k| [ t("properties.kinds.#{k}"), k ] }, @search.kind),
-          include_blank: t("search.any_kind")
-      .field.field--wide
-        = label_tag :sort, t("search.sort")
-        = select_tag :sort, options_for_select(PropertySearch::SORTS.map { |s| [ t("search.sorts.#{s}"), s ] }, @search.sort)
-      .field.field--submit
-        = submit_tag t("search.update"), name: nil, class: "button button--primary"
+    -# Closed in the HTML so small screens see results first; filters.js opens
+    -# it on wide screens. Left open when the dates need correcting.
+    %details.filters{ open: (@stay && !@stay.valid?), data: { open_on_desktop: true } }
+      %summary.filters__summary
+        %span.filters__title= t("search.dates_and_filters")
+        %span.filters__current= filters_summary(@search, current_stay)
+      = form_with url: destination_path(@destination), method: :get, class: "filter-form" do
+        = render "shared/stay_fields", stay: @stay
+        .field
+          = label_tag :category, t("search.category")
+          = select_tag :category,
+            options_for_select(Property::LISTED_CATEGORIES.map { |c| [ t("waterfront.categories.#{c}"), c ] }, @search.category),
+            include_blank: t("search.any_category")
+        .field
+          = label_tag :surface, t("search.surface")
+          = select_tag :surface,
+            options_for_select(PropertySearch::SURFACES.map { |s| [ t("waterfront.beach_surfaces.#{s}"), s ] }, @search.surface),
+            include_blank: t("search.any_surface")
+        .field
+          = label_tag :kind, t("search.kind")
+          = select_tag :kind,
+            options_for_select(Property::KINDS.map { |k| [ t("properties.kinds.#{k}"), k ] }, @search.kind),
+            include_blank: t("search.any_kind")
+        .field.field--wide
+          = label_tag :sort, t("search.sort")
+          = select_tag :sort, options_for_select(PropertySearch::SORTS.map { |s| [ t("search.sorts.#{s}"), s ] }, @search.sort)
+        .field.field--submit
+          = submit_tag t("search.update"), name: nil, class: "button button--primary"
 
   .listing-layout__results
     - if @map_points.any?

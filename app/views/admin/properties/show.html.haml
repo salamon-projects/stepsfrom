@@ -86,6 +86,7 @@
             %th Reported position
             %th Active
             %th
+              %span.visually-hidden Actions
         %tbody
           - @property.listings.sort_by(&:provider).each do |listing|
             %tr

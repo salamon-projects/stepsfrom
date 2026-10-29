@@ -70,6 +70,9 @@
 }
 
 .table-wrap {
+  // Keeps absolutely positioned helpers (visually hidden labels) inside the
+  // scroll box instead of widening the page.
+  position: relative;
   overflow-x: auto;
   border: 1px solid $border;
   border-radius: $radius;

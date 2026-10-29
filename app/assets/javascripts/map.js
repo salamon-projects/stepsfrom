@@ -15,7 +15,9 @@
 
   function initMap(container) {
     var data = JSON.parse(container.getAttribute("data-map"));
-    var map = L.map(container, { scrollWheelZoom: false });
+    // On touch screens one-finger drags scroll the page instead of panning
+    // the map; the zoom buttons and pinch still work.
+    var map = L.map(container, { scrollWheelZoom: false, dragging: !L.Browser.mobile });
     var bounds = [];
 
     L.tileLayer(data.tiles, { maxZoom: 19, attribution: ATTRIBUTION }).addTo(map);

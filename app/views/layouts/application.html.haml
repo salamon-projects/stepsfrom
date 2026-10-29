@@ -17,10 +17,11 @@
     = stylesheet_link_tag "application"
     = yield :head
   %body{ class: content_for(:body_class) }
+    %a.skip-link{ href: "#main" }= t("skip_to_content")
     = render "layouts/header"
     - flash.each do |type, message|
       .flash{ class: "flash--#{type}", role: "status" }
         .container= message
-    %main#main= yield
+    %main#main{ tabindex: "-1" }= yield
     = render "layouts/footer"
     = yield :scripts

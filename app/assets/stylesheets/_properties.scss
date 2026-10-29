@@ -24,7 +24,7 @@
 
   &--not_waterfront,
   &--unknown {
-    background: #9aa7b2;
+    background: $gray;
   }
 
   &--large {
@@ -181,6 +181,56 @@
   font-size: 0.85rem;
 }
 
+.filters {
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $white;
+
+  .filter-form {
+    border: 0;
+    border-top: 1px solid $border;
+    border-radius: 0 0 $radius $radius;
+  }
+
+  &__summary {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 3.5rem;
+    padding: 0.6rem 2.75rem 0.6rem 1rem;
+    position: relative;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::after {
+      content: "▾";
+      position: absolute;
+      top: 50%;
+      right: 1rem;
+      color: $sea;
+      font-size: 1.2rem;
+      transform: translateY(-50%);
+    }
+  }
+
+  &[open] &__summary::after {
+    content: "▴";
+  }
+
+  &__title {
+    font-weight: 700;
+  }
+
+  &__current {
+    color: $muted;
+    font-size: 0.85rem;
+  }
+}
+
 .ranking-note {
   margin-top: 1.5rem;
   color: $muted;
@@ -196,6 +246,11 @@
     gap: 0.4rem;
 
     a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.75rem;
+      min-height: 2.75rem;
       padding: 0.3rem 0.7rem;
       border: 1px solid $border;
       border-radius: 6px;

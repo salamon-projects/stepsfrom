@@ -26,6 +26,23 @@ RSpec.describe "Public pages" do
       expect(response).to redirect_to(destination_path(destination, stay_params))
     end
 
+    it "shows a notice instead of an unusable search form without destinations" do
+      Destination.update_all(published: false)
+
+      get root_path
+
+      expect(response.body).to include("still measuring our first coastline")
+      expect(Nokogiri::HTML(response.body).at_css("form.search-form")).to be_nil
+    end
+
+    it "offers a skip link to the main content" do
+      get root_path
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css("a.skip-link")["href"]).to eq("#main")
+      expect(document.at_css("main#main")).to be_present
+    end
+
     it "asks for a destination when none is chosen" do
       get search_path(destination: "")
 
@@ -77,6 +94,22 @@ RSpec.describe "Public pages" do
       Rails.configuration.x.price_providers = []
     end
 
+    it "folds the filters and summarises the current search" do
+      get destination_path(destination, stay_params.merge(surface: "pebble"))
+
+      filters = Nokogiri::HTML(response.body).at_css("details.filters")
+      expect(filters["open"]).to be_nil
+      expect(filters.at_css(".filters__current").text).to eq(
+        "#{check_in.strftime('%-d %b')} – #{(check_in + 3).strftime('%-d %b')} · 2 adults · 1 filter · Lowest price"
+      )
+    end
+
+    it "keeps the filters open when the dates need correcting" do
+      get destination_path(destination, check_in: check_in.iso8601, check_out: (check_in - 1).iso8601)
+
+      expect(Nokogiri::HTML(response.body).at_css("details.filters")["open"]).not_to be_nil
+    end
+
     it "shows a validation message for impossible dates" do
       get destination_path(destination, check_in: check_in.iso8601, check_out: (check_in - 1).iso8601)
 
@@ -95,6 +128,11 @@ RSpec.describe "Public pages" do
   describe "property" do
     it "shows the checks and the map" do
       get property_path(hotel)
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css(".map")["role"]).to eq("region")
+      sections = document.css(".property-layout > *").map { |node| node["class"] }
+      expect(sections).to eq(%w[property-layout__summary property-layout__booking property-layout__details])
 
       expect(response.body).to include("Hotel Riva", "What we checked", "No road or railway between", "data-map=")
       expect(Nokogiri::HTML(response.body).at_css("link[rel=canonical]")["href"]).to eq(property_url(hotel))

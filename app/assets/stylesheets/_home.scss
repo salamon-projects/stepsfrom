@@ -20,6 +20,14 @@
   }
 }
 
+.hero__notice {
+  display: inline-block;
+  padding: 1rem 1.25rem;
+  border-radius: $radius;
+  background: rgba($white, 0.12);
+  font-weight: 600;
+}
+
 .country-title {
   margin-top: 1.5rem;
   color: $muted;
