@@ -1,14 +1,32 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  root "home#index"
+
+  resources :destinations, only: :show
+  resources :properties, only: :show
+
+  # Outbound click to a booking site; logged, then redirected.
+  get "go/:listing_id", to: "outbound#show", as: :outbound
+
+  get "how-we-verify", to: "pages#how_we_verify", as: :how_we_verify
+  get "affiliate-disclosure", to: "pages#affiliate_disclosure", as: :affiliate_disclosure
+  get "privacy", to: "pages#privacy", as: :privacy
+  get "sitemap.xml", to: "sitemaps#show", as: :sitemap, defaults: { format: :xml }
+
+  namespace :admin do
+    root "properties#index"
+    resources :destinations, except: :show do
+      post :import, on: :member
+    end
+    resources :properties do
+      member do
+        post :approve
+        post :reject
+        post :reclassify
+      end
+      resources :listings, except: %i[index show]
+    end
+  end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  # root "posts#index"
 end

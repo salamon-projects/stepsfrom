@@ -1,4 +1,15 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  include Pagy::Backend
+
+  helper_method :current_stay
+
+  private
+
+  # The visitor's dates, when they entered valid ones.
+  def current_stay
+    return @current_stay if defined?(@current_stay)
+
+    stay = Stay.from_params(params)
+    @current_stay = stay if stay&.valid?
+  end
 end

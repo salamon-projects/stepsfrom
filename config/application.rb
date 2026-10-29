@@ -36,6 +36,14 @@ module Beachfrontworld
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # Price providers to query (see app/services/prices.rb), e.g. "stay22,agoda"
+    # once an adapter exists for an approved programme.
+    config.x.price_providers = ENV.fetch("PRICE_PROVIDERS", "").split(",").map(&:strip).compact_blank
+
+    # Map tiles; the default is the OpenStreetMap tile server, which is fine for
+    # low traffic but see https://operations.osmfoundation.org/policies/tiles/
+    config.x.map_tile_url = ENV.fetch("MAP_TILE_URL", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+
     config.generators do |g|
       g.template_engine :haml
       g.test_framework :rspec, fixtures: false, view_specs: false, helper_specs: false, routing_specs: false

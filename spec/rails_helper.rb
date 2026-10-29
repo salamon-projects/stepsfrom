@@ -24,6 +24,7 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include ActiveJob::TestHelper
+  config.include ActiveSupport::Testing::TimeHelpers
 
   config.before(:each, type: :feature) { Capybara.current_driver = :rack_test }
 end
