@@ -201,12 +201,13 @@
       border-radius: 6px;
       text-decoration: none;
 
-      &.current {
+      &[aria-current="page"] {
+        border-color: $sea;
         background: $sea;
         color: $white;
       }
 
-      &:not([href]) {
+      &[aria-disabled="true"]:not([aria-current]) {
         color: $muted;
       }
     }

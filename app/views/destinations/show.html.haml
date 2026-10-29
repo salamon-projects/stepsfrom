@@ -53,7 +53,7 @@
         - @properties.each do |property|
           %li= render "destinations/property_card", property:, offers: @offers.fetch(property.id, [])
       .pagination
-        != pagy_nav(@pagy) if @pagy.pages > 1
+        != @pagy.series_nav if @pagy.pages > 1
     %p.ranking-note
       = current_stay && @search.sort == "price" ? "Ordered by the lowest price we know for your dates, then by distance to the water." : "Ordered by waterfront position, then measured distance."
       = link_to "How we rank", how_we_verify_path(anchor: "ranking")

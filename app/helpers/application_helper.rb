@@ -1,6 +1,4 @@
 module ApplicationHelper
-  include Pagy::Frontend
-
   def page_title
     [ content_for(:title).presence, t("site_name") ].compact.join(" · ")
   end

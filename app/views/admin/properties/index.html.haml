@@ -66,4 +66,4 @@
                 = button_to "Reject", reject_admin_property_path(property), class: "button button--small button--danger"
 
 .pagination
-  != pagy_nav(@pagy) if @pagy.pages > 1
+  != @pagy.series_nav if @pagy.pages > 1
