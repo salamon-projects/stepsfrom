@@ -1,0 +1,48 @@
+# PostgreSQL with the PostGIS extension (activerecord-postgis-adapter).
+#
+# The primary database stores geography columns, so it uses the `postgis`
+# adapter. The Solid Cache and Solid Queue databases in production are plain
+# PostgreSQL.
+#
+# A full connection URL can be given in DATABASE_URL; use the postgis://
+# scheme for the primary database, e.g.
+#
+#   DATABASE_URL="postgis://user:pass@localhost/beachfrontworld_development"
+#
+default: &default
+  adapter: postgis
+  encoding: unicode
+  # For details on connection pooling, see Rails configuration guide
+  # https://guides.rubyonrails.org/configuring.html#database-pooling
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV["DB_HOST"] %>
+  username: <%= ENV["DB_USER"] %>
+  password: <%= ENV["DB_PASSWORD"] %>
+
+development:
+  <<: *default
+  database: beachfrontworld_development
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *default
+  database: beachfrontworld_test
+
+production:
+  primary: &primary_production
+    <<: *default
+    database: beachfrontworld_production
+    username: beachfrontworld
+    password: <%= ENV["BEACHFRONTWORLD_DATABASE_PASSWORD"] %>
+  cache:
+    <<: *primary_production
+    adapter: postgresql
+    database: beachfrontworld_production_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    adapter: postgresql
+    database: beachfrontworld_production_queue
+    migrations_paths: db/queue_migrate
