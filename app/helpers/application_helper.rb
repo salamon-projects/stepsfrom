@@ -22,6 +22,16 @@ module ApplicationHelper
     current_stay ? current_stay.to_params : {}
   end
 
+  # Only http(s) URLs become links; anything else is shown as text.
+  def external_link(text, url)
+    uri = URI.parse(url.to_s)
+    return text unless uri.is_a?(URI::HTTP)
+
+    link_to text, uri.to_s, rel: "noopener noreferrer", target: "_blank"
+  rescue URI::InvalidURIError
+    text
+  end
+
   def map_tag(data, css_class: "map", label: nil)
     tag.div(class: css_class, role: "img", "aria-label": label,
             data: { map: data.merge(tiles: Rails.configuration.x.map_tile_url).to_json })

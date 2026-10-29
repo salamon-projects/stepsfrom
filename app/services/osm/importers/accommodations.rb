@@ -40,7 +40,7 @@ module Osm
 
       def details(tags)
         stars = tags["stars"].to_s[/\A[1-5]/]&.to_i
-        website = [ tags["website"], tags["contact:website"] ].compact.find { |url| url.match?(%r{\Ahttps?://}i) }
+        website = [ tags["website"], tags["contact:website"] ].compact.map(&:strip).find { |url| url.match?(Property::WEBSITE_FORMAT) }
         street = [ tags["addr:street"], tags["addr:housenumber"] ].compact.join(" ").presence
         address = [ street, tags["addr:city"] || tags["addr:place"] ].compact.join(", ").presence
 

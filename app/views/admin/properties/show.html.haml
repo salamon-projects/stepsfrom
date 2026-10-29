@@ -90,7 +90,7 @@
           - @property.listings.sort_by(&:provider).each do |listing|
             %tr
               %td= listing.provider_name
-              %td= link_to listing.url.truncate(60), listing.url, rel: "noopener", target: "_blank"
+              %td= external_link(listing.url.truncate(60), listing.url)
               %td= { true => "Yes", false => "No", nil => "?" }.fetch(listing.claims_beachfront)
               %td= listing.reported_lonlat ? "#{listing.reported_latitude.round(5)}, #{listing.reported_longitude.round(5)}" : "–"
               %td= listing.active? ? "Yes" : "No"

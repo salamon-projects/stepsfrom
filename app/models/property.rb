@@ -5,6 +5,7 @@ class Property < ApplicationRecord
   CATEGORIES = %w[direct near walkable not_waterfront unknown].freeze
   LISTED_CATEGORIES = %w[direct near walkable].freeze
   QA_STATUSES = %w[pending approved rejected].freeze
+  WEBSITE_FORMAT = %r{\Ahttps?://[^\s]+\z}i
 
   belongs_to :destination
   belongs_to :water_feature, optional: true
@@ -26,7 +27,7 @@ class Property < ApplicationRecord
   validates :stars, numericality: { only_integer: true, in: 1..5 }, allow_nil: true
   validates :latitude, numericality: { in: -90..90 }, allow_nil: true
   validates :longitude, numericality: { in: -180..180 }, allow_nil: true
-  validates :website, format: { with: %r{\Ahttps?://}i }, allow_blank: true
+  validates :website, format: { with: WEBSITE_FORMAT }, allow_blank: true
 
   after_commit :enqueue_classification, on: %i[create update], if: :geometry_changed?
 
