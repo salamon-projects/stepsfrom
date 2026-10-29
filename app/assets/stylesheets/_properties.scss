@@ -1,0 +1,292 @@
+@use "variables" as *;
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: $slate;
+  color: $white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--direct {
+    background: $teal;
+  }
+
+  &--near {
+    background: $blue;
+  }
+
+  &--walkable {
+    background: $slate;
+  }
+
+  &--not_waterfront,
+  &--unknown {
+    background: #9aa7b2;
+  }
+
+  &--large {
+    padding: 0.35rem 0.9rem;
+    font-size: 1rem;
+  }
+}
+
+.waterfront-summary {
+  &__distance {
+    margin: 0.5rem 0 0.25rem;
+    font-weight: 700;
+  }
+}
+
+.waterfront-notes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+
+  li {
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  li::before {
+    position: absolute;
+    left: 0;
+  }
+
+  &__warning {
+    color: $warn;
+
+    &::before {
+      content: "!";
+      font-weight: 800;
+    }
+  }
+
+  &__info {
+    color: $muted;
+
+    &::before {
+      content: "•";
+    }
+  }
+}
+
+.property-list {
+  display: grid;
+  gap: $gap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.property-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $white;
+
+  @media (min-width: $bp-md) {
+    grid-template-columns: 1fr 16rem;
+  }
+
+  &__name {
+    margin-bottom: 0.15rem;
+    font-size: 1.25rem;
+
+    a {
+      color: $ink;
+      text-decoration: none;
+
+      &:hover {
+        color: $sea;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__kind {
+    margin-bottom: 0.6rem;
+    color: $muted;
+    font-size: 0.9rem;
+  }
+}
+
+.offers {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.offer__link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid $border;
+  border-radius: 8px;
+  color: $ink;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    border-color: $sea;
+  }
+}
+
+.offer--best .offer__link {
+  border: 2px solid $teal;
+  background: #eef8f6;
+}
+
+.offer__provider {
+  font-weight: 700;
+}
+
+.offer__price {
+  font-weight: 800;
+  text-align: right;
+
+  small {
+    display: block;
+    color: $muted;
+    font-weight: 400;
+  }
+}
+
+.offer__cta {
+  color: $sea;
+  font-weight: 600;
+}
+
+.offer__best {
+  grid-column: 1 / -1;
+  color: $teal;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.offers__note {
+  margin: 0.5rem 0 0;
+  color: $muted;
+  font-size: 0.85rem;
+}
+
+.ranking-note {
+  margin-top: 1.5rem;
+  color: $muted;
+  font-size: 0.9rem;
+}
+
+.pagination {
+  margin-top: 1.5rem;
+
+  .pagy {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+
+    a {
+      padding: 0.3rem 0.7rem;
+      border: 1px solid $border;
+      border-radius: 6px;
+      text-decoration: none;
+
+      &.current {
+        background: $sea;
+        color: $white;
+      }
+
+      &:not([href]) {
+        color: $muted;
+      }
+    }
+  }
+}
+
+.checks {
+  margin-top: 1.5rem;
+
+  &__title {
+    font-size: 1.2rem;
+  }
+}
+
+.checklist {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    position: relative;
+    padding: 0.35rem 0 0.35rem 1.8rem;
+
+    &::before {
+      position: absolute;
+      left: 0;
+      width: 1.3rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    &--ok::before {
+      content: "✓";
+      color: $teal;
+    }
+
+    &--warn {
+      color: $warn;
+
+      &::before {
+        content: "!";
+      }
+    }
+
+    &--info::before {
+      content: "i";
+      color: $blue;
+    }
+  }
+}
+
+.booking-panel {
+  padding: 1.2rem;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $white;
+
+  &__title {
+    font-size: 1.2rem;
+  }
+
+  .filter-form {
+    margin-bottom: 1rem;
+    padding: 0;
+    border: 0;
+  }
+
+  &__disclosure {
+    margin: 1rem 0 0;
+    color: $muted;
+    font-size: 0.8rem;
+  }
+}
+
+.badge-legend {
+  dt {
+    margin-top: 1rem;
+  }
+
+  dd {
+    margin: 0.3rem 0 0;
+  }
+}

@@ -18,7 +18,7 @@ module Prices
 
       def quotes_for(listings, stay)
         listings.map do |listing|
-          seed = Digest::SHA256.hexdigest([ listing.id, stay.check_in, stay.adults ].join(":")).to_i(16)
+          seed = Digest::SHA256.hexdigest([ listing.id, listing.provider, stay.check_in, stay.adults ].join(":")).to_i(16)
           nightly_cents = 6_000 + (seed % 18_000)
           Quote.new(listing_id: listing.id, total_cents: nightly_cents * stay.nights, currency: "EUR")
         end

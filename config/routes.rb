@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   root "home#index"
 
+  get "search", to: "search#show", as: :search
   resources :destinations, only: :show
   resources :properties, only: :show
 
@@ -11,6 +12,7 @@ Rails.application.routes.draw do
   get "affiliate-disclosure", to: "pages#affiliate_disclosure", as: :affiliate_disclosure
   get "privacy", to: "pages#privacy", as: :privacy
   get "sitemap.xml", to: "sitemaps#show", as: :sitemap, defaults: { format: :xml }
+  get "robots.txt", to: "pages#robots", as: :robots, defaults: { format: :text }
 
   namespace :admin do
     root "properties#index"

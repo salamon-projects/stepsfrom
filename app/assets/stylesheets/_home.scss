@@ -1,0 +1,97 @@
+@use "variables" as *;
+
+.hero {
+  padding: 3rem 0 3.5rem;
+  background:
+    radial-gradient(circle at 85% 10%, rgba($white, 0.18), transparent 40%),
+    linear-gradient(160deg, $sea 0%, #155e75 55%, #1d8a8a 100%);
+  color: $white;
+
+  &__title {
+    max-width: 40rem;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+  }
+
+  &__lead {
+    max-width: 40rem;
+    margin-bottom: 2rem;
+    color: #d8eef2;
+    font-size: 1.15rem;
+  }
+}
+
+.country-title {
+  margin-top: 1.5rem;
+  color: $muted;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.destination-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: $gap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.destination-tile__link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  height: 100%;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid $border;
+  border-radius: $radius;
+  color: $ink;
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover,
+  &:focus-visible {
+    border-color: $sea;
+    box-shadow: 0 6px 18px rgba($sea, 0.12);
+  }
+}
+
+.destination-tile__name {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.destination-tile__sea,
+.destination-tile__counts {
+  color: $muted;
+  font-size: 0.9rem;
+}
+
+.steps {
+  display: grid;
+  gap: $gap;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+
+  @media (min-width: $bp-md) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.step {
+  padding: 1.2rem;
+  border-radius: $radius;
+  background: $white;
+  counter-increment: step;
+
+  &__title::before {
+    content: counter(step) ". ";
+    color: $teal;
+  }
+
+  &__title {
+    font-size: 1.1rem;
+  }
+}

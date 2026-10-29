@@ -1,0 +1,123 @@
+@use "variables" as *;
+
+.site-header {
+  border-bottom: 1px solid $border;
+  background: $white;
+
+  &__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+  }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $sea;
+  font-weight: 800;
+  font-size: 1.2rem;
+  text-decoration: none;
+
+  &__mark {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: $sea;
+    color: $white;
+  }
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.25rem;
+
+  a {
+    color: $ink;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      color: $sea;
+      text-decoration: underline;
+    }
+  }
+}
+
+.site-footer {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  background: $sea;
+  color: #d8e6ee;
+  font-size: 0.9rem;
+
+  a {
+    color: $white;
+  }
+
+  &__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.page-header {
+  padding: 2rem 0 1.5rem;
+  background: linear-gradient(180deg, $sea-light, $white);
+
+  &__title {
+    font-size: clamp(1.7rem, 4vw, 2.4rem);
+  }
+
+  &__lead {
+    color: $muted;
+    font-size: 1.1rem;
+  }
+
+  &__summary {
+    max-width: 46rem;
+  }
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  color: $muted;
+  font-size: 0.9rem;
+}
+
+.listing-layout,
+.property-layout {
+  display: grid;
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+}
+
+@media (min-width: $bp-lg) {
+  .listing-layout {
+    grid-template-columns: 17rem 1fr;
+    align-items: start;
+  }
+
+  .property-layout {
+    grid-template-columns: 1fr 22rem;
+    align-items: start;
+  }
+
+  .listing-layout__filters,
+  .property-layout__booking {
+    position: sticky;
+    top: 1rem;
+  }
+}

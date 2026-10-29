@@ -1,0 +1,8 @@
+-# locals: (property:, offers:)
+%article.property-card
+  .property-card__main
+    %h2.property-card__name= link_to property.name, property_path(property, stay_params)
+    %p.property-card__kind= property_kind(property)
+    = render "shared/waterfront_summary", property:
+  .property-card__offers
+    = render "shared/offers", offers:

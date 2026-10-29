@@ -1,0 +1,52 @@
+- content_for :title, "Verified beachfront hotels and apartments"
+- content_for :description, "Beachfront stays in Croatia and Greece, each measured against map data so you know exactly how far the water is. Compare booking sites in one place."
+
+%section.hero
+  .container
+    %h1.hero__title Only stays that are really on the water.
+    %p.hero__lead
+      Booking sites call almost anything “beachfront”. We measure every property’s distance to the water from
+      map data, check for roads in between, and only list the ones that pass.
+    = form_with url: search_path, method: :get, class: "search-form" do
+      .field.field--wide
+        = label_tag :destination, t("search.destination")
+        = select_tag :destination,
+          grouped_options_for_select(@destinations.group_by(&:country_name).transform_values { |ds| ds.map { |d| [ d.name, d.slug ] } }),
+          prompt: "Where to?", required: true
+      = render "shared/stay_fields", stay: nil
+      .field.field--submit
+        = submit_tag t("search.submit"), name: nil, class: "button button--primary"
+
+%section.section#destinations
+  .container
+    %h2.section__title Destinations
+    - if @destinations.empty?
+      %p.empty-state We are still measuring our first coastline. Check back soon.
+    - @destinations.group_by(&:country_name).each do |country, destinations|
+      %h3.country-title= country
+      %ul.destination-grid
+        - destinations.each do |destination|
+          %li.destination-tile
+            = link_to destination_path(destination), class: "destination-tile__link" do
+              %span.destination-tile__name= destination.name
+              - if destination.sea_name.present?
+                %span.destination-tile__sea= destination.sea_name
+              %span.destination-tile__counts
+                = pluralize(@listed_counts.fetch(destination.id, 0), "verified stay")
+                - if (direct = @direct_counts.fetch(destination.id, 0)).positive?
+                  = "· #{direct} right on the beach"
+
+%section.section.section--sand
+  .container
+    %h2.section__title How we verify
+    %ol.steps
+      %li.step
+        %h3.step__title Measure
+        %p We measure the distance from the building to the shoreline using OpenStreetMap data — not the booking site’s label.
+      %li.step
+        %h3.step__title Check what’s in between
+        %p A road or railway between the property and the water rules out “beachfront”. Promenades and beach surfaces are noted too.
+      %li.step
+        %h3.step__title Review
+        %p A person reviews every property before it is listed, and again when the measurement changes.
+    %p= link_to "Read the full method", how_we_verify_path, class: "text-link"

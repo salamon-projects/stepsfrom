@@ -1,0 +1,34 @@
+@use "variables" as *;
+
+.map {
+  width: 100%;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $sea-light;
+
+  &--overview {
+    height: 18rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &--property {
+    height: 22rem;
+    margin-top: 1.25rem;
+
+    @media (min-width: $bp-md) {
+      height: 28rem;
+    }
+  }
+}
+
+.leaflet-tooltip.map-label {
+  border: 0;
+  background: $coral;
+  color: $white;
+  font-weight: 700;
+  box-shadow: none;
+
+  &::before {
+    display: none;
+  }
+}

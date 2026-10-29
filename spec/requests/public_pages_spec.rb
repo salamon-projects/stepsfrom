@@ -1,0 +1,151 @@
+require "rails_helper"
+
+RSpec.describe "Public pages" do
+  let(:destination) { create(:destination, name: "Makarska Riviera", sea_name: "Adriatic Sea") }
+  let!(:hotel) do
+    create(:property, :approved, :direct, destination:, name: "Hotel Riva", stars: 4, distance_to_water_m: 18,
+                                         beach_surface: "pebble", crosses_promenade: true)
+  end
+  let(:check_in) { Date.current + 30 }
+  let(:stay_params) { { check_in: check_in.iso8601, check_out: (check_in + 3).iso8601, adults: 2 } }
+
+  describe "home" do
+    it "lists published destinations with verified counts" do
+      create(:destination, name: "Hidden Coast", published: false)
+
+      get root_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Makarska Riviera", "1 verified stay", "1 right on the beach")
+      expect(response.body).not_to include("Hidden Coast")
+    end
+
+    it "sends the search form to the destination with the stay" do
+      get search_path(destination: destination.slug, **stay_params)
+
+      expect(response).to redirect_to(destination_path(destination, stay_params))
+    end
+
+    it "asks for a destination when none is chosen" do
+      get search_path(destination: "")
+
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to be_present
+    end
+  end
+
+  describe "destination" do
+    it "shows only published properties with their measurement" do
+      create(:property, :direct, destination:, name: "Pending Hotel")
+      create(:property, :approved, :not_waterfront, destination:, name: "Inland Hotel")
+
+      get destination_path(destination)
+
+      expect(response.body).to include("Hotel Riva", "Verified beachfront", "Measured: 18 m to the Adriatic Sea",
+                                       "Pebble beach", "A promenade or path runs in front")
+      expect(response.body).not_to include("Pending Hotel", "Inland Hotel")
+      expect(response.body).to include("data-map=")
+    end
+
+    it "links offers through the outbound redirect, marked sponsored" do
+      listing = create(:listing, property: hotel)
+
+      get destination_path(destination)
+
+      document = Nokogiri::HTML(response.body)
+      link = document.at_css("a.offer__link")
+      expect(link["href"]).to eq(outbound_path(listing))
+      expect(link["rel"]).to include("sponsored")
+    end
+
+    it "orders by price when dates are given and prices are known" do
+      cheap = create(:property, :approved, :walkable, destination:, name: "Budget Rooms")
+      create(:listing, property: hotel)
+      create(:listing, property: cheap)
+      Rails.configuration.x.price_providers = %w[fake]
+      allow_any_instance_of(Prices::Providers::Fake).to receive(:quotes_for) do |_, listings, _|
+        listings.map { |l| Prices::Quote.new(listing_id: l.id, total_cents: l.property_id == cheap.id ? 20_000 : 50_000, currency: "EUR") }
+      end
+
+      get destination_path(destination, stay_params)
+
+      names = Nokogiri::HTML(response.body).css(".property-card__name").map(&:text)
+      expect(names).to eq([ "Budget Rooms", "Hotel Riva" ])
+      expect(response.body).to include("€200", "Best price", "noindex")
+      expect(response.body).to include(outbound_path(Listing.find_by(property: cheap), stay_params).gsub("&", "&amp;"))
+    ensure
+      Rails.configuration.x.price_providers = []
+    end
+
+    it "shows a validation message for impossible dates" do
+      get destination_path(destination, check_in: check_in.iso8601, check_out: (check_in - 1).iso8601)
+
+      expect(response.body).to include("Check out must be after check-in")
+    end
+
+    it "returns 404 for unpublished destinations" do
+      destination.update!(published: false)
+
+      get destination_path(destination)
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe "property" do
+    it "shows the checks and the map" do
+      get property_path(hotel)
+
+      expect(response.body).to include("Hotel Riva", "What we checked", "No road or railway between", "data-map=")
+      expect(Nokogiri::HTML(response.body).at_css("link[rel=canonical]")["href"]).to eq(property_url(hotel))
+    end
+
+    it "warns about a road between the property and the water" do
+      hotel.update_columns(crosses_road: true, waterfront_category: "near")
+
+      get property_path(hotel)
+
+      expect(response.body).to include("A road or railway runs between the property and the water")
+    end
+
+    it "returns 404 for properties not yet approved" do
+      hotel.update_columns(qa_status: "pending")
+
+      get property_path(hotel)
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe "static pages" do
+    it "explains the method with the configured thresholds" do
+      get how_we_verify_path
+
+      expect(response.body).to include("How results are ordered", "at most #{Waterfront.config.fetch(:direct_max_m)} m away")
+    end
+
+    it "renders the disclosure and privacy pages" do
+      get affiliate_disclosure_path
+      expect(response).to have_http_status(:ok)
+
+      get privacy_path
+      expect(response.body).to include("IP address")
+    end
+
+    it "lists published pages in the sitemap" do
+      create(:property, :direct, destination:, name: "Pending Hotel")
+
+      get sitemap_path
+
+      expect(response.media_type).to eq("application/xml")
+      expect(response.body).to include(destination_url(destination), property_url(hotel))
+      expect(response.body.scan("<url>").size).to eq(4)
+    end
+
+    it "points robots to the sitemap and away from redirects" do
+      get "/robots.txt"
+
+      expect(response.body).to include("Disallow: /go/", "Sitemap: #{sitemap_url}")
+    end
+  end
+end

@@ -1,0 +1,26 @@
+!!!
+%html{ lang: "en" }
+  %head
+    %meta{ charset: "utf-8" }
+    %title= page_title
+    %meta{ name: "viewport", content: "width=device-width,initial-scale=1" }
+    %meta{ name: "description", content: page_description }
+    - if content_for?(:noindex)
+      %meta{ name: "robots", content: "noindex" }
+    - else
+      %link{ rel: "canonical", href: canonical_url }
+    = csrf_meta_tags
+    = csp_meta_tag
+    %link{ rel: "icon", href: "/icon.png", type: "image/png" }
+    %link{ rel: "icon", href: "/icon.svg", type: "image/svg+xml" }
+    %link{ rel: "apple-touch-icon", href: "/icon.png" }
+    = stylesheet_link_tag "application"
+    = yield :head
+  %body{ class: content_for(:body_class) }
+    = render "layouts/header"
+    - flash.each do |type, message|
+      .flash{ class: "flash--#{type}", role: "status" }
+        .container= message
+    %main#main= yield
+    = render "layouts/footer"
+    = yield :scripts

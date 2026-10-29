@@ -10,7 +10,7 @@ class Listing < ApplicationRecord
   attribute :reported_longitude, :float
 
   before_validation :build_reported_lonlat
-  after_initialize :load_reported_coordinates, if: -> { reported_lonlat.present? && reported_latitude.nil? }
+  after_initialize :load_reported_coordinates, if: -> { has_attribute?(:reported_lonlat) && reported_lonlat.present? && reported_latitude.nil? }
 
   validates :url, presence: true
   validates :provider, uniqueness: { scope: :property_id }

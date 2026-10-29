@@ -1,0 +1,164 @@
+@use "variables" as *;
+
+.admin {
+  background: #f5f7f9;
+
+  .site-header {
+    background: $ink;
+
+    .brand,
+    .site-nav a {
+      color: $white;
+    }
+  }
+}
+
+.admin-page {
+  padding: 1.5rem 1rem 3rem;
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  .field {
+    min-width: 10rem;
+  }
+}
+
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+
+  a {
+    padding: 0.3rem 0.8rem;
+    border: 1px solid $border;
+    border-radius: 999px;
+    background: $white;
+    text-decoration: none;
+
+    &.is-active {
+      background: $sea;
+      color: $white;
+    }
+  }
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $white;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th,
+  td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid $border;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: #eef2f5;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+
+    form {
+      margin: 0;
+    }
+  }
+}
+
+.admin-card {
+  margin-bottom: 1.25rem;
+  padding: 1.2rem;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $white;
+
+  h2 {
+    font-size: 1.15rem;
+  }
+}
+
+.admin-form {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 44rem;
+
+  &__row {
+    display: grid;
+    gap: 0.9rem;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    }
+  }
+
+  .checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.form-errors {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  background: #fbe9e4;
+  color: $warn;
+}
+
+.flag {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  background: #fbe9e4;
+  color: $warn;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.measure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0;
+
+  dt {
+    color: $muted;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+}

@@ -1,0 +1,24 @@
+-# locals: (offers:)
+- if offers.empty?
+  %p.offers__note= t("offers.none")
+- else
+  %ul.offers
+    - offers.each do |offer|
+      %li.offer{ class: ("offer--best" if offer.best) }
+        = link_to outbound_path(offer.listing, stay_params), class: "offer__link", rel: "sponsored nofollow noopener", target: "_blank" do
+          %span.offer__provider= offer.listing.provider_name
+          - if offer.quote
+            %span.offer__price
+              = format_price(offer.quote.total_cents, offer.quote.currency)
+              %small= "#{current_stay.nights} #{'night'.pluralize(current_stay.nights)}"
+          - else
+            %span.offer__cta= current_stay ? "Check price" : "View"
+          - if offer.best
+            %span.offer__best= t("offers.best_price")
+  - priced = offers.select(&:quote)
+  - if current_stay.nil?
+    %p.offers__note= t("offers.enter_dates")
+  - elsif priced.empty?
+    %p.offers__note= t("offers.no_prices_yet")
+  - else
+    %p.offers__note= t("offers.checked_ago", time: time_ago_in_words(priced.map { |o| o.quote.fetched_at }.min))

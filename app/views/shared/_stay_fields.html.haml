@@ -1,0 +1,13 @@
+-# locals: (stay:)
+- today = Date.current.iso8601
+.field
+  = label_tag :check_in, t("search.check_in")
+  = date_field_tag :check_in, stay&.check_in, min: today
+.field
+  = label_tag :check_out, t("search.check_out")
+  = date_field_tag :check_out, stay&.check_out, min: today
+.field.field--narrow
+  = label_tag :adults, t("search.adults")
+  = select_tag :adults, options_for_select(1..Stay::MAX_ADULTS, stay&.adults || 2)
+- if stay && !stay.valid?
+  %p.form-error{ role: "alert" }= stay.errors.full_messages.to_sentence

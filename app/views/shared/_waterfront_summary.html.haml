@@ -1,0 +1,10 @@
+-# locals: (property:, large: false)
+.waterfront-summary
+  = waterfront_badge(property, large:)
+  - if (distance = measured_distance(property))
+    %p.waterfront-summary__distance= distance
+  - notes = waterfront_notes(property)
+  - if notes.any?
+    %ul.waterfront-notes
+      - notes.each do |level, text|
+        %li{ class: "waterfront-notes__#{level}" }= text

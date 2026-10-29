@@ -1,0 +1,58 @@
+- content_for :title, "How we verify and rank"
+- content_for :description, "How Beachfront World measures waterfront properties, what each badge means and how results are ordered."
+
+%section.page-header
+  .container
+    %h1.page-header__title How we verify and rank
+    %p.page-header__lead Our listings are based on measurements, not on what booking sites say.
+
+.container.prose
+  %h2 Where the data comes from
+  %p
+    Properties, coastlines, lakes, beaches and roads come from
+    = link_to "OpenStreetMap", "https://www.openstreetmap.org/copyright", rel: "noopener"
+    (© OpenStreetMap contributors, ODbL). We do not copy content from booking sites.
+
+  %h2 How we measure
+  %p
+    We take the property’s building outline (or its position, when no outline is mapped) and measure the shortest
+    distance to the shoreline. We then look at the straight line between the two: if a road or railway crosses it,
+    the property cannot be “beachfront”, however close it is. Promenades, footpaths and the beach surface are shown
+    for information.
+  %p
+    When a booking site reports a position for the property more than #{@config.fetch(:coordinate_mismatch_m)} m from
+    ours, we check it by hand. Every property is reviewed by a person before it is listed, and again whenever a new
+    measurement changes its result.
+
+  %h2 What the badges mean
+  %dl.badge-legend
+    %dt
+      %span.badge.badge--direct= t("waterfront.categories.direct")
+    %dd
+      No road or railway in between, and the water is at most #{@config.fetch(:direct_max_m)} m away — or up to
+      #{@config.fetch(:direct_beach_max_m)} m across a mapped beach that starts within
+      #{@config.fetch(:beach_adjacent_m)} m of the property.
+    %dt
+      %span.badge.badge--near= t("waterfront.categories.near")
+    %dd The water is at most #{@config.fetch(:near_max_m)} m away, but something (usually a road) lies in between, or it is just beyond the beachfront limits.
+    %dt
+      %span.badge.badge--walkable= t("waterfront.categories.walkable")
+    %dd The water is at most #{@config.fetch(:walkable_max_m)} m away.
+  %p Anything further than #{@config.fetch(:walkable_max_m)} m is not listed, even if a booking site calls it beachfront.
+
+  %h2#ranking How results are ordered
+  %ul
+    %li Without dates: by badge (beachfront first), then by measured distance to the water.
+    %li With dates: by the lowest price we have for your dates, then by badge and distance. Properties without a known price come last.
+    %li You can switch between the two with “Sort by”.
+  %p
+    No property can pay to be listed or to rank higher. We earn a commission from booking sites when you book
+    through our links (see the
+    = succeed ")." do
+      = link_to "affiliate disclosure", affiliate_disclosure_path
+    Commissions never influence measurements, badges or ordering.
+
+  %h2 Prices
+  %p
+    Prices come only from official partner programmes of the booking sites. They are cached for a few hours and may
+    change; the booking site always shows the final price.

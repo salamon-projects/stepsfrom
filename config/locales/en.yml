@@ -1,4 +1,7 @@
 en:
+  site_name: Beachfront World
+  tagline: Only stays that are really on the water.
+
   activerecord:
     errors:
       messages:
@@ -18,6 +21,27 @@ en:
     GR: Greece
     HR: Croatia
 
+  waterfront:
+    categories:
+      direct: Verified beachfront
+      near: Steps from the water
+      walkable: Short walk to the water
+      not_waterfront: Not waterfront
+      unknown: Not measured yet
+    category_hints:
+      direct: Nothing but beach or rocks between the property and the water.
+      near: The water is at most %{near} m away.
+      walkable: The water is at most %{walkable} m away.
+    measured: "Measured: %{distance} m to %{water}"
+    measured_short: "%{distance} m to the water"
+    on_the_water: "Right on %{water}"
+    road_between: A road or railway runs between the property and the water
+    promenade_between: A promenade or path runs in front of the property
+    beach_surfaces:
+      sand: Sandy beach
+      pebble: Pebble beach
+      rock: Rocky shore
+
   properties:
     kinds:
       hotel: Hotel
@@ -33,3 +57,33 @@ en:
       sea: the sea
       lake: the lake
       river: the river
+
+  offers:
+    check_prices: Check prices on %{provider}
+    view_on: View on %{provider}
+    from_price: "%{price} on %{provider}"
+    best_price: Best price
+    checked_ago: checked %{time} ago
+    enter_dates: Enter your dates to compare prices.
+    no_prices_yet: We don't have live prices for these dates yet — check them on the booking sites.
+    none: Not bookable through our partners yet.
+    disclosure: We may earn a commission when you book through these links. It never affects our measurements or the order of results.
+
+  search:
+    destination: Destination
+    check_in: Check-in
+    check_out: Check-out
+    adults: Adults
+    submit: Search
+    update: Update
+    category: Waterfront
+    any_category: Any waterfront
+    surface: Beach
+    any_surface: Any beach
+    kind: Type
+    any_kind: Any type
+    sort: Sort by
+    sorts:
+      price: Lowest price
+      waterfront: Closest to the water
+    choose_destination: Please choose a destination.

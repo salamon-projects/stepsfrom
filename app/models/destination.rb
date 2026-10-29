@@ -19,7 +19,7 @@ class Destination < ApplicationRecord
   scope :published, -> { where(published: true) }
   scope :ordered, -> { order(:position, :name) }
 
-  after_initialize :load_bbox_from_area, if: -> { area.present? && !bbox_given? }
+  after_initialize :load_bbox_from_area, if: -> { has_attribute?(:area) && area.present? && !bbox_given? }
 
   # [south, west, north, east], the order Overpass expects.
   def bbox

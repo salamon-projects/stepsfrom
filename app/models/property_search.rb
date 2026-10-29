@@ -20,11 +20,17 @@ class PropertySearch
     @sort || (stay ? "price" : "waterfront")
   end
 
-  def results
-    scope = destination.properties.published.includes(:destination, :active_listings)
+  # Matching properties, unordered.
+  def filtered
+    scope = destination.properties.published
     scope = scope.where(waterfront_category: category) if category
     scope = scope.where(beach_surface: surface) if surface
     scope = scope.where(kind:) if kind
+    scope
+  end
+
+  def results
+    scope = filtered.includes(:destination, :active_listings)
     return scope.by_waterfront unless stay
 
     scope = scope.select("properties.*", "(#{best_price_sql}) AS best_price_cents")

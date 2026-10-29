@@ -20,7 +20,7 @@ class Property < ApplicationRecord
   attribute :longitude, :float
 
   before_validation :build_lonlat_from_coordinates, if: :coordinates_entered?
-  after_initialize :load_coordinates, if: -> { lonlat.present? && latitude.nil? }
+  after_initialize :load_coordinates, if: -> { has_attribute?(:lonlat) && lonlat.present? && latitude.nil? }
 
   validates :name, :lonlat, presence: true
   validates :stars, numericality: { only_integer: true, in: 1..5 }, allow_nil: true
@@ -64,8 +64,12 @@ class Property < ApplicationRecord
     coord_mismatch_m.to_i > Waterfront.config.fetch(:coordinate_mismatch_m)
   end
 
+  # "the Adriatic Sea", "Lake Bled", or a generic "the sea".
   def water_display_name
-    water_name.presence || destination.sea_name.presence || I18n.t("properties.water_kinds.#{water_kind || 'sea'}")
+    return water_name if water_name.present?
+    return "the #{destination.sea_name}" if destination.sea_name.present? && (water_kind.nil? || water_kind == "sea")
+
+    I18n.t("properties.water_kinds.#{water_kind || 'sea'}")
   end
 
   private

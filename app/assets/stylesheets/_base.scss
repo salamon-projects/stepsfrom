@@ -1,0 +1,92 @@
+@use "variables" as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: $white;
+  color: $ink;
+  font-family: $font;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+h1, h2, h3 {
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+a {
+  color: $sea;
+}
+
+img {
+  max-width: 100%;
+}
+
+.container {
+  width: 100%;
+  max-width: $container;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.section {
+  padding: 2.5rem 0;
+
+  &--sand {
+    background: $sand;
+  }
+
+  &__title {
+    font-size: 1.6rem;
+  }
+}
+
+.text-link {
+  font-weight: 600;
+}
+
+.empty-state {
+  padding: 2rem;
+  border: 1px dashed $border;
+  border-radius: $radius;
+  color: $muted;
+  text-align: center;
+}
+
+.flash {
+  padding: 0.75rem 0;
+  background: $sea-light;
+
+  &--alert {
+    background: #fbe9e4;
+    color: $warn;
+  }
+}
+
+.prose {
+  max-width: 46rem;
+  padding-bottom: 3rem;
+
+  h2 {
+    margin-top: 2rem;
+    font-size: 1.3rem;
+  }
+
+  li {
+    margin-bottom: 0.4rem;
+  }
+}
