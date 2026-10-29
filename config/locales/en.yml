@@ -1,31 +1,35 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  activerecord:
+    errors:
+      messages:
+        invalid_for_provider: "is not a %{provider} address"
+  activemodel:
+    errors:
+      models:
+        stay:
+          attributes:
+            check_in:
+              in_the_past: "can't be in the past"
+            check_out:
+              before_check_in: "must be after check-in"
+              too_long: "must be at most %{count} nights after check-in"
+
+  countries:
+    GR: Greece
+    HR: Croatia
+
+  properties:
+    kinds:
+      hotel: Hotel
+      resort: Resort
+      apartment: Apartments
+      guest_house: Guest house
+      hostel: Hostel
+      motel: Motel
+      villa: Villa
+      chalet: Chalet
+      camp_site: Campsite
+    water_kinds:
+      sea: the sea
+      lake: the lake
+      river: the river

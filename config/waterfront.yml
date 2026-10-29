@@ -1,0 +1,17 @@
+# Thresholds for the waterfront classification (metres). See
+# Waterfront::Classifier and the "How we verify" page; keep them in sync.
+shared:
+  # Water further than this is not looked up at all.
+  search_radius_m: 1000
+  # Direct waterfront: no road or railway between the property and the water,
+  # and the water is at most this far...
+  direct_max_m: 50
+  # ...or, on a wide beach, at most this far when the property touches the
+  # beach (within beach_adjacent_m).
+  direct_beach_max_m: 150
+  beach_adjacent_m: 20
+  near_max_m: 100
+  walkable_max_m: 300
+  # Coordinates reported by a booking site further than this from ours flag
+  # the property for review.
+  coordinate_mismatch_m: 150

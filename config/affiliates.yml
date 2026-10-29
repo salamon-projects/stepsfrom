@@ -1,0 +1,63 @@
+# Booking sites (OTAs) we link to, in default button order.
+#
+# params: query parameters added to the listing URL for a stay. Placeholders:
+#   {check_in} {check_out} (YYYY-MM-DD), {adults}, {nights}
+#
+# tracking_env: name of the ENV variable holding the affiliate tracking URL
+#   template once the programme has approved us. The template must contain
+#   {url}, which is replaced by the URL-encoded target, e.g. for CJ:
+#   https://www.anrdoezrs.net/click-<PID>-<AD_ID>?url={url}
+#   Without it, buttons link to the booking site directly (untracked).
+shared:
+  booking:
+    name: Booking.com
+    host_pattern: '(\A|\.)booking\.com\z'
+    params:
+      checkin: "{check_in}"
+      checkout: "{check_out}"
+      group_adults: "{adults}"
+      group_children: "0"
+      no_rooms: "1"
+    tracking_env: BOOKING_TRACKING_URL
+  expedia:
+    name: Expedia
+    host_pattern: '(\A|\.)expedia\.[a-z]{2,3}(\.[a-z]{2})?\z'
+    params:
+      chkin: "{check_in}"
+      chkout: "{check_out}"
+      rm1: "a{adults}"
+    tracking_env: EXPEDIA_TRACKING_URL
+  hotels_com:
+    name: Hotels.com
+    host_pattern: '(\A|\.)hotels\.com\z'
+    params:
+      chkin: "{check_in}"
+      chkout: "{check_out}"
+      rm1: "a{adults}"
+    tracking_env: HOTELS_COM_TRACKING_URL
+  vrbo:
+    name: Vrbo
+    host_pattern: '(\A|\.)vrbo\.com\z'
+    params:
+      startDate: "{check_in}"
+      endDate: "{check_out}"
+      adults: "{adults}"
+    tracking_env: VRBO_TRACKING_URL
+  agoda:
+    name: Agoda
+    host_pattern: '(\A|\.)agoda\.com\z'
+    params:
+      checkIn: "{check_in}"
+      los: "{nights}"
+      adults: "{adults}"
+      rooms: "1"
+    tracking_env: AGODA_TRACKING_URL
+  trip_com:
+    name: Trip.com
+    host_pattern: '(\A|\.)trip\.com\z'
+    params:
+      checkIn: "{check_in}"
+      checkOut: "{check_out}"
+      adult: "{adults}"
+      crn: "1"
+    tracking_env: TRIP_COM_TRACKING_URL
