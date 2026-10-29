@@ -19,7 +19,7 @@ class Property < ApplicationRecord
   attribute :latitude, :float
   attribute :longitude, :float
 
-  before_validation :build_lonlat_from_coordinates, if: -> { latitude.present? && longitude.present? }
+  before_validation :build_lonlat_from_coordinates, if: :coordinates_entered?
   after_initialize :load_coordinates, if: -> { lonlat.present? && latitude.nil? }
 
   validates :name, :lonlat, presence: true
@@ -55,6 +55,11 @@ class Property < ApplicationRecord
     qa_approved? && waterfront_category.in?(LISTED_CATEGORIES)
   end
 
+  def lonlat=(value)
+    super
+    load_coordinates if lonlat
+  end
+
   def coordinate_mismatch?
     coord_mismatch_m.to_i > Waterfront.config.fetch(:coordinate_mismatch_m)
   end
@@ -64,6 +69,10 @@ class Property < ApplicationRecord
   end
 
   private
+
+  def coordinates_entered?
+    (attribute_changed?(:latitude) || attribute_changed?(:longitude)) && latitude.present? && longitude.present?
+  end
 
   def build_lonlat_from_coordinates
     point = Geo.point(lon: longitude, lat: latitude)

@@ -31,10 +31,11 @@ class Listing < ApplicationRecord
   private
 
   def build_reported_lonlat
+    return unless attribute_changed?(:reported_latitude) || attribute_changed?(:reported_longitude)
+
     if reported_latitude.present? && reported_longitude.present?
-      point = Geo.point(lon: reported_longitude, lat: reported_latitude)
-      self.reported_lonlat = point unless reported_lonlat && reported_lonlat.x == point.x && reported_lonlat.y == point.y
-    elsif reported_latitude.blank? && reported_longitude.blank? && will_save_change_to_attribute?(:reported_latitude)
+      self.reported_lonlat = Geo.point(lon: reported_longitude, lat: reported_latitude)
+    elsif reported_latitude.blank? && reported_longitude.blank?
       self.reported_lonlat = nil
     end
   end

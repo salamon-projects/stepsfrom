@@ -1,0 +1,41 @@
+{
+  "_comment": "Fictional bay near 43.300N 17.020E for importer specs. Elements are grouped by layer; FakeOverpassClient serves each group for the matching query.",
+  "coastline": [
+    { "type": "way", "id": 101, "tags": { "natural": "coastline" },
+      "geometry": [ { "lat": 43.30100, "lon": 17.0300 }, { "lat": 43.30100, "lon": 17.0200 }, { "lat": 43.30100, "lon": 17.0100 } ] },
+    { "type": "way", "id": 102, "tags": { "natural": "coastline" }, "geometry": [ { "lat": 43.31, "lon": 17.03 } ] }
+  ],
+  "inland_water": [
+    { "type": "way", "id": 201, "tags": { "natural": "water", "water": "lake", "name": "Test Lake" },
+      "geometry": [ { "lat": 43.2900, "lon": 16.9900 }, { "lat": 43.2900, "lon": 16.9930 }, { "lat": 43.2920, "lon": 16.9930 },
+                    { "lat": 43.2920, "lon": 16.9900 }, { "lat": 43.2900, "lon": 16.9900 } ] },
+    { "type": "way", "id": 202, "tags": { "natural": "water", "water": "lake" },
+      "geometry": [ { "lat": 43.2800, "lon": 16.9900 }, { "lat": 43.2800, "lon": 16.9930 } ] }
+  ],
+  "beaches": [
+    { "type": "way", "id": 301, "tags": { "natural": "beach", "surface": "sand", "name": "Sample Beach" },
+      "geometry": [ { "lat": 43.30025, "lon": 17.0150 }, { "lat": 43.30025, "lon": 17.0250 }, { "lat": 43.30100, "lon": 17.0250 },
+                    { "lat": 43.30100, "lon": 17.0150 }, { "lat": 43.30025, "lon": 17.0150 } ] }
+  ],
+  "roads": [
+    { "type": "way", "id": 401, "tags": { "highway": "residential", "name": "Coast Road" },
+      "geometry": [ { "lat": 43.29990, "lon": 17.0100 }, { "lat": 43.29990, "lon": 17.0300 } ] },
+    { "type": "way", "id": 402, "tags": { "highway": "footway", "name": "Setaliste" },
+      "geometry": [ { "lat": 43.30020, "lon": 17.0100 }, { "lat": 43.30020, "lon": 17.0300 } ] },
+    { "type": "way", "id": 403, "tags": { "railway": "rail" },
+      "geometry": [ { "lat": 43.29500, "lon": 17.0100 }, { "lat": 43.29500, "lon": 17.0300 } ] },
+    { "type": "way", "id": 404, "tags": { "highway": "primary", "tunnel": "yes" },
+      "geometry": [ { "lat": 43.30050, "lon": 17.0100 }, { "lat": 43.30050, "lon": 17.0300 } ] },
+    { "type": "way", "id": 405, "tags": { "highway": "service", "service": "parking_aisle" },
+      "geometry": [ { "lat": 43.30060, "lon": 17.0100 }, { "lat": 43.30060, "lon": 17.0300 } ] }
+  ],
+  "accommodations": [
+    { "type": "node", "id": 501, "lat": 43.30010, "lon": 17.0200,
+      "tags": { "tourism": "hotel", "name": "Hotel Sample Bay", "stars": "4", "addr:street": "Obala", "addr:housenumber": "1",
+                "addr:city": "Sampleville", "website": "https://hotel-sample-bay.example" } },
+    { "type": "way", "id": 502, "tags": { "tourism": "apartment", "name": "Sample Apartments", "website": "www.no-scheme.example" },
+      "geometry": [ { "lat": 43.29960, "lon": 17.0279 }, { "lat": 43.29960, "lon": 17.0281 }, { "lat": 43.29975, "lon": 17.0281 },
+                    { "lat": 43.29975, "lon": 17.0279 }, { "lat": 43.29960, "lon": 17.0279 } ] },
+    { "type": "node", "id": 503, "lat": 43.3000, "lon": 17.0150, "tags": { "tourism": "hotel" } }
+  ]
+}
