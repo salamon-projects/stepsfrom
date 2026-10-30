@@ -1,8 +1,8 @@
 name: Deploy
 
-# Deploys with Kamal (config/deploy.yml). Runs automatically after CI passes on
-# main once the repository variable DEPLOY_ENABLED is "true", and on demand
-# from the Actions tab for the one-off commands below.
+# Deploys with Kamal (config/deploy.yml). Every push to main deploys once CI
+# (tests, lint, Brakeman) passes on it; pull requests and other branches only
+# run CI. The one-off commands below run on demand from the Actions tab.
 on:
   workflow_run:
     workflows: [ CI ]
@@ -36,8 +36,7 @@ jobs:
   kamal:
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (vars.DEPLOY_ENABLED == 'true' &&
-       github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     env:

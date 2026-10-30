@@ -165,9 +165,10 @@ container behind kamal-proxy (Let's Encrypt TLS for `stepsfrom.com` and
 `www.stepsfrom.com`, www redirects to the bare domain) and a PostGIS container
 (`stepsfrom-db`). See `config/deploy.yml`.
 
-Deploys run from GitHub Actions (`.github/workflows/deploy.yml`). The image is
-built on the runner and pushed to `ghcr.io/salamon-projects/stepsfrom` with the
-workflow's own `GITHUB_TOKEN`.
+Deploys run from GitHub Actions (`.github/workflows/deploy.yml`): every push to
+`main` deploys automatically once CI passes on it. A red CI never deploys, and
+pull requests only run CI. The image is built on the runner and pushed to
+`ghcr.io/salamon-projects/stepsfrom` with the workflow's own `GITHUB_TOKEN`.
 
 One-time server preparation (Ubuntu 24.04, as the `deploy` user):
 
@@ -190,10 +191,10 @@ Then, from Actions → Deploy → Run workflow:
 1. `setup`: first deploy (installs kamal-proxy, starts PostGIS and the app).
 2. `seed`: adds the launch destinations (unpublished).
 3. `osm-import` with a destination slug, e.g. `makarska-riviera`.
+4. `deploy`: deploys `main` again without a new commit.
 
-Set the repository variable `DEPLOY_ENABLED` to `true` to deploy automatically
-after CI passes on `main`. Kamal connects to the server by IP address
-(`188.245.4.128`); the repository variable `KAMAL_SERVER` overrides it.
+Kamal connects to the server by IP address (`188.245.4.128`); the repository
+variable `KAMAL_SERVER` overrides it.
 
 ## Jobs
 
@@ -240,4 +241,3 @@ The specs need PostGIS. OSM imports are tested against a fixture
   GIATA/Vervotech mapping at scale.
 - Lakes and rivers mapped as multipolygon relations; OSM water-polygons import.
 - Signals from review text ("across the road", "10 minutes to the beach").
-- Deployment (Hetzner, Puma + Nginx).
