@@ -16,16 +16,20 @@ module Admin
     def index
       @view = params[:view].presence_in(VIEWS.keys) || "review"
       @destinations = Destination.ordered
-      scope = scoped_by_view(Property.left_joins(:waterfront).preload(:destination, :listings, :waterfront))
-      scope = scope.where(destination_id: params[:destination_id]) if params[:destination_id].present?
-      scope = scope.where("properties.name ILIKE ?", "%#{Property.sanitize_sql_like(params[:q])}%") if params[:q].present?
+      # Remembered so a property page can step through this list.
+      session[:admin_property_list] = { "view" => @view, "destination_id" => params[:destination_id].presence,
+                                        "q" => params[:q].presence }.compact
+      scope = list_scope(session[:admin_property_list]).preload(:destination, :listings, :waterfront)
       @pagy, @properties = pagy(scope.by_waterfront, limit: 50)
       return if redirect_past_last_page(@pagy)
 
       @untracked_providers = Affiliate::Provider.all.values.reject(&:tracking_configured?)
     end
 
-    def show; end
+    def show
+      @list = session[:admin_property_list].presence || { "view" => "all" }
+      @list_nav = @property.neighbors_in(list_scope(@list))
+    end
 
     def new
       @property = Property.new(destination_id: params[:destination_id], kind: "hotel")
@@ -92,8 +96,16 @@ module Admin
       redirect_back_or_to admin_property_path(@property), notice: "#{@property.name} #{status}."
     end
 
-    def scoped_by_view(scope)
-      case @view
+    # The properties of an index view with its filters, unordered.
+    def list_scope(list)
+      scope = scoped_by_view(Property.left_joins(:waterfront), list["view"])
+      scope = scope.where(destination_id: list["destination_id"]) if list["destination_id"].present?
+      scope = scope.where("properties.name ILIKE ?", "%#{Property.sanitize_sql_like(list['q'])}%") if list["q"].present?
+      scope
+    end
+
+    def scoped_by_view(scope, view)
+      case view
       when "review"
         scope.where(verifications: { qa_status: "pending", category: Verifications::Waterfront::LISTED_CATEGORIES })
       when "approved" then scope.where(verifications: { qa_status: "approved" })

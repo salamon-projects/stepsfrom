@@ -1,0 +1,14 @@
+-# Previous/next through the property list the admin last opened.
+- nav = @list_nav
+%nav.list-nav{ class: "list-nav--#{placement}", "aria-label": "Step through the list (#{placement})" }
+  - if nav[:previous]
+    = link_to "‹ Previous", admin_property_path(nav[:previous]), class: "button", rel: "prev", title: nav[:previous].name
+  - else
+    %span.button{ "aria-disabled": "true" } ‹ Previous
+  %p.list-nav__position
+    = nav[:position] ? "#{nav[:position]} of #{nav[:total]} in" : "No longer in"
+    = link_to property_list_label(@list), admin_properties_path(@list)
+  - if nav[:following]
+    = link_to "Next ›", admin_property_path(nav[:following]), class: "button", rel: "next", title: nav[:following].name
+  - else
+    %span.button{ "aria-disabled": "true" } Next ›

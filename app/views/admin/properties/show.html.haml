@@ -17,6 +17,8 @@
     = link_to "Edit", edit_admin_property_path(@property), class: "button"
     = button_to "Measure again", reclassify_admin_property_path(@property), class: "button"
 
+= render "list_nav", placement: "top"
+
 - if @property.osm_missing_since
   .flash.flash--alert{ role: "status" }
     %strong Not in OpenStreetMap any more.
@@ -117,3 +119,5 @@
                 .actions
                   = link_to "Edit", edit_admin_property_listing_path(@property, listing), class: "button button--small"
                   = button_to "Remove", admin_property_listing_path(@property, listing), method: :delete, class: "button button--small button--danger"
+
+= render "list_nav", placement: "bottom"

@@ -32,12 +32,7 @@ class Property < ApplicationRecord
 
   # Best waterfront first, then the shortest measured distance. Unmeasured
   # properties come last.
-  scope :by_waterfront, -> {
-    left_joins(:waterfront).order(
-      Arel.sql(sanitize_sql_array([ "array_position(ARRAY[?]::varchar[], verifications.category)", Verifications::Waterfront::CATEGORIES ])),
-      Arel.sql("verifications.distance_m"), :name
-    )
-  }
+  scope :by_waterfront, -> { left_joins(:waterfront).order(*waterfront_sort_key.map { |sql| Arel.sql(sql) }) }
 
   # Properties that an OTA labels beachfront although our measurement does not
   # support it.
@@ -53,6 +48,34 @@ class Property < ApplicationRecord
   scope :with_coordinate_mismatch, -> {
     where("properties.coord_mismatch_m > ?", Waterfront.config.fetch(:coordinate_mismatch_m))
   }
+
+  # The by_waterfront order as SQL expressions without NULLs (so rows can be
+  # compared), ending with the id so the order is total.
+  def self.waterfront_sort_key
+    @waterfront_sort_key ||= [
+      sanitize_sql_array([ "COALESCE(array_position(ARRAY[?]::varchar[], verifications.category), 99)",
+                           Verifications::Waterfront::CATEGORIES ]),
+      "COALESCE(verifications.distance_m, 2147483647)",
+      "properties.name",
+      "properties.id"
+    ].freeze
+  end
+
+  # The properties just before and after this one in by_waterfront order
+  # within scope. Works when this one is no longer in scope, for example right
+  # after it was reviewed off the "To review" list.
+  def neighbors_in(scope)
+    key_sql = self.class.waterfront_sort_key.map { |sql| Arel.sql(sql) }
+    key = Property.left_joins(:waterfront).where(id:).pick(*key_sql)
+    row = Arel::Nodes::Grouping.new(key_sql)
+    values = Arel::Nodes::Grouping.new(key.map { |value| Arel::Nodes.build_quoted(value) })
+    scope = scope.left_joins(:waterfront)
+    before = scope.where(Arel::Nodes::LessThan.new(row, values))
+    after = scope.where(Arel::Nodes::GreaterThan.new(row, values))
+
+    { previous: before.reorder(*key_sql.map(&:desc)).first, following: after.reorder(*key_sql).first,
+      position: (before.count + 1 if scope.exists?(id)), total: scope.count }
+  end
 
   def listed?
     waterfront&.listed? || false

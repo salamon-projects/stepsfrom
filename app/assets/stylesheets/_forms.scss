@@ -68,7 +68,8 @@
     font-size: 0.9rem;
   }
 
-  &:disabled {
+  &:disabled,
+  &[aria-disabled="true"] {
     border-color: $border;
     background: #eef1f4;
     color: $muted;

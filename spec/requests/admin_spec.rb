@@ -96,6 +96,34 @@ RSpec.describe "Admin" do
       expect(approved.waterfront.reload.qa_status).to eq("rejected")
     end
 
+    it "steps through the list last opened, in its order" do
+      get admin_properties_path(view: "all", destination_id: destination.id)
+
+      get admin_property_path(approved)
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(".list-nav--top").text).to include("2 of 3 in", "All · Makarska Riviera")
+      expect(page.at_css('.list-nav--top a[rel="prev"]')["href"]).to eq(admin_property_path(candidate))
+      expect(page.at_css('.list-nav--top a[rel="next"]')["href"]).to eq(admin_property_path(inland))
+      expect(page.at_css('.list-nav--bottom a[rel="next"]')["href"]).to eq(admin_property_path(inland))
+
+      get admin_property_path(inland)
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css('.list-nav--top a[rel="next"]')).to be_nil
+      expect(page.at_css('.list-nav--top [aria-disabled="true"]').text).to include("Next")
+    end
+
+    it "moves on from a property just reviewed off the list" do
+      second = create(:property, :near, destination:, name: "Hotel Second")
+      get admin_properties_path
+
+      post approve_admin_property_path(candidate)
+      get admin_property_path(candidate)
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(".list-nav--top").text).to include("No longer in", "To review")
+      expect(page.at_css('.list-nav--top a[rel="next"]')["href"]).to eq(admin_property_path(second))
+    end
+
     it "lists and explains properties that OSM no longer has" do
       approved.update_columns(osm_type: "node", osm_id: 77, osm_missing_since: Time.zone.local(2026, 11, 2, 3))
 

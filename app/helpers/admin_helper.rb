@@ -4,6 +4,13 @@ module AdminHelper
     "roads" => "Roads", "accommodations" => "Accommodation"
   }.freeze
 
+  # "To review · Kassandra" for the property list a property page steps through.
+  def property_list_label(list)
+    destination = Destination.find_by(id: list["destination_id"]) if list["destination_id"].present?
+    search = "“#{list['q']}”" if list["q"].present?
+    [ Admin::PropertiesController::VIEWS.fetch(list["view"], "All"), destination&.name, search ].compact.join(" · ")
+  end
+
   def import_status_badge(run)
     status = run.interrupted? ? "interrupted" : run.status
     tag.span(status.humanize, class: [ "import-status", "import-status--#{status}" ])
