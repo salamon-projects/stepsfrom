@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_29_120800) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_30_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -42,6 +42,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_120800) do
     t.datetime "updated_at", null: false
     t.index ["area"], name: "index_destinations_on_area", using: :gist
     t.index ["slug"], name: "index_destinations_on_slug", unique: true
+  end
+
+  create_table "import_runs", force: :cascade do |t|
+    t.bigint "destination_id", null: false
+    t.string "source", default: "osm", null: false
+    t.string "status", default: "queued", null: false
+    t.string "step"
+    t.integer "steps_done", default: 0, null: false
+    t.integer "steps_total"
+    t.integer "attempts", default: 0, null: false
+    t.jsonb "counts", default: {}, null: false
+    t.text "error"
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["destination_id", "created_at"], name: "index_import_runs_on_destination_id_and_created_at"
+    t.index ["status"], name: "index_import_runs_on_status"
   end
 
   create_table "listings", force: :cascade do |t|
@@ -151,6 +169,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_120800) do
     t.index ["osm_type", "osm_id"], name: "index_water_features_on_osm_type_and_osm_id", unique: true
   end
 
+  add_foreign_key "import_runs", "destinations", on_delete: :cascade
   add_foreign_key "listings", "properties", on_delete: :cascade
   add_foreign_key "outbound_clicks", "listings", on_delete: :nullify
   add_foreign_key "outbound_clicks", "properties", on_delete: :nullify

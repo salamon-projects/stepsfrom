@@ -2,6 +2,7 @@ class Destination < ApplicationRecord
   include Sluggable
 
   has_many :properties, dependent: :restrict_with_error
+  has_many :import_runs, dependent: :delete_all
 
   normalizes :country_code, with: ->(code) { code.strip.upcase }
 

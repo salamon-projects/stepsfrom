@@ -23,7 +23,14 @@
 }
 
 .admin .site-nav {
+  flex-wrap: wrap;
   align-items: center;
+  gap: 0 1.25rem;
+
+  a,
+  .site-nav__button {
+    white-space: nowrap;
+  }
 
   form {
     margin: 0;
@@ -174,6 +181,48 @@
   border-radius: 6px;
   background: #fbe9e4;
   color: $warn;
+}
+
+.import-cell {
+  min-width: 14rem;
+
+  small {
+    display: block;
+    margin-top: 0.25rem;
+    color: $muted;
+  }
+}
+
+.import-status {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #e2e8ee;
+  color: $ink;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  &--running,
+  &--queued {
+    background: #dbeafe;
+    color: #1e3a8a;
+  }
+
+  &--retrying,
+  &--interrupted {
+    background: #fef3c7;
+    color: #7c2d12;
+  }
+
+  &--succeeded {
+    background: #dcfce7;
+    color: #14532d;
+  }
+
+  &--failed {
+    background: #fbe9e4;
+    color: $warn;
+  }
 }
 
 .flag {

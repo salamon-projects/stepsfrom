@@ -5,6 +5,8 @@
     %title= [ content_for(:title).presence, "Admin", t("site_name") ].compact.join(" · ")
     %meta{ name: "viewport", content: "width=device-width,initial-scale=1" }
     %meta{ name: "robots", content: "noindex, nofollow" }
+    - if content_for?(:auto_refresh)
+      %meta{ "http-equiv": "refresh", content: "10" }
     = csrf_meta_tags
     = csp_meta_tag
     %link{ rel: "icon", href: "/icon.svg", type: "image/svg+xml" }
@@ -20,6 +22,7 @@
           - if admin_signed_in?
             = link_to "Properties", admin_properties_path
             = link_to "Destinations", admin_destinations_path
+            = link_to "Imports", admin_imports_path
           = link_to "View site", root_path
           - if admin_signed_in?
             = button_to "Log out", admin_logout_path, method: :delete, class: "site-nav__button"

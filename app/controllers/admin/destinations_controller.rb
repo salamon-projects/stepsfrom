@@ -6,6 +6,7 @@ module Admin
       @destinations = Destination.ordered
       @property_counts = Property.group(:destination_id).count
       @listed_counts = Property.published.group(:destination_id).count
+      @latest_imports = ImportRun.latest_by_destination
     end
 
     def new
@@ -40,9 +41,13 @@ module Admin
     end
 
     def import
-      OsmImportJob.perform_later(@destination.id)
-      redirect_to admin_destinations_path,
-                  notice: "OSM import for #{@destination.name} queued. Properties appear in the review queue when it finishes."
+      if @destination.import_runs.active.exists?
+        return redirect_to admin_destinations_path, alert: "An import for #{@destination.name} is already running."
+      end
+
+      run = @destination.import_runs.create!(source: "osm")
+      OsmImportJob.perform_later(@destination.id, run.id)
+      redirect_to admin_destinations_path, notice: "OSM import for #{@destination.name} started. Progress shows below."
     end
 
     private

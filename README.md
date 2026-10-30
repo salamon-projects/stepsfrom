@@ -54,7 +54,9 @@ The database connection reads `DB_HOST`, `DB_USER` and `DB_PASSWORD`, or a
    ```
    Busy Overpass servers are retried with backoff across several public
    instances; `OVERPASS_URLS` (comma-separated) replaces the list. In production a weekly
-   refresh is scheduled (`config/recurring.yml`).
+   refresh is scheduled (`config/recurring.yml`). The admin's Destinations page shows
+   each import's current step, or how it ended (counts or the error), and refreshes
+   itself while one runs; "Imports" lists the history.
 3. **Review.** The admin's "To review" queue lists properties measured as
    waterfront. Check each one, correct the coordinates if needed (which measures it
    again), then approve or reject it. Approved properties keep their position on

@@ -10,25 +10,34 @@ module Osm
       accommodations: Importers::Accommodations
     }.freeze
 
-    def initialize(destination, client: OverpassClient.new)
+    # progress, when given, is called as progress.(step, steps_done, steps_total)
+    # before each layer and while measuring.
+    def initialize(destination, client: OverpassClient.new, progress: nil)
       @destination = destination
       @client = client
+      @progress = progress || ->(*) { }
     end
 
     # Returns the number of imported features per layer, and how many
     # properties could not be measured.
     def call
-      counts = LAYERS.transform_values { |importer| importer.new(@destination, client: @client).call }
-      counts.merge(measurement_failures: classify_properties)
+      total = LAYERS.size + 1
+      counts = LAYERS.each_with_index.to_h do |(layer, importer), index|
+        @progress.call(layer.to_s, index, total)
+        [ layer, importer.new(@destination, client: @client).call ]
+      end
+      counts.merge(measurement_failures: classify_properties(step: total - 1, total:))
     end
 
     private
 
     # A broken OSM geometry must not stop the other properties from being
     # measured; failures are logged and the property keeps its old result.
-    def classify_properties
+    def classify_properties(step:, total:)
       failures = 0
-      @destination.properties.find_each do |property|
+      count = @destination.properties.count
+      @destination.properties.find_each.with_index do |property, index|
+        @progress.call("measuring #{index}/#{count}", step, total) if (index % 25).zero?
         Waterfront::Classification.new(property).call
       rescue ActiveRecord::StatementInvalid => e
         failures += 1

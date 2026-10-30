@@ -205,10 +205,39 @@ RSpec.describe "Admin" do
       expect(Destination.find_by!(slug: "krk").country_code).to eq("HR")
     end
 
-    it "queues an OSM import" do
+    it "queues an OSM import and shows its progress" do
       expect {
         post import_admin_destination_path(destination)
-      }.to have_enqueued_job(OsmImportJob).with(destination.id)
+      }.to have_enqueued_job(OsmImportJob)
+
+      run = destination.import_runs.sole
+      expect(run).to be_queued
+      run.start!(attempt: 1)
+      run.progress!("roads", 3, 6)
+
+      get admin_destinations_path
+      expect(response.body).to include("Running", "Roads (step 4 of 6)", "refreshes every 10 seconds")
+      expect(Nokogiri::HTML(response.body).at_css('meta[http-equiv="refresh"]')["content"]).to eq("10")
+    end
+
+    it "does not start a second import while one is running" do
+      destination.import_runs.create!(status: "running")
+
+      expect {
+        post import_admin_destination_path(destination)
+      }.not_to have_enqueued_job(OsmImportJob)
+      expect(flash[:alert]).to include("already running")
+    end
+
+    it "lists finished and failed imports without refreshing" do
+      destination.import_runs.create!(status: "succeeded", started_at: 3.minutes.ago, finished_at: Time.current,
+                                      counts: { "accommodations" => 412, "coastline" => 9, "beaches" => 20, "roads" => 1500 })
+      create(:destination, name: "Kassandra").import_runs.create!(status: "failed", finished_at: Time.current, error: "Overpass returned HTTP 504")
+
+      get admin_imports_path
+
+      expect(response.body).to include("Succeeded", "412 properties", "1,500 roads".delete(","), "Failed", "Overpass returned HTTP 504")
+      expect(Nokogiri::HTML(response.body).at_css('meta[http-equiv="refresh"]')).to be_nil
     end
 
     it "refuses to delete a destination that has properties" do

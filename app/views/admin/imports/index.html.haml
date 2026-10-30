@@ -1,0 +1,32 @@
+- content_for :title, "Imports"
+- content_for(:auto_refresh, true) if @runs.any?(&:active?)
+
+.admin-page__header
+  %h1 Imports
+  = link_to "Destinations", admin_destinations_path, class: "button"
+
+- if @runs.empty?
+  %p No imports yet. Start one from Destinations → “Import from OSM”.
+- else
+  - if @runs.any?(&:active?)
+    %p.flash An import is running. This page refreshes every 10 seconds.
+  .table-wrap
+    %table.admin-table
+      %thead
+        %tr
+          %th Destination
+          %th Source
+          %th Started
+          %th Status
+          %th Details
+          %th Attempt
+      %tbody
+        - @runs.each do |run|
+          %tr
+            %td= link_to run.destination.name, admin_properties_path(view: "all", destination_id: run.destination_id)
+            %td= run.source.upcase
+            %td= import_time(run.started_at || run.created_at)
+            %td= import_status_badge(run)
+            %td.import-cell
+              %small= import_status_detail(run)
+            %td= run.attempts

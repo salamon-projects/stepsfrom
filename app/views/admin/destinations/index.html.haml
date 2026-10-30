@@ -1,4 +1,6 @@
 - content_for :title, "Destinations"
+- importing = @latest_imports.values.any?(&:active?)
+- content_for(:auto_refresh, true) if importing
 
 .admin-page__header
   %h1 Destinations
@@ -7,6 +9,9 @@
 %p
   “Import from OSM” fetches coastline, lakes, beaches, roads and accommodation inside the bounding box from the
   Overpass API, then measures every property. New properties land in the review queue.
+  = link_to "Import history", admin_imports_path
+- if importing
+  %p.flash An import is running. This page refreshes every 10 seconds.
 
 .table-wrap
   %table.admin-table
@@ -19,6 +24,7 @@
         %th Properties
         %th Listed
         %th Published
+        %th Last import
         %th
           %span.visually-hidden Actions
     %tbody
@@ -31,7 +37,14 @@
           %td= @property_counts.fetch(destination.id, 0)
           %td= @listed_counts.fetch(destination.id, 0)
           %td= destination.published? ? "Yes" : "No"
+          %td.import-cell
+            - if (run = @latest_imports[destination.id])
+              = import_status_badge(run)
+              %small= import_status_detail(run)
+            - else
+              %small Never imported
           %td
             .actions
               = link_to "Edit", edit_admin_destination_path(destination), class: "button button--small"
-              = button_to "Import from OSM", import_admin_destination_path(destination), class: "button button--small"
+              = button_to "Import from OSM", import_admin_destination_path(destination), class: "button button--small",
+                disabled: @latest_imports[destination.id]&.active?

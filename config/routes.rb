@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     resources :destinations, except: :show do
       post :import, on: :member
     end
+    resources :imports, only: :index
     resources :properties do
       member do
         post :approve
