@@ -1,9 +1,10 @@
 # Kamal deploy configuration: https://kamal-deploy.org
 #
 # Deploys run from GitHub Actions (.github/workflows/deploy.yml), which also
-# provides the secrets listed in .kamal/secrets. The server is reached by name;
-# KAMAL_SERVER overrides it (e.g. with an IP address).
-<% server = ENV.fetch("KAMAL_SERVER", "stepsfrom.com") %>
+# provides the secrets listed in .kamal/secrets. SSH goes to the server's IP
+# address so that DNS changes can never point it at another machine;
+# KAMAL_SERVER overrides it.
+<% server = ENV.fetch("KAMAL_SERVER", "188.245.4.128") %>
 
 service: stepsfrom
 image: salamon-projects/stepsfrom

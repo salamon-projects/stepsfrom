@@ -41,7 +41,7 @@ jobs:
        github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     env:
-      KAMAL_SERVER: ${{ vars.KAMAL_SERVER || 'stepsfrom.com' }}
+      KAMAL_SERVER: ${{ vars.KAMAL_SERVER || '188.245.4.128' }}
       KAMAL_REGISTRY_USERNAME: ${{ github.repository_owner }}
       KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
@@ -69,7 +69,14 @@ jobs:
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "$KAMAL_SERVER" >> ~/.ssh/known_hosts
+          ssh-keyscan -t ed25519,ecdsa,rsa "$KAMAL_SERVER" > /tmp/server_host_keys
+          if [ ! -s /tmp/server_host_keys ]; then
+            echo "::error::No SSH host key from $KAMAL_SERVER (is port 22 open?)"
+            exit 1
+          fi
+          cat /tmp/server_host_keys >> ~/.ssh/known_hosts
+          echo "Server host key fingerprints:"
+          ssh-keygen -lf /tmp/server_host_keys
 
       - name: Run Kamal
         env:

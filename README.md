@@ -179,8 +179,8 @@ Then, from Actions → Deploy → Run workflow:
 3. `osm-import` with a destination slug, e.g. `makarska-riviera`.
 
 Set the repository variable `DEPLOY_ENABLED` to `true` to deploy automatically
-after CI passes on `main`. `KAMAL_SERVER` (variable) overrides the server
-address, which defaults to `stepsfrom.com`.
+after CI passes on `main`. Kamal connects to the server by IP address
+(`188.245.4.128`); the repository variable `KAMAL_SERVER` overrides it.
 
 ## Jobs
 
