@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  # www.stepsfrom.com → stepsfrom.com, keeping the path and query.
+  app_host = ENV.fetch("APP_HOST", "stepsfrom.com")
+  constraints(host: "www.#{app_host}") do
+    get "(*path)", to: redirect(status: 301) { |_params, request| "#{request.protocol}#{app_host}#{request.fullpath}" }
+  end
+
   root "home#index"
 
   get "search", to: "search#show", as: :search

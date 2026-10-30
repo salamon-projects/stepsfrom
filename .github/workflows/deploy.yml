@@ -1,0 +1,90 @@
+name: Deploy
+
+# Deploys with Kamal (config/deploy.yml). Runs automatically after CI passes on
+# main once the repository variable DEPLOY_ENABLED is "true", and on demand
+# from the Actions tab for the one-off commands below.
+on:
+  workflow_run:
+    workflows: [ CI ]
+    types: [ completed ]
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      command:
+        description: What to run
+        type: choice
+        default: deploy
+        options:
+          - deploy
+          - setup
+          - seed
+          - osm-import
+      destination:
+        description: Destination slug for osm-import (e.g. makarska-riviera)
+        required: false
+        type: string
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  kamal:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (vars.DEPLOY_ENABLED == 'true' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    env:
+      KAMAL_SERVER: ${{ vars.KAMAL_SERVER || 'stepsfrom.com' }}
+      KAMAL_REGISTRY_USERNAME: ${{ github.repository_owner }}
+      KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      ADMIN_USER: ${{ secrets.ADMIN_USER }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$KAMAL_SERVER" >> ~/.ssh/known_hosts
+
+      - name: Run Kamal
+        env:
+          COMMAND: ${{ inputs.command || 'deploy' }}
+          DESTINATION: ${{ inputs.destination }}
+        run: |
+          case "$COMMAND" in
+            deploy) bin/kamal deploy ;;
+            setup) bin/kamal setup ;;
+            seed) bin/kamal app exec "bin/rails db:seed" ;;
+            osm-import)
+              if [[ ! "$DESTINATION" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+                echo "::error::Give a destination slug, e.g. makarska-riviera"
+                exit 1
+              fi
+              bin/kamal app exec "bin/rails osm:import[$DESTINATION]" ;;
+            *) echo "::error::Unknown command $COMMAND"; exit 1 ;;
+          esac

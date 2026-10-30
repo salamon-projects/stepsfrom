@@ -1,0 +1,79 @@
+# Kamal deploy configuration: https://kamal-deploy.org
+#
+# Deploys run from GitHub Actions (.github/workflows/deploy.yml), which also
+# provides the secrets listed in .kamal/secrets. The server is reached by name;
+# KAMAL_SERVER overrides it (e.g. with an IP address).
+<% server = ENV.fetch("KAMAL_SERVER", "stepsfrom.com") %>
+
+service: stepsfrom
+image: salamon-projects/stepsfrom
+
+servers:
+  web:
+    - <%= server %>
+
+# kamal-proxy terminates TLS with Let's Encrypt certificates for both names;
+# the app redirects www to the bare domain.
+proxy:
+  ssl: true
+  hosts:
+    - stepsfrom.com
+    - www.stepsfrom.com
+  app_port: 3000
+  healthcheck:
+    path: /up
+
+registry:
+  server: ghcr.io
+  username: <%= ENV.fetch("KAMAL_REGISTRY_USERNAME", "salamon-projects") %>
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  clear:
+    APP_HOST: stepsfrom.com
+    DB_HOST: stepsfrom-db
+    # Run Solid Queue (background jobs, recurring tasks) inside Puma
+    SOLID_QUEUE_IN_PUMA: true
+  secret:
+    - SECRET_KEY_BASE
+    - STEPSFROM_DATABASE_PASSWORD
+    - ADMIN_USER
+    - ADMIN_PASSWORD
+
+ssh:
+  user: deploy
+
+builder:
+  arch: amd64
+
+# Keep assets of the previous version available while a deploy switches over.
+asset_path: /rails/public/assets
+
+logging:
+  driver: json-file
+  options:
+    max-size: 50m
+    max-file: "5"
+
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole"
+
+accessories:
+  # PostgreSQL with PostGIS. The app reaches it as stepsfrom-db on the kamal
+  # Docker network; the port is only exposed on the server's loopback.
+  db:
+    image: postgis/postgis:16-3.4
+    host: <%= server %>
+    port: "127.0.0.1:5432:5432"
+    env:
+      clear:
+        POSTGRES_USER: stepsfrom
+        POSTGRES_DB: stepsfrom_production
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data

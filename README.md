@@ -145,6 +145,43 @@ Agoda Partners, the Booking.com Demand API or Expedia Rapid). To add one, subcla
 `PRICE_PROVIDERS` (comma-separated). Development uses the `fake` provider, which
 returns made-up prices and refuses to run in production.
 
+## Deploying (Kamal, Hetzner)
+
+Production runs on one server with [Kamal](https://kamal-deploy.org): the app
+container behind kamal-proxy (Let's Encrypt TLS for `stepsfrom.com` and
+`www.stepsfrom.com`, www redirects to the bare domain) and a PostGIS container
+(`stepsfrom-db`). See `config/deploy.yml`.
+
+Deploys run from GitHub Actions (`.github/workflows/deploy.yml`). The image is
+built on the runner and pushed to `ghcr.io/salamon-projects/stepsfrom` with the
+workflow's own `GITHUB_TOKEN`.
+
+One-time server preparation (Ubuntu 24.04, as the `deploy` user):
+
+```bash
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker deploy
+```
+
+Repository secrets (Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+|---|---|
+| `SSH_PRIVATE_KEY` | Private key whose public half is in `~deploy/.ssh/authorized_keys` |
+| `SECRET_KEY_BASE` | `openssl rand -hex 64` |
+| `POSTGRES_PASSWORD` | `openssl rand -hex 24` |
+| `ADMIN_USER`, `ADMIN_PASSWORD` | Admin login |
+
+Then, from Actions → Deploy → Run workflow:
+
+1. `setup`: first deploy (installs kamal-proxy, starts PostGIS and the app).
+2. `seed`: adds the launch destinations (unpublished).
+3. `osm-import` with a destination slug, e.g. `makarska-riviera`.
+
+Set the repository variable `DEPLOY_ENABLED` to `true` to deploy automatically
+after CI passes on `main`. `KAMAL_SERVER` (variable) overrides the server
+address, which defaults to `stepsfrom.com`.
+
 ## Jobs
 
 Production uses Solid Queue for imports, classification after edits, price refreshes

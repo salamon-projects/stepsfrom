@@ -44,6 +44,9 @@ module Stepsfrom
     # low traffic but see https://operations.osmfoundation.org/policies/tiles/
     config.x.map_tile_url = ENV.fetch("MAP_TILE_URL", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")
 
+    # No uploaded images are processed (and image_processing is not installed).
+    config.active_storage.variant_processor = :disabled
+
     config.generators do |g|
       g.template_engine :haml
       g.test_framework :rspec, fixtures: false, view_specs: false, helper_specs: false, routing_specs: false
