@@ -57,10 +57,20 @@ The database connection reads `DB_HOST`, `DB_USER` and `DB_PASSWORD`, or a
    refresh is scheduled (`config/recurring.yml`). The admin's Destinations page shows
    each import's current step, or how it ended (counts or the error), and refreshes
    itself while one runs; "Imports" lists the history.
+
+   Running an import again updates what is there. Map features (coastline,
+   lakes, beaches, roads) that OSM no longer returns inside the bounding box are
+   removed, so measurements always use the current map (features within about
+   100 m of the box's edge are kept, and a layer that comes back empty removes
+   nothing). Properties are never deleted: one that OSM no longer returns is
+   flagged and listed under "Not in OSM" in the admin, where you decide what
+   happens to it. Until a property is reviewed, its name, position and details
+   follow OSM.
 3. **Review.** The admin's "To review" queue lists properties measured as
    waterfront. Check each one, correct the coordinates if needed (which measures it
-   again), then approve or reject it. Approved properties keep their position on
-   later imports, and go back to review if a new measurement changes their category.
+   again), then approve or reject it. Reviewed properties keep their name, position
+   and edited details on later imports, and approved ones go back to review if a
+   new measurement changes their category.
    "OTA claim conflicts" lists properties that a booking site calls beachfront but
    that we measured further away.
 4. **Listings.** On each property, add its page on Booking.com, Expedia, Hotels.com,

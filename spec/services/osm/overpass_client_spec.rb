@@ -40,6 +40,15 @@ RSpec.describe Osm::OverpassClient do
     expect(waits).to be_empty
   end
 
+  it "retries a query that timed out with partial data" do
+    partial = { remark: "runtime error: Query timed out in \"query\" at line 1 after 300 seconds.", elements: [] }.to_json
+    stub_request(:post, url).to_return(status: 200, body: partial)
+    stub_request(:post, backup).to_return(status: 200, body:)
+
+    expect(client.query("x").size).to eq(1)
+    expect(waits).to eq([ 10 ])
+  end
+
   it "raises on malformed responses" do
     stub_request(:post, url).to_return(status: 200, body: "<html>")
 

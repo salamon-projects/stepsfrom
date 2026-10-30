@@ -18,15 +18,21 @@ module Osm
       @progress = progress || ->(*) { }
     end
 
-    # Returns the number of imported features per layer, and how many
-    # properties could not be measured.
+    # Returns the number of imported features per layer, how many map
+    # features were removed because OSM no longer has them, how many
+    # properties OSM no longer has, and how many could not be measured.
     def call
       total = LAYERS.size + 1
-      counts = LAYERS.each_with_index.to_h do |(layer, importer), index|
+      removed = 0
+      counts = LAYERS.each_with_index.to_h do |(layer, importer_class), index|
         @progress.call(layer.to_s, index, total)
-        [ layer, importer.new(@destination, client: @client).call ]
+        importer = importer_class.new(@destination, client: @client)
+        imported = importer.call
+        removed += importer.removed
+        [ layer, imported ]
       end
-      counts.merge(measurement_failures: classify_properties(step: total - 1, total:))
+      counts.merge(removed_features: removed, missing_from_osm: @destination.properties.missing_from_osm.count,
+                   measurement_failures: classify_properties(step: total - 1, total:))
     end
 
     private

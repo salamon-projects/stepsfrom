@@ -37,6 +37,8 @@ module AdminHelper
     counts = run.counts
     parts = [ pluralize(counts["accommodations"].to_i, "property"), pluralize(counts["coastline"].to_i, "coastline way"),
               pluralize(counts["beaches"].to_i, "beach"), pluralize(counts["roads"].to_i, "road") ]
+    parts << "#{pluralize(counts['removed_features'], 'map feature')} removed (gone from OSM)" if counts["removed_features"].to_i.positive?
+    parts << "#{pluralize(counts['missing_from_osm'], 'property')} no longer in OSM" if counts["missing_from_osm"].to_i.positive?
     parts << "#{counts['measurement_failures']} could not be measured" if counts["measurement_failures"].to_i.positive?
     parts.join(", ")
   end

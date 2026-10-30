@@ -47,6 +47,9 @@ class Property < ApplicationRecord
       .where(verifications: { category: %w[not_waterfront walkable] })
   }
 
+  # The last OSM import no longer found it (see Osm::Importers::Accommodations).
+  scope :missing_from_osm, -> { where.not(osm_missing_since: nil) }
+
   scope :with_coordinate_mismatch, -> {
     where("properties.coord_mismatch_m > ?", Waterfront.config.fetch(:coordinate_mismatch_m))
   }

@@ -9,6 +9,8 @@ module Osm
 
       def model = WaterFeature
 
+      def layer_scope = model.where(kind: KINDS.values.uniq)
+
       def selectors
         [ 'way["natural"="water"]["water"~"^(lake|reservoir|lagoon|river)$"]',
           'relation["natural"="water"]["water"~"^(lake|reservoir|lagoon|river)$"]' ]

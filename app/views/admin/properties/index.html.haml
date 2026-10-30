@@ -58,6 +58,8 @@
               %span.flag= "position #{property.coord_mismatch_m} m off"
             - if property.listings.any?(&:claims_beachfront) && !waterfront&.direct?
               %span.flag OTA says beachfront
+            - if property.osm_missing_since
+              %span.flag not in OSM
           %td= property.listings.map(&:provider_name).join(", ").presence || "–"
           %td= waterfront ? waterfront.qa_status : "not measured"
           %td

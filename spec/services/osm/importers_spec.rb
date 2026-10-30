@@ -45,6 +45,46 @@ RSpec.describe "OSM importers" do
     expect(RoadSegment.pluck(:osm_id, :category)).to contain_exactly([ 401, "road" ], [ 402, "promenade" ], [ 403, "rail" ])
   end
 
+  describe "features OSM no longer has" do
+    # The box's north edge is 2,224 m north of the base point.
+    it "removes them inside the box, but keeps those near its edge or outside it" do
+      create(:road_segment, osm_id: 990, geom: east_west_line(north_m: 500))
+      create(:road_segment, osm_id: 991, geom: east_west_line(north_m: 2_180))
+      create(:road_segment, osm_id: 992, geom: east_west_line(north_m: 3_000))
+
+      importer = Osm::Importers::Roads.new(destination, client:)
+      importer.call
+
+      expect(importer.removed).to eq(1)
+      expect(RoadSegment.pluck(:osm_id)).to contain_exactly(401, 402, 403, 991, 992)
+    end
+
+    it "keeps what a layer returns again" do
+      run(Osm::Importers::Roads)
+      run(Osm::Importers::Roads)
+
+      expect(RoadSegment.count).to eq(3)
+    end
+
+    it "only removes the features of its own layer" do
+      create(:water_feature, osm_id: 990, kind: "sea", geom: east_west_line(north_m: 500))
+      create(:water_feature, osm_id: 991, kind: "lake", geom: box(south_m: 600, north_m: 700))
+
+      run(Osm::Importers::Coastline)
+
+      expect(WaterFeature.pluck(:osm_id)).to contain_exactly(101, 991)
+    end
+
+    it "removes nothing when a layer comes back empty" do
+      create(:beach, geom: box(south_m: 600, north_m: 700))
+      empty = instance_double(Osm::OverpassClient, query: [])
+
+      Osm::Importers::Beaches.new(destination, client: empty).call
+
+      expect(Beach.count).to eq(1)
+    end
+  end
+
   describe Osm::Importers::Accommodations do
     it "creates pending properties from named nodes and ways" do
       expect(run(described_class)).to eq(2)
@@ -82,6 +122,47 @@ RSpec.describe "OSM importers" do
       run(described_class)
 
       expect(hotel.reload).to have_attributes(address: "Obala 1a, Sampleville", stars: 4)
+    end
+
+    it "updates the name of properties still pending review" do
+      run(described_class)
+      Property.find_by!(osm_id: 501).update!(name: "Old name")
+
+      run(described_class)
+
+      expect(Property.find_by!(osm_id: 501).name).to eq("Hotel Sample Bay")
+    end
+
+    it "flags properties OSM no longer returns, and clears the flag when they are back" do
+      run(described_class)
+      gone = create(:property, :approved, :direct, destination:, osm_type: "node", osm_id: 599, lonlat: point_at(north_m: 300))
+      manual = create(:property, destination:, lonlat: point_at(north_m: 300))
+      elsewhere = create(:property, destination:, osm_type: "node", osm_id: 598, lonlat: point_at(north_m: 3_000))
+
+      travel_to Time.zone.local(2026, 11, 2, 3, 0) do
+        run(described_class)
+      end
+
+      expect(gone.reload.osm_missing_since).to eq(Time.zone.local(2026, 11, 2, 3, 0))
+      expect(Property.missing_from_osm).to contain_exactly(gone)
+      expect(gone).to be_listed
+      expect([ manual, elsewhere ].map { |property| property.reload.osm_missing_since }).to all(be_nil)
+
+      run(described_class)
+      expect(gone.reload.osm_missing_since).to eq(Time.zone.local(2026, 11, 2, 3, 0))
+
+      hotel = Property.find_by!(osm_id: 501)
+      hotel.update_columns(osm_missing_since: 1.day.ago)
+      run(described_class)
+      expect(hotel.reload.osm_missing_since).to be_nil
+    end
+
+    it "flags nothing when the query comes back empty" do
+      run(described_class)
+
+      described_class.new(destination, client: instance_double(Osm::OverpassClient, query: [])).call
+
+      expect(Property.missing_from_osm).to be_empty
     end
 
     it "updates the geometry of properties still pending review" do

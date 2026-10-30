@@ -96,6 +96,17 @@ RSpec.describe "Admin" do
       expect(approved.waterfront.reload.qa_status).to eq("rejected")
     end
 
+    it "lists and explains properties that OSM no longer has" do
+      approved.update_columns(osm_type: "node", osm_id: 77, osm_missing_since: Time.zone.local(2026, 11, 2, 3))
+
+      get admin_properties_path(view: "missing")
+      expect(response.body).to include("Hotel Approved", "not in OSM")
+      expect(response.body).not_to include("Hotel Candidate")
+
+      get admin_property_path(approved)
+      expect(response.body).to include("Not in OpenStreetMap any more.", "2 November 2026", "still listed on the site")
+    end
+
     it "cannot review a property that has not been measured" do
       unmeasured = create(:property, destination:)
 
@@ -237,7 +248,17 @@ RSpec.describe "Admin" do
       get admin_imports_path
 
       expect(response.body).to include("Succeeded", "412 properties", "1,500 roads".delete(","), "Failed", "Overpass returned HTTP 504")
+      expect(response.body).not_to include("removed", "no longer in OSM")
       expect(Nokogiri::HTML(response.body).at_css('meta[http-equiv="refresh"]')).to be_nil
+    end
+
+    it "reports map features removed and properties gone from OSM" do
+      destination.import_runs.create!(status: "succeeded", started_at: 3.minutes.ago, finished_at: Time.current,
+                                      counts: { "accommodations" => 10, "removed_features" => 4, "missing_from_osm" => 1 })
+
+      get admin_destinations_path
+
+      expect(response.body).to include("4 map features removed (gone from OSM)", "1 property no longer in OSM")
     end
 
     it "refuses to delete a destination that has properties" do

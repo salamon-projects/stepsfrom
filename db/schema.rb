@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_30_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_30_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -23,6 +23,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_120000) do
     t.geography "geom", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "seen_at"
     t.index ["geom"], name: "index_beaches_on_geom", using: :gist
     t.index ["osm_type", "osm_id"], name: "index_beaches_on_osm_type_and_osm_id", unique: true
   end
@@ -121,6 +122,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_120000) do
     t.integer "coord_mismatch_m"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "osm_missing_since"
     t.index ["destination_id"], name: "index_properties_on_destination_id"
     t.index ["footprint"], name: "index_properties_on_footprint", using: :gist
     t.index ["lonlat"], name: "index_properties_on_lonlat", using: :gist
@@ -136,6 +138,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_120000) do
     t.geography "geom", limit: {:srid=>4326, :type=>"line_string", :geographic=>true}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "seen_at"
     t.index ["geom"], name: "index_road_segments_on_geom", using: :gist
     t.index ["osm_id"], name: "index_road_segments_on_osm_id", unique: true
   end
@@ -165,6 +168,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_120000) do
     t.geography "geom", limit: {:srid=>4326, :type=>"geometry", :geographic=>true}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "seen_at"
     t.index ["geom"], name: "index_water_features_on_geom", using: :gist
     t.index ["osm_type", "osm_id"], name: "index_water_features_on_osm_type_and_osm_id", unique: true
   end

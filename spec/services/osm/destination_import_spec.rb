@@ -6,7 +6,8 @@ RSpec.describe Osm::DestinationImport do
   it "imports every layer and classifies the properties" do
     counts = described_class.new(destination, client: FakeOverpassClient.new).call
 
-    expect(counts).to eq(coastline: 1, inland_water: 1, beaches: 1, roads: 3, accommodations: 2, measurement_failures: 0)
+    expect(counts).to eq(coastline: 1, inland_water: 1, beaches: 1, roads: 3, accommodations: 2,
+                         removed_features: 0, missing_from_osm: 0, measurement_failures: 0)
 
     hotel = Property.find_by!(osm_id: 501).waterfront
     expect(hotel).to have_attributes(category: "direct", crosses_promenade: true, crosses_road: false, beach_surface: "sand")
@@ -14,6 +15,17 @@ RSpec.describe Osm::DestinationImport do
 
     apartments = Property.find_by!(osm_id: 502).waterfront
     expect(apartments).to have_attributes(category: "walkable", crosses_road: true)
+  end
+
+  it "measures against the current map after removing what OSM no longer has" do
+    old_road = create(:road_segment, geom: east_west_line(north_m: 50, half_width_m: 2_000))
+    gone = create(:property, destination:, osm_type: "node", osm_id: 599, lonlat: point_at(north_m: 0))
+
+    counts = described_class.new(destination, client: FakeOverpassClient.new).call
+
+    expect(counts).to include(removed_features: 1, missing_from_osm: 1)
+    expect(RoadSegment.exists?(old_road.id)).to be(false)
+    expect(gone.reload.osm_missing_since).to be_present
   end
 
   it "keeps measuring the other properties when one fails" do

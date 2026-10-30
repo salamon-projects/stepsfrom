@@ -7,6 +7,7 @@ module Admin
       "excluded" => "Not waterfront",
       "conflicts" => "OTA claim conflicts",
       "mismatch" => "Position mismatch",
+      "missing" => "Not in OSM",
       "all" => "All"
     }.freeze
 
@@ -101,6 +102,7 @@ module Admin
         scope.where(verifications: { category: %w[not_waterfront unknown] }).or(scope.where(verifications: { id: nil }))
       when "conflicts" then scope.beachfront_claim_conflicts
       when "mismatch" then scope.with_coordinate_mismatch
+      when "missing" then scope.missing_from_osm
       else scope
       end
     end

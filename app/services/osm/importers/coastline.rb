@@ -6,6 +6,8 @@ module Osm
 
       def model = WaterFeature
 
+      def layer_scope = model.where(kind: "sea")
+
       def selectors
         [ 'way["natural"="coastline"]' ]
       end

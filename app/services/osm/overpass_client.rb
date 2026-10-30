@@ -62,7 +62,14 @@ module Osm
         raise(RETRYABLE_STATUSES.include?(response.code.to_i) ? Retryable : Error, message)
       end
 
-      JSON.parse(response.body).fetch("elements").map { |json| Element.from_json(json) }
+      json = JSON.parse(response.body)
+      # A query that runs out of time or memory still answers 200, with the
+      # elements found so far; using them would look like deletions.
+      if json["remark"].to_s.include?("runtime error")
+        raise Retryable, "#{uri.host} returned partial data: #{json['remark'].to_s[0, 200]}"
+      end
+
+      json.fetch("elements").map { |element| Element.from_json(element) }
     rescue JSON::ParserError, KeyError => e
       raise Error, "Unexpected Overpass response from #{uri.host}: #{e.message}"
     rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, SystemCallError => e

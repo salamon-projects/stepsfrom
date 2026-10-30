@@ -17,6 +17,16 @@
     = link_to "Edit", edit_admin_property_path(@property), class: "button"
     = button_to "Measure again", reclassify_admin_property_path(@property), class: "button"
 
+- if @property.osm_missing_since
+  .flash.flash--alert{ role: "status" }
+    %strong Not in OpenStreetMap any more.
+    = "The import of #{@property.osm_missing_since.strftime("%-d %B %Y")} did not find it: it was deleted from OSM, or is no longer tagged as a named accommodation."
+    - if @property.listed?
+      It is still listed on the site.
+    Check whether it still operates, then reject it or
+    = link_to("delete it", edit_admin_property_path(@property)) + "."
+    If it reappears in OSM, the next import clears this note.
+
 - waterfront = @property.waterfront
 .admin-card
   %h2 Location
