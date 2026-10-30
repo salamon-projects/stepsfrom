@@ -52,7 +52,8 @@ The database connection reads `DB_HOST`, `DB_USER` and `DB_PASSWORD`, or a
    bin/rails osm:import[makarska-riviera]
    bin/rails osm:import_all
    ```
-   Set `OVERPASS_URL` to use another Overpass instance. In production a weekly
+   Busy Overpass servers are retried with backoff across several public
+   instances; `OVERPASS_URLS` (comma-separated) replaces the list. In production a weekly
    refresh is scheduled (`config/recurring.yml`).
 3. **Review.** The admin's "To review" queue lists properties measured as
    waterfront. Check each one, correct the coordinates if needed (which measures it
@@ -193,7 +194,7 @@ inside Puma.
 | Variable | Purpose |
 |---|---|
 | `ADMIN_USER`, `ADMIN_PASSWORD` | Admin sign-in on `/admin/login` (or credentials `admin.user` / `admin.password`). Required in production |
-| `OVERPASS_URL` | Overpass API endpoint (default `https://overpass-api.de/api/interpreter`) |
+| `OVERPASS_URLS` | Overpass API endpoints, comma-separated (default: overpass-api.de, private.coffee, kumi.systems) |
 | `MAP_TILE_URL` | Map tile template (default: OpenStreetMap's tile server) |
 | `PRICE_PROVIDERS` | Price providers to use, e.g. `stay22` |
 | `*_TRACKING_URL` | Affiliate tracking templates, see above |
