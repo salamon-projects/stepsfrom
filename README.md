@@ -1,9 +1,9 @@
-# beachfrontworld
+# StepsFrom
 
 Finding and comparing **true** beachfront holidays.
 
 Booking sites label many stays "beachfront" that are across a road or a long walk
-from the water. Beachfront World lists only properties whose position we have
+from the water. [StepsFrom](https://stepsfrom.com) lists only properties whose position we have
 **measured** against OpenStreetMap data and reviewed by hand. For each one it shows
 the distance to the water, what lies in between, and links to the booking sites that
 carry it, with the cheapest one first once prices are available.

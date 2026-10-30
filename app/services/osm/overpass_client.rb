@@ -6,7 +6,7 @@ module Osm
     class Error < StandardError; end
 
     DEFAULT_URL = "https://overpass-api.de/api/interpreter".freeze
-    USER_AGENT = "beachfrontworld/1.0 (waterfront verification)".freeze
+    USER_AGENT = "stepsfrom/1.0 (+https://stepsfrom.com; waterfront verification)".freeze
 
     def initialize(url: ENV.fetch("OVERPASS_URL", DEFAULT_URL), timeout: 300)
       @uri = URI(url)

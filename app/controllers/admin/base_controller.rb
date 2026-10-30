@@ -13,7 +13,7 @@ module Admin
       user, password = admin_credentials
       return render(plain: "Admin credentials are not configured.", status: :service_unavailable) if user.blank? || password.blank?
 
-      authenticate_or_request_with_http_basic("Beachfront World admin") do |given_user, given_password|
+      authenticate_or_request_with_http_basic("StepsFrom admin") do |given_user, given_password|
         ActiveSupport::SecurityUtils.secure_compare(given_user, user) &
           ActiveSupport::SecurityUtils.secure_compare(given_password, password)
       end

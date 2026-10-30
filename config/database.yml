@@ -7,7 +7,7 @@
 # A full connection URL can be given in DATABASE_URL; use the postgis://
 # scheme for the primary database, e.g.
 #
-#   DATABASE_URL="postgis://user:pass@localhost/beachfrontworld_development"
+#   DATABASE_URL="postgis://user:pass@localhost/stepsfrom_development"
 #
 default: &default
   adapter: postgis
@@ -21,28 +21,28 @@ default: &default
 
 development:
   <<: *default
-  database: beachfrontworld_development
+  database: stepsfrom_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: beachfrontworld_test
+  database: stepsfrom_test
 
 production:
   primary: &primary_production
     <<: *default
-    database: beachfrontworld_production
-    username: beachfrontworld
-    password: <%= ENV["BEACHFRONTWORLD_DATABASE_PASSWORD"] %>
+    database: stepsfrom_production
+    username: stepsfrom
+    password: <%= ENV["STEPSFROM_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
     adapter: postgresql
-    database: beachfrontworld_production_cache
+    database: stepsfrom_production_cache
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
     adapter: postgresql
-    database: beachfrontworld_production_queue
+    database: stepsfrom_production_queue
     migrations_paths: db/queue_migrate
