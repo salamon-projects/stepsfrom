@@ -50,10 +50,11 @@ RSpec.describe "OSM importers" do
       expect(run(described_class)).to eq(2)
 
       hotel = Property.find_by!(osm_type: "node", osm_id: 501)
-      expect(hotel).to have_attributes(name: "Hotel Sample Bay", kind: "hotel", stars: 4, qa_status: "pending",
+      expect(hotel).to have_attributes(name: "Hotel Sample Bay", kind: "hotel", stars: 4,
                                        address: "Obala 1, Sampleville", website: "https://hotel-sample-bay.example",
                                        destination:)
       expect(hotel.footprint).to be_nil
+      expect(hotel).not_to be_reviewed
 
       apartments = Property.find_by!(osm_type: "way", osm_id: 502)
       expect(apartments).to have_attributes(kind: "apartment", website: nil)
@@ -64,7 +65,8 @@ RSpec.describe "OSM importers" do
     it "keeps the geometry and name of reviewed properties on re-import" do
       run(described_class)
       hotel = Property.find_by!(osm_id: 501)
-      hotel.update!(qa_status: "approved", name: "Hotel Sample Bay & Spa", latitude: 43.3002, longitude: 17.0201)
+      create(:waterfront_verification, property: hotel, qa_status: "approved")
+      hotel.update!(name: "Hotel Sample Bay & Spa", latitude: 43.3002, longitude: 17.0201)
 
       run(described_class)
 
@@ -74,7 +76,8 @@ RSpec.describe "OSM importers" do
     it "keeps details edited on reviewed properties and only fills blanks" do
       run(described_class)
       hotel = Property.find_by!(osm_id: 501)
-      hotel.update!(qa_status: "approved", address: "Obala 1a, Sampleville", stars: nil)
+      create(:waterfront_verification, property: hotel, qa_status: "rejected")
+      hotel.update!(address: "Obala 1a, Sampleville", stars: nil)
 
       run(described_class)
 

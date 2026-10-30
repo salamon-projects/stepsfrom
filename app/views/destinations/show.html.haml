@@ -33,7 +33,7 @@
         .field
           = label_tag :category, t("search.category")
           = select_tag :category,
-            options_for_select(Property::LISTED_CATEGORIES.map { |c| [ t("waterfront.categories.#{c}"), c ] }, @search.category),
+            options_for_select(Verifications::Waterfront::LISTED_CATEGORIES.map { |c| [ t("waterfront.categories.#{c}"), c ] }, @search.category),
             include_blank: t("search.any_category")
         .field
           = label_tag :surface, t("search.surface")

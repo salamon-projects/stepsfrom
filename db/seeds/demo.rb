@@ -61,8 +61,10 @@ ActiveRecord::Base.transaction do
 
   demo.properties.find_each do |property|
     Waterfront::Classification.new(property).call
-    property.update_columns(qa_status: "approved") if property.reload.waterfront_category.in?(Property::LISTED_CATEGORIES)
+    waterfront = property.reload.waterfront
+    waterfront.update!(qa_status: "approved") if waterfront.category.in?(Verifications::Waterfront::LISTED_CATEGORIES)
   end
 end
 
-puts "Demo Bay: " + Destination.find_by!(slug: "demo-bay").properties.pluck(:name, :waterfront_category, :distance_to_water_m).map { |n, c, d| "#{n}=#{c}(#{d}m)" }.join(", ")
+puts "Demo Bay: " + Destination.find_by!(slug: "demo-bay").properties.joins(:waterfront)
+  .pluck(:name, "verifications.category", "verifications.distance_m").map { |n, c, d| "#{n}=#{c}(#{d}m)" }.join(", ")

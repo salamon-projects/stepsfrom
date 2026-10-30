@@ -42,6 +42,7 @@
           %span.visually-hidden Actions
     %tbody
       - @properties.each do |property|
+        - waterfront = property.waterfront
         %tr
           %td
             = link_to property.name, admin_property_path(property)
@@ -49,22 +50,23 @@
             %small= property_kind(property)
           %td= property.destination.name
           %td= waterfront_badge(property)
-          %td= property.distance_to_water_m ? "#{property.distance_to_water_m} m" : "–"
+          %td= waterfront&.distance_m ? "#{waterfront.distance_m} m" : "–"
           %td
-            - if property.crosses_road?
+            - if waterfront&.crosses_road?
               %span.flag road between
             - if property.coordinate_mismatch?
               %span.flag= "position #{property.coord_mismatch_m} m off"
-            - if property.listings.any? { |l| l.claims_beachfront } && !property.waterfront_direct?
+            - if property.listings.any?(&:claims_beachfront) && !waterfront&.direct?
               %span.flag OTA says beachfront
           %td= property.listings.map(&:provider_name).join(", ").presence || "–"
-          %td= property.qa_status
+          %td= waterfront ? waterfront.qa_status : "not measured"
           %td
-            .actions
-              - unless property.qa_approved?
-                = button_to "Approve", approve_admin_property_path(property), class: "button button--small"
-              - unless property.qa_rejected?
-                = button_to "Reject", reject_admin_property_path(property), class: "button button--small button--danger"
+            - if waterfront
+              .actions
+                - unless waterfront.qa_approved?
+                  = button_to "Approve", approve_admin_property_path(property), class: "button button--small"
+                - unless waterfront.qa_rejected?
+                  = button_to "Reject", reject_admin_property_path(property), class: "button button--small button--danger"
 
 .pagination
   != @pagy.series_nav if @pagy.pages > 1

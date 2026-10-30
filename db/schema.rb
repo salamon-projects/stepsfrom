@@ -100,30 +100,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_120800) do
     t.bigint "osm_id"
     t.geography "lonlat", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}, null: false
     t.geography "footprint", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}
-    t.bigint "water_feature_id"
-    t.string "water_kind"
-    t.string "water_name"
-    t.geography "water_point", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
-    t.integer "distance_to_water_m"
-    t.integer "distance_to_beach_m"
-    t.string "beach_surface"
-    t.boolean "crosses_road", default: false, null: false
-    t.boolean "crosses_promenade", default: false, null: false
     t.integer "coord_mismatch_m"
-    t.string "waterfront_category", default: "unknown", null: false
-    t.datetime "classified_at"
-    t.string "qa_status", default: "pending", null: false
-    t.text "qa_note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["destination_id", "waterfront_category"], name: "index_properties_on_destination_id_and_waterfront_category"
     t.index ["destination_id"], name: "index_properties_on_destination_id"
     t.index ["footprint"], name: "index_properties_on_footprint", using: :gist
     t.index ["lonlat"], name: "index_properties_on_lonlat", using: :gist
     t.index ["osm_type", "osm_id"], name: "index_properties_on_osm_type_and_osm_id", unique: true, where: "(osm_id IS NOT NULL)"
-    t.index ["qa_status"], name: "index_properties_on_qa_status"
     t.index ["slug"], name: "index_properties_on_slug", unique: true
-    t.index ["water_feature_id"], name: "index_properties_on_water_feature_id"
   end
 
   create_table "road_segments", force: :cascade do |t|
@@ -136,6 +120,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_120800) do
     t.datetime "updated_at", null: false
     t.index ["geom"], name: "index_road_segments_on_geom", using: :gist
     t.index ["osm_id"], name: "index_road_segments_on_osm_id", unique: true
+  end
+
+  create_table "verifications", force: :cascade do |t|
+    t.bigint "property_id", null: false
+    t.string "type", null: false
+    t.string "subject", default: "", null: false
+    t.string "category", default: "unknown", null: false
+    t.integer "distance_m"
+    t.jsonb "evidence", default: {}, null: false
+    t.datetime "measured_at"
+    t.string "qa_status", default: "pending", null: false
+    t.text "qa_note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id", "type", "subject"], name: "index_verifications_on_property_id_and_type_and_subject", unique: true
+    t.index ["qa_status"], name: "index_verifications_on_qa_status"
+    t.index ["type", "category"], name: "index_verifications_on_type_and_category"
   end
 
   create_table "water_features", force: :cascade do |t|
@@ -155,5 +156,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_120800) do
   add_foreign_key "outbound_clicks", "properties", on_delete: :nullify
   add_foreign_key "price_quotes", "listings", on_delete: :cascade
   add_foreign_key "properties", "destinations"
-  add_foreign_key "properties", "water_features", on_delete: :nullify
+  add_foreign_key "verifications", "properties", on_delete: :cascade
 end

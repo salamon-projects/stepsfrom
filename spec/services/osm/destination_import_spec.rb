@@ -8,13 +8,12 @@ RSpec.describe Osm::DestinationImport do
 
     expect(counts).to eq(coastline: 1, inland_water: 1, beaches: 1, roads: 3, accommodations: 2, measurement_failures: 0)
 
-    hotel = Property.find_by!(osm_id: 501)
-    expect(hotel).to have_attributes(waterfront_category: "direct", crosses_promenade: true, crosses_road: false,
-                                     beach_surface: "sand")
-    expect(hotel.distance_to_water_m).to be_within(2).of(100)
+    hotel = Property.find_by!(osm_id: 501).waterfront
+    expect(hotel).to have_attributes(category: "direct", crosses_promenade: true, crosses_road: false, beach_surface: "sand")
+    expect(hotel.distance_m).to be_within(2).of(100)
 
-    apartments = Property.find_by!(osm_id: 502)
-    expect(apartments).to have_attributes(waterfront_category: "walkable", crosses_road: true)
+    apartments = Property.find_by!(osm_id: 502).waterfront
+    expect(apartments).to have_attributes(category: "walkable", crosses_road: true)
   end
 
   it "keeps measuring the other properties when one fails" do
@@ -29,6 +28,6 @@ RSpec.describe Osm::DestinationImport do
     counts = described_class.new(destination, client: FakeOverpassClient.new).call
 
     expect(counts[:measurement_failures]).to eq(1)
-    expect(Property.find_by!(osm_id: 502).waterfront_category).to eq("walkable")
+    expect(Property.find_by!(osm_id: 502).waterfront.category).to eq("walkable")
   end
 end

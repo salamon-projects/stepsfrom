@@ -7,7 +7,7 @@ RSpec.describe ClassifyPropertyJob do
 
     described_class.perform_now(property.id)
 
-    expect(property.reload.waterfront_category).to eq("direct")
+    expect(property.reload.waterfront.category).to eq("direct")
   end
 
   it "ignores deleted properties" do

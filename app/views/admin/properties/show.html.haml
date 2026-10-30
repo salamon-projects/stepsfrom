@@ -17,28 +17,16 @@
     = link_to "Edit", edit_admin_property_path(@property), class: "button"
     = button_to "Measure again", reclassify_admin_property_path(@property), class: "button"
 
+- waterfront = @property.waterfront
 .admin-card
-  %h2 Measurement
-  = render "shared/waterfront_summary", property: @property
+  %h2 Location
   %dl.measure-grid
     %div
-      %dt Category
-      %dd= t("waterfront.categories.#{@property.waterfront_category}")
-    %div
-      %dt Distance to water
-      %dd= @property.distance_to_water_m ? "#{@property.distance_to_water_m} m (#{@property.water_kind})" : "–"
+      %dt Coordinates
+      %dd= "#{@property.latitude.round(6)}, #{@property.longitude.round(6)}"
     %div
       %dt Measured from
       %dd= @property.footprint ? "Building outline" : "Point"
-    %div
-      %dt Distance to beach
-      %dd= @property.distance_to_beach_m ? "#{@property.distance_to_beach_m} m (#{@property.beach_surface || 'surface unknown'})" : "–"
-    %div
-      %dt Road or railway between
-      %dd= @property.crosses_road? ? "Yes" : "No"
-    %div
-      %dt Promenade between
-      %dd= @property.crosses_promenade? ? "Yes" : "No"
     %div
       %dt Booking-site position
       %dd
@@ -48,25 +36,45 @@
             %span.flag check
         - else
           No reported positions
-    %div
-      %dt Coordinates
-      %dd= "#{@property.latitude.round(6)}, #{@property.longitude.round(6)}"
-    %div
-      %dt Measured at
-      %dd= @property.classified_at ? l(@property.classified_at, format: :short) : "Not yet"
-  = map_tag(property_map_data(@property), css_class: "map map--property", label: "Map of #{@property.name}")
 
+%h2 Verifications
 .admin-card
-  %h2= "Review: #{@property.qa_status}"
-  - if @property.qa_note.present?
-    = simple_format(@property.qa_note)
-  = form_with url: approve_admin_property_path(@property), class: "admin-form" do
-    .field
-      = label_tag :qa_note, "Note (optional)"
-      = text_area_tag :qa_note, nil, rows: 2
-    .actions
-      = submit_tag "Approve", class: "button button--primary", name: nil
-      = submit_tag "Reject", class: "button button--danger", name: nil, formaction: reject_admin_property_path(@property)
+  %h3 Waterfront
+  - if waterfront.nil?
+    %p Not measured yet. Use “Measure again”.
+  - else
+    = render "shared/waterfront_summary", property: @property
+    %dl.measure-grid
+      %div
+        %dt Category
+        %dd= t("waterfront.categories.#{waterfront.category}")
+      %div
+        %dt Distance to water
+        %dd= waterfront.distance_m ? "#{waterfront.distance_m} m (#{waterfront.water_kind})" : "–"
+      %div
+        %dt Distance to beach
+        %dd= waterfront.distance_to_beach_m ? "#{waterfront.distance_to_beach_m} m (#{waterfront.beach_surface || 'surface unknown'})" : "–"
+      %div
+        %dt Road or railway between
+        %dd= waterfront.crosses_road? ? "Yes" : "No"
+      %div
+        %dt Promenade between
+        %dd= waterfront.crosses_promenade? ? "Yes" : "No"
+      %div
+        %dt Measured at
+        %dd= waterfront.measured_at ? l(waterfront.measured_at, format: :short) : "Not yet"
+    = map_tag(property_map_data(@property), css_class: "map map--property", label: "Map of #{@property.name}")
+
+    %h3= "Review: #{waterfront.qa_status}"
+    - if waterfront.qa_note.present?
+      = simple_format(waterfront.qa_note)
+    = form_with url: approve_admin_property_path(@property), class: "admin-form" do
+      .field
+        = label_tag :qa_note, "Note (optional)"
+        = text_area_tag :qa_note, nil, rows: 2
+      .actions
+        = submit_tag "Approve", class: "button button--primary", name: nil
+        = submit_tag "Reject", class: "button button--danger", name: nil, formaction: reject_admin_property_path(@property)
 
 .admin-card
   .admin-page__header

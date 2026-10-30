@@ -96,6 +96,25 @@ from the building outline when OSM has one, otherwise from the point:
 The public "How we verify and rank" page shows the same thresholds. It is required
 for ranking transparency, so keep it accurate when you change them.
 
+### Verified attributes
+
+Waterfront is the first of several **verified attributes**. Each result is a
+row in `verifications` (single-table inheritance): `Verifications::Waterfront`
+holds the category, the headline distance (`distance_m`), the measurement
+details in `evidence` and its own review status. Properties keep only
+location data. A property is listed once its waterfront result is approved in
+a listed category.
+
+To add an attribute, for example a verified sea view:
+
+1. Create `app/models/verifications/sea_view.rb` (`< Verification`) with its
+   `CATEGORIES`, `LISTED_CATEGORIES` and `store_accessor :evidence` keys.
+   `subject` distinguishes several results of one type, for example one per
+   landmark for a landmark view.
+2. Write the measuring service (like `Waterfront::Classification`) that saves it.
+3. Add the badge texts under `config/locales/en.yml` and show the result in the
+   admin "Verifications" block and on the public pages.
+
 ## Affiliate links
 
 Buttons go through `/go/:listing_id`. That route logs the click (provider, dates and

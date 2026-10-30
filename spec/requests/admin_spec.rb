@@ -47,11 +47,20 @@ RSpec.describe "Admin" do
     it "approves and rejects with a note" do
       post approve_admin_property_path(candidate), params: { qa_note: "Checked on satellite." }, headers: auth
 
-      expect(candidate.reload).to have_attributes(qa_status: "approved", qa_note: "Checked on satellite.")
+      expect(candidate.waterfront.reload).to have_attributes(qa_status: "approved", qa_note: "Checked on satellite.")
       expect(Property.published).to include(candidate)
 
       post reject_admin_property_path(approved), headers: auth
-      expect(approved.reload.qa_status).to eq("rejected")
+      expect(approved.waterfront.reload.qa_status).to eq("rejected")
+    end
+
+    it "cannot review a property that has not been measured" do
+      unmeasured = create(:property, destination:)
+
+      post approve_admin_property_path(unmeasured), headers: auth
+
+      expect(response).to redirect_to(admin_property_path(unmeasured))
+      expect(flash[:alert]).to include("not been measured")
     end
 
     it "creates a property and measures it straight away" do
@@ -64,8 +73,8 @@ RSpec.describe "Admin" do
 
       property = Property.find_by!(name: "Villa Manual")
       expect(response).to redirect_to(admin_property_path(property))
-      expect(property).to have_attributes(waterfront_category: "direct", qa_status: "pending")
-      expect(property.distance_to_water_m).to be_within(1).of(30)
+      expect(property.waterfront).to have_attributes(category: "direct", qa_status: "pending")
+      expect(property.waterfront.distance_m).to be_within(1).of(30)
     end
 
     it "re-measures after a coordinate correction" do
@@ -74,7 +83,7 @@ RSpec.describe "Admin" do
 
       patch admin_property_path(candidate), headers: auth, params: { property: { latitude: lat, longitude: lon } }
 
-      expect(candidate.reload).to have_attributes(waterfront_category: "not_waterfront")
+      expect(candidate.reload.waterfront.category).to eq("not_waterfront")
     end
 
     it "shows the measurement and listings" do
@@ -82,11 +91,11 @@ RSpec.describe "Admin" do
 
       get admin_property_path(candidate), headers: auth
 
-      expect(response.body).to include("Measurement", "Booking.com", "data-map=")
+      expect(response.body).to include("Verifications", "Waterfront", "Booking.com", "data-map=")
     end
 
     it "renders the review note without nesting paragraphs" do
-      candidate.update!(qa_note: "Checked on satellite.\n\nRoad is a footpath.")
+      candidate.waterfront.update!(qa_note: "Checked on satellite.\n\nRoad is a footpath.")
 
       get admin_property_path(candidate), headers: auth
 

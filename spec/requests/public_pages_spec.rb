@@ -139,7 +139,7 @@ RSpec.describe "Public pages" do
     end
 
     it "warns about a road between the property and the water" do
-      hotel.update_columns(crosses_road: true, waterfront_category: "near")
+      hotel.waterfront.update!(crosses_road: true, category: "near")
 
       get property_path(hotel)
 
@@ -147,7 +147,7 @@ RSpec.describe "Public pages" do
     end
 
     it "returns 404 for properties not yet approved" do
-      hotel.update_columns(qa_status: "pending")
+      hotel.waterfront.update!(qa_status: "pending")
 
       get property_path(hotel)
 

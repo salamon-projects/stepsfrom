@@ -4,7 +4,7 @@ namespace :waterfront do
     scope = args[:slug] ? Destination.where(slug: args[:slug]) : Destination.all
     scope.find_each do |destination|
       destination.properties.find_each { |property| Waterfront::Classification.new(property).call }
-      counts = destination.properties.group(:waterfront_category).count
+      counts = Verifications::Waterfront.joins(:property).where(properties: { destination_id: destination.id }).group(:category).count
       puts "#{destination.name}: #{counts.sort.map { |category, n| "#{category}=#{n}" }.join(' ')}"
     end
   end

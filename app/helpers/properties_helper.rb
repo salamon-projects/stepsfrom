@@ -1,23 +1,29 @@
 module PropertiesHelper
   def waterfront_badge(property, large: false)
-    tag.span(t("waterfront.categories.#{property.waterfront_category}"),
-             class: [ "badge", "badge--#{property.waterfront_category}", ("badge--large" if large) ],
-             title: waterfront_hint(property))
+    category = waterfront_category(property)
+    tag.span(t("waterfront.categories.#{category}"),
+             class: [ "badge", "badge--#{category}", ("badge--large" if large) ],
+             title: waterfront_hint(category))
   end
 
-  def waterfront_hint(property)
+  def waterfront_category(property)
+    property.waterfront&.category || "unknown"
+  end
+
+  def waterfront_hint(category)
     config = Waterfront.config
-    t("waterfront.category_hints.#{property.waterfront_category}",
+    t("waterfront.category_hints.#{category}",
       near: config.fetch(:near_max_m), walkable: config.fetch(:walkable_max_m), default: nil)
   end
 
   def measured_distance(property)
-    return if property.distance_to_water_m.nil?
+    waterfront = property.waterfront
+    return if waterfront&.distance_m.nil?
 
-    if property.distance_to_water_m.zero?
-      t("waterfront.on_the_water", water: property.water_display_name)
+    if waterfront.distance_m.zero?
+      t("waterfront.on_the_water", water: waterfront.water_display_name)
     else
-      t("waterfront.measured", distance: number_with_delimiter(property.distance_to_water_m), water: property.water_display_name)
+      t("waterfront.measured", distance: number_with_delimiter(waterfront.distance_m), water: waterfront.water_display_name)
     end
   end
 
@@ -27,26 +33,31 @@ module PropertiesHelper
   end
 
   def beach_surface_label(property)
-    t("waterfront.beach_surfaces.#{property.beach_surface}") if property.beach_surface.present?
+    surface = property.waterfront&.beach_surface
+    t("waterfront.beach_surfaces.#{surface}") if surface.present?
   end
 
   # Notes shown under the badge: what lies between the property and the water.
   def waterfront_notes(property)
+    waterfront = property.waterfront
+    return [] unless waterfront
+
     notes = []
-    notes << [ :warning, t("waterfront.road_between") ] if property.crosses_road?
-    notes << [ :info, t("waterfront.promenade_between") ] if property.crosses_promenade?
-    notes << [ :info, beach_surface_label(property) ] if property.beach_surface.present?
+    notes << [ :warning, t("waterfront.road_between") ] if waterfront.crosses_road?
+    notes << [ :info, t("waterfront.promenade_between") ] if waterfront.crosses_promenade?
+    notes << [ :info, beach_surface_label(property) ] if waterfront.beach_surface.present?
     notes
   end
 
   def property_map_data(property)
     data = { properties: [ map_point(property) ], maxZoom: 18 }
     data[:footprint] = property.footprint.exterior_ring.points.map { |p| [ p.y, p.x ] } if property.footprint
-    if property.water_point
-      from = property.footprint ? closest_point_on_footprint(property) : property.lonlat
+    water_lon, water_lat = property.waterfront&.water_point
+    if water_lon && water_lat
+      from_lon, from_lat = property.footprint ? closest_footprint_vertex(property, water_lon, water_lat) : [ property.lonlat.x, property.lonlat.y ]
       data[:measurement] = {
-        from: [ from.y, from.x ], to: [ property.water_point.y, property.water_point.x ],
-        label: t("waterfront.measured_short", distance: property.distance_to_water_m)
+        from: [ from_lat, from_lon ], to: [ water_lat, water_lon ],
+        label: t("waterfront.measured_short", distance: property.waterfront.distance_m)
       }
     end
     data
@@ -68,15 +79,15 @@ module PropertiesHelper
   end
 
   def map_point(property, url: nil)
-    { lat: property.lonlat.y, lon: property.lonlat.x, name: property.name, category: property.waterfront_category, url: }
+    { lat: property.lonlat.y, lon: property.lonlat.x, name: property.name, category: waterfront_category(property), url: }
   end
 
   private
 
-  # The footprint vertex nearest the water point; close enough to draw the
-  # measurement line from the building edge.
-  def closest_point_on_footprint(property)
-    water = property.water_point
-    property.footprint.exterior_ring.points.min_by { |p| (p.x - water.x)**2 + (p.y - water.y)**2 }
+  # The footprint vertex nearest the water point as [lon, lat]; close enough
+  # to draw the measurement line from the building edge.
+  def closest_footprint_vertex(property, water_lon, water_lat)
+    vertex = property.footprint.exterior_ring.points.min_by { |p| (p.x - water_lon)**2 + (p.y - water_lat)**2 }
+    [ vertex.x, vertex.y ]
   end
 end

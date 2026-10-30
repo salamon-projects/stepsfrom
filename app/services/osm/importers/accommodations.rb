@@ -29,7 +29,7 @@ module Osm
         if property.new_record?
           property.assign_attributes(destination:, name:, kind: KINDS.fetch(element.tags["tourism"], "hotel"))
         end
-        unreviewed = property.new_record? || property.qa_pending?
+        unreviewed = !property.reviewed?
         details = details(element.tags)
         details = details.select { |attribute, _| property.public_send(attribute).blank? } unless unreviewed
         property.assign_attributes(details)

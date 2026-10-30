@@ -32,9 +32,6 @@
   .field
     = f.label :website
     = f.url_field :website
-  .field
-    = f.label :qa_note, "Review note"
-    = f.text_area :qa_note, rows: 3
   .actions
     = f.submit class: "button button--primary"
     = link_to "Cancel", property.persisted? ? admin_property_path(property) : admin_properties_path, class: "button"

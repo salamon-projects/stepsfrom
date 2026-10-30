@@ -10,7 +10,7 @@ class PropertySearch
   def initialize(destination:, stay: nil, params: {})
     @destination = destination
     @stay = stay if stay&.valid?
-    @category = params[:category].presence_in(Property::LISTED_CATEGORIES)
+    @category = params[:category].presence_in(Verifications::Waterfront::LISTED_CATEGORIES)
     @surface = params[:surface].presence_in(SURFACES)
     @kind = params[:kind].presence_in(Property::KINDS)
     @sort = params[:sort].presence_in(SORTS)
@@ -23,14 +23,14 @@ class PropertySearch
   # Matching properties, unordered.
   def filtered
     scope = destination.properties.published
-    scope = scope.where(waterfront_category: category) if category
-    scope = scope.where(beach_surface: surface) if surface
+    scope = scope.where(verifications: { category: }) if category
+    scope = scope.where("verifications.evidence->>'beach_surface' = ?", surface) if surface
     scope = scope.where(kind:) if kind
     scope
   end
 
   def results
-    scope = filtered.includes(:destination, :active_listings)
+    scope = filtered.preload(:destination, :active_listings, :waterfront)
     return scope.by_waterfront unless stay
 
     scope = scope.select("properties.*", "(#{best_price_sql}) AS best_price_cents")

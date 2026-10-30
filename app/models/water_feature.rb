@@ -4,7 +4,5 @@ class WaterFeature < ApplicationRecord
 
   enum :kind, KINDS.index_by(&:itself), validate: true
 
-  has_many :properties, dependent: :nullify
-
   validates :osm_type, :osm_id, :geom, presence: true
 end

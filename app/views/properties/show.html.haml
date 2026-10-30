@@ -1,5 +1,6 @@
 - destination = @property.destination
-- content_for :title, "#{@property.name}, #{destination.name} — #{t("waterfront.categories.#{@property.waterfront_category}")}"
+- waterfront = @property.waterfront
+- content_for :title, "#{@property.name}, #{destination.name} — #{t("waterfront.categories.#{waterfront.category}")}"
 - content_for :description, [ measured_distance(@property), "#{property_kind(@property)} in #{destination.name}, #{destination.country_name}." ].compact.join(". ")
 - content_for :canonical, property_url(@property)
 - content_for(:noindex, true) if current_stay
@@ -39,18 +40,18 @@
       %ul.checklist
         %li.checklist__item.checklist__item--ok
           Distance to the water measured from OpenStreetMap data
-          - if @property.classified_at
-            = "on #{l(@property.classified_at.to_date, format: :long)}"
-        - if @property.crosses_road?
+          - if waterfront.measured_at
+            = "on #{l(waterfront.measured_at.to_date, format: :long)}"
+        - if waterfront.crosses_road?
           %li.checklist__item.checklist__item--warn= t("waterfront.road_between")
         - else
           %li.checklist__item.checklist__item--ok No road or railway between the property and the water
-        - if @property.crosses_promenade?
+        - if waterfront.crosses_promenade?
           %li.checklist__item.checklist__item--info= t("waterfront.promenade_between")
         - if (surface = beach_surface_label(@property))
           %li.checklist__item.checklist__item--info
             = surface
-            - if @property.distance_to_beach_m.to_i.positive?
-              = "#{@property.distance_to_beach_m} m away"
+            - if waterfront.distance_to_beach_m.to_i.positive?
+              = "#{waterfront.distance_to_beach_m} m away"
         %li.checklist__item.checklist__item--ok Position and result reviewed by our team
       %p.checks__more= link_to "How we verify", how_we_verify_path, class: "text-link"

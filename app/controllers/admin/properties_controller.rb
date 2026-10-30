@@ -15,7 +15,7 @@ module Admin
     def index
       @view = params[:view].presence_in(VIEWS.keys) || "review"
       @destinations = Destination.ordered
-      scope = scoped_by_view(Property.includes(:destination, :listings))
+      scope = scoped_by_view(Property.left_joins(:waterfront).preload(:destination, :listings, :waterfront))
       scope = scope.where(destination_id: params[:destination_id]) if params[:destination_id].present?
       scope = scope.where("properties.name ILIKE ?", "%#{Property.sanitize_sql_like(params[:q])}%") if params[:q].present?
       @pagy, @properties = pagy(scope.by_waterfront, limit: 50)
@@ -57,19 +57,17 @@ module Admin
     end
 
     def approve
-      @property.update!(qa_status: "approved", qa_note: params[:qa_note].presence || @property.qa_note)
-      redirect_back_or_to admin_property_path(@property), notice: "#{@property.name} approved."
+      review("approved")
     end
 
     def reject
-      @property.update!(qa_status: "rejected", qa_note: params[:qa_note].presence || @property.qa_note)
-      redirect_back_or_to admin_property_path(@property), notice: "#{@property.name} rejected."
+      review("rejected")
     end
 
     def reclassify
       Waterfront::Classification.new(@property).call
       redirect_to admin_property_path(@property),
-                  notice: "Measured again: #{t("waterfront.categories.#{@property.reload.waterfront_category}")}."
+                  notice: "Measured again: #{t("waterfront.categories.#{@property.reload.waterfront.category}")}."
     end
 
     private
@@ -79,15 +77,28 @@ module Admin
     end
 
     def property_params
-      params.expect(property: %i[destination_id name slug kind stars address website latitude longitude qa_note])
+      params.expect(property: %i[destination_id name slug kind stars address website latitude longitude])
+    end
+
+    # Approves or rejects the waterfront result, with an optional note.
+    def review(status)
+      verification = @property.waterfront
+      unless verification
+        return redirect_to admin_property_path(@property), alert: "#{@property.name} has not been measured yet."
+      end
+
+      verification.update!(qa_status: status, qa_note: params[:qa_note].presence || verification.qa_note)
+      redirect_back_or_to admin_property_path(@property), notice: "#{@property.name} #{status}."
     end
 
     def scoped_by_view(scope)
       case @view
-      when "review" then scope.qa_pending.where(waterfront_category: Property::LISTED_CATEGORIES)
-      when "approved" then scope.qa_approved
-      when "rejected" then scope.qa_rejected
-      when "excluded" then scope.where(waterfront_category: %w[not_waterfront unknown])
+      when "review"
+        scope.where(verifications: { qa_status: "pending", category: Verifications::Waterfront::LISTED_CATEGORIES })
+      when "approved" then scope.where(verifications: { qa_status: "approved" })
+      when "rejected" then scope.where(verifications: { qa_status: "rejected" })
+      when "excluded"
+        scope.where(verifications: { category: %w[not_waterfront unknown] }).or(scope.where(verifications: { id: nil }))
       when "conflicts" then scope.beachfront_claim_conflicts
       when "mismatch" then scope.with_coordinate_mismatch
       else scope

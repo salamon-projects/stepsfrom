@@ -13,6 +13,6 @@ class DestinationsController < ApplicationController
     return if redirect_past_last_page(@pagy)
 
     @offers = Offer.for_properties(@properties, current_stay)
-    @map_points = @search.filtered.map { |property| helpers.map_point(property, url: property_path(property, helpers.stay_params)) }
+    @map_points = @search.filtered.preload(:waterfront).map { |property| helpers.map_point(property, url: property_path(property, helpers.stay_params)) }
   end
 end
