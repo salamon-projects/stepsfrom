@@ -19,9 +19,11 @@ module Admin
       end
     end
 
+    # Surrounding whitespace is ignored: a secret pasted with a trailing newline
+    # must not lock the admin out.
     def admin_credentials
-      user = ENV["ADMIN_USER"].presence || Rails.application.credentials.dig(:admin, :user)
-      password = ENV["ADMIN_PASSWORD"].presence || Rails.application.credentials.dig(:admin, :password)
+      user = ENV["ADMIN_USER"].to_s.strip.presence || Rails.application.credentials.dig(:admin, :user)
+      password = ENV["ADMIN_PASSWORD"].to_s.strip.presence || Rails.application.credentials.dig(:admin, :password)
       return [ user, password ] if user.present? && password.present?
 
       Rails.env.local? ? %w[admin admin] : [ nil, nil ]

@@ -13,6 +13,14 @@ RSpec.describe "Admin" do
     expect(response).to have_http_status(:unauthorized)
   end
 
+  it "ignores whitespace around configured credentials" do
+    stub_const("ENV", ENV.to_h.merge("ADMIN_USER" => "editor\n", "ADMIN_PASSWORD" => " s3cret \n"))
+
+    get admin_properties_path, headers: { "HTTP_AUTHORIZATION" => ActionController::HttpAuthentication::Basic.encode_credentials("editor", "s3cret") }
+
+    expect(response).to have_http_status(:ok)
+  end
+
   it "uses configured credentials instead of the development default" do
     stub_const("ENV", ENV.to_h.merge("ADMIN_USER" => "editor", "ADMIN_PASSWORD" => "s3cret"))
 
