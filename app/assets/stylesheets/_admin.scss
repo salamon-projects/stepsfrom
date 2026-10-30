@@ -13,6 +13,38 @@
   }
 }
 
+.admin-login {
+  max-width: 24rem;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $white;
+}
+
+.admin .site-nav {
+  align-items: center;
+
+  form {
+    margin: 0;
+  }
+}
+
+.site-nav__button {
+  min-height: 2.75rem;
+  padding: 0 0.25rem;
+  border: 0;
+  background: none;
+  color: $white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .admin-page {
   padding: 1.5rem 1rem 3rem;
 

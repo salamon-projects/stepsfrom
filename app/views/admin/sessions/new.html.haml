@@ -1,0 +1,13 @@
+- content_for :title, "Sign in"
+
+.admin-login
+  %h1 Sign in
+  = form_with url: admin_login_path, class: "admin-form" do
+    .field
+      = label_tag :username, "Username"
+      = text_field_tag :username, params[:username], autocomplete: "username", required: true, autofocus: true
+    .field
+      = label_tag :password, "Password"
+      = password_field_tag :password, nil, autocomplete: "current-password", required: true
+    .actions
+      = submit_tag "Sign in", name: nil, class: "button button--primary"

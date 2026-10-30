@@ -22,6 +22,9 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root "properties#index"
+    get "login", to: "sessions#new", as: :login
+    post "login", to: "sessions#create"
+    delete "logout", to: "sessions#destroy", as: :logout
     resources :destinations, except: :show do
       post :import, on: :member
     end

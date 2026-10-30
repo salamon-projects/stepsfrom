@@ -29,8 +29,8 @@ RSpec.describe "Pagination" do
   end
 
   it "pages the admin list by 50" do
-    get admin_properties_path(view: "all"),
-        headers: { "HTTP_AUTHORIZATION" => ActionController::HttpAuthentication::Basic.encode_credentials("admin", "admin") }
+    sign_in_admin
+    get admin_properties_path(view: "all")
 
     expect(response.body).to include("21 properties")
     expect(Nokogiri::HTML(response.body).css(".admin-table tbody tr").size).to eq(21)

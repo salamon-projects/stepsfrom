@@ -192,7 +192,7 @@ inside Puma.
 
 | Variable | Purpose |
 |---|---|
-| `ADMIN_USER`, `ADMIN_PASSWORD` | Admin login (or credentials `admin.user` / `admin.password`). Required in production |
+| `ADMIN_USER`, `ADMIN_PASSWORD` | Admin sign-in on `/admin/login` (or credentials `admin.user` / `admin.password`). Required in production |
 | `OVERPASS_URL` | Overpass API endpoint (default `https://overpass-api.de/api/interpreter`) |
 | `MAP_TILE_URL` | Map tile template (default: OpenStreetMap's tile server) |
 | `PRICE_PROVIDERS` | Price providers to use, e.g. `stay22` |

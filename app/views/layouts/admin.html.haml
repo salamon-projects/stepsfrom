@@ -17,9 +17,12 @@
           %span.brand__mark{ "aria-hidden": "true" } ≈
           %span.brand__name Admin
         %nav.site-nav{ "aria-label": "Admin" }
-          = link_to "Properties", admin_properties_path
-          = link_to "Destinations", admin_destinations_path
+          - if admin_signed_in?
+            = link_to "Properties", admin_properties_path
+            = link_to "Destinations", admin_destinations_path
           = link_to "View site", root_path
+          - if admin_signed_in?
+            = button_to "Log out", admin_logout_path, method: :delete, class: "site-nav__button"
     - flash.each do |type, message|
       .flash{ class: "flash--#{type}", role: "status" }
         .container= message
