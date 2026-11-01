@@ -94,6 +94,19 @@ en:
     children: Children
     child_age: Age of child %{number}
     choose_age: Age
+    fewer: "Fewer %{what}"
+    more: "More %{what}"
+    calendar:
+      add_date: Add date
+      dialog: Choose your dates
+      choose_check_in: Choose a check-in date.
+      choose_check_out: Choose a check-out date.
+      previous_month: Previous month
+      next_month: Next month
+      clear: Clear
+      done: Done
+      night: night
+      nights: nights
     age:
       zero: Under 1
       one: 1 year

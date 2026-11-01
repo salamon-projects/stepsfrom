@@ -1,17 +1,24 @@
 -# locals: (stay:)
+-# stay_fields.js turns the date inputs into one calendar and the counts into
+-# steppers; without it these plain fields submit the same parameters.
+- content_for :scripts do
+  = javascript_include_tag "stay_fields", defer: true
 - today = Date.current.iso8601
-.field
+- calendar = { max_nights: Stay::MAX_NIGHTS, **t("search.calendar") }
+.field.field--date
   = label_tag :check_in, t("search.check_in")
-  = date_field_tag :check_in, stay&.check_in, min: today
-.field
+  = date_field_tag :check_in, stay&.check_in, min: today, data: { calendar: calendar.to_json }
+.field.field--date
   = label_tag :check_out, t("search.check_out")
   = date_field_tag :check_out, stay&.check_out, min: today
 .field.field--narrow
   = label_tag :adults, t("search.adults")
-  = select_tag :adults, options_for_select(1..Stay::MAX_ADULTS, stay&.adults || 2)
+  = select_tag :adults, options_for_select(1..Stay::MAX_ADULTS, stay&.adults || 2),
+    data: { stepper: { fewer: t("search.fewer", what: "adults"), more: t("search.more", what: "adults") }.to_json }
 .field.field--narrow
   = label_tag :children, t("search.children")
-  = select_tag :children, options_for_select(0..Stay::MAX_CHILDREN, stay&.children || 0)
+  = select_tag :children, options_for_select(0..Stay::MAX_CHILDREN, stay&.children || 0),
+    data: { stepper: { fewer: t("search.fewer", what: "children"), more: t("search.more", what: "children") }.to_json }
 -# One age field per possible child; CSS shows as many as are selected
 -# above (see .child-ages in _forms.scss), so this works without JavaScript.
 .child-ages
