@@ -20,21 +20,34 @@ module Affiliate
       uri = URI.parse(@listing.url)
       return uri.to_s unless @stay && @provider.params.any?
 
-      query = URI.decode_www_form(uri.query.to_s).reject { |key, _| @provider.params.key?(key) }
-      @provider.params.each { |key, template| query << [ key, interpolate(template) ] }
+      replaced = @provider.params.keys + @provider.child_params.keys
+      query = URI.decode_www_form(uri.query.to_s).reject { |key, _| replaced.include?(key) }
+      @provider.params.each do |key, template|
+        value = interpolate(template, stay_values)
+        query << [ key, value ] if value.present?
+      end
+      @stay.child_ages.each do |age|
+        @provider.child_params.each { |key, template| query << [ key, interpolate(template, "age" => age.to_s) ] }
+      end
       uri.query = URI.encode_www_form(query)
       uri.to_s
     end
 
     private
 
-    def interpolate(template)
-      values = {
+    def stay_values
+      @stay_values ||= {
         "check_in" => @stay.check_in.iso8601,
         "check_out" => @stay.check_out.iso8601,
         "adults" => @stay.adults.to_s,
-        "nights" => @stay.nights.to_s
+        "nights" => @stay.nights.to_s,
+        "children" => @stay.children.to_s,
+        "child_ages" => @stay.child_ages.map { |age| interpolate(@provider.child_age, "age" => age.to_s) }
+                             .join(@provider.child_age_separator)
       }
+    end
+
+    def interpolate(template, values)
       template.to_s.gsub(PLACEHOLDER) { values.fetch(Regexp.last_match(1)) }
     end
   end

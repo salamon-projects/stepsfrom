@@ -6,7 +6,10 @@ class PriceQuote < ApplicationRecord
   validates :total_cents, numericality: { only_integer: true, greater_than: 0 }
 
   scope :fresh, -> { where("price_quotes.expires_at > ?", Time.current) }
-  scope :for_stay, ->(stay) { where(check_in: stay.check_in, check_out: stay.check_out, adults: stay.adults) }
+  scope :for_stay, lambda { |stay|
+    where(check_in: stay.check_in, check_out: stay.check_out, adults: stay.adults)
+      .where("price_quotes.child_ages = CAST(? AS integer[])", "{#{stay.child_ages.join(',')}}")
+  }
 
   def total
     total_cents / 100.0

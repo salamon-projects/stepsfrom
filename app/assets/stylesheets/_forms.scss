@@ -84,6 +84,30 @@
   font-weight: 600;
 }
 
+// An age field for each child selected in the form's children field.
+.child-ages {
+  display: none;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  &__field {
+    display: none;
+    flex: 1 1 7rem;
+    max-width: 10rem;
+  }
+}
+
+form:has(select[name="children"] option:checked:not([value="0"])) .child-ages {
+  display: flex;
+}
+
+@for $count from 1 through 6 {
+  form:has(select[name="children"] option[value="#{$count}"]:checked) .child-ages__field:nth-child(-n + #{$count}) {
+    display: flex;
+  }
+}
+
 .search-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -99,12 +123,18 @@
   }
 
   @media (min-width: $bp-md) {
-    grid-template-columns: 2fr 1fr 1fr 0.7fr auto;
+    grid-template-columns: 2fr 1fr 1fr 0.7fr 0.7fr auto;
     align-items: end;
 
     .field--wide,
     .field--submit {
       grid-column: auto;
+    }
+
+    // Ages go on their own row below the search bar.
+    .child-ages,
+    .form-error {
+      order: 1;
     }
   }
 }

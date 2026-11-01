@@ -9,5 +9,17 @@
 .field.field--narrow
   = label_tag :adults, t("search.adults")
   = select_tag :adults, options_for_select(1..Stay::MAX_ADULTS, stay&.adults || 2)
+.field.field--narrow
+  = label_tag :children, t("search.children")
+  = select_tag :children, options_for_select(0..Stay::MAX_CHILDREN, stay&.children || 0)
+-# One age field per possible child; CSS shows as many as are selected
+-# above (see .child-ages in _forms.scss), so this works without JavaScript.
+.child-ages
+  - Stay::MAX_CHILDREN.times do |index|
+    .field.field--narrow.child-ages__field
+      = label_tag "child_age_#{index + 1}", t("search.child_age", number: index + 1)
+      = select_tag "child_ages[]",
+        options_for_select(Stay::CHILD_AGES.map { |age| [ t("search.age", count: age), age ] }, stay&.child_ages&.[](index)),
+        include_blank: t("search.choose_age"), id: "child_age_#{index + 1}"
 - if stay && !stay.valid?
   %p.form-error{ role: "alert" }= stay.errors.full_messages.to_sentence

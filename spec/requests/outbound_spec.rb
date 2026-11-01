@@ -20,6 +20,14 @@ RSpec.describe "Outbound clicks" do
                                      adults: 2, source_path: "/destinations/makarska")
   end
 
+  it "passes children and their ages on" do
+    get outbound_path(listing, check_in: check_in.iso8601, check_out: (check_in + 3).iso8601, adults: 2,
+                               children: 1, child_ages: [ 7 ])
+
+    expect(response.location).to include("group_children=1", "age=7")
+    expect(OutboundClick.last.children).to eq(1)
+  end
+
   it "redirects without dates when none are given" do
     get outbound_path(listing)
 

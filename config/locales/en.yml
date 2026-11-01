@@ -17,6 +17,8 @@ en:
             check_out:
               before_check_in: "must be after check-in"
               too_long: "must be at most %{count} nights after check-in"
+            child_ages:
+              missing: "are needed for every child"
 
   countries:
     GR: Greece
@@ -75,6 +77,13 @@ en:
     check_in: Check-in
     check_out: Check-out
     adults: Adults
+    children: Children
+    child_age: Age of child %{number}
+    choose_age: Age
+    age:
+      zero: Under 1
+      one: 1 year
+      other: "%{count} years"
     submit: Search
     update: Update
     category: Waterfront

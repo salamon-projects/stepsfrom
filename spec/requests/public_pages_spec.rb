@@ -104,6 +104,15 @@ RSpec.describe "Public pages" do
       )
     end
 
+    it "counts children in the summary and keeps their ages in the form" do
+      get destination_path(destination, stay_params.merge(children: 2, child_ages: [ 4, 9 ]))
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(".filters__current").text).to include("2 adults · 2 children")
+      expect(page.at_css("#child_age_1 option[selected]")["value"]).to eq("4")
+      expect(page.at_css("#child_age_2 option[selected]")["value"]).to eq("9")
+    end
+
     it "keeps the filters open when the dates need correcting" do
       get destination_path(destination, check_in: check_in.iso8601, check_out: (check_in - 1).iso8601)
 

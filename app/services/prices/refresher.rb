@@ -13,6 +13,7 @@ module Prices
 
         rows = provider.quotes_for(supported, stay).map do |quote|
           { listing_id: quote.listing_id, check_in: stay.check_in, check_out: stay.check_out, adults: stay.adults,
+            child_ages: stay.child_ages,
             total_cents: quote.total_cents, currency: quote.currency, source: provider.name,
             fetched_at: now, expires_at: now + provider.ttl }
         end

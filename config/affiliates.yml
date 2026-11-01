@@ -1,7 +1,12 @@
 # Booking sites (OTAs) we link to, in default button order.
 #
 # params: query parameters added to the listing URL for a stay. Placeholders:
-#   {check_in} {check_out} (YYYY-MM-DD), {adults}, {nights}
+#   {check_in} {check_out} (YYYY-MM-DD), {adults}, {nights}, {children},
+#   {child_ages}: each child's age written as child_age (default "{age}"),
+#   joined with child_age_separator (default ","). A parameter that comes
+#   out empty is left out.
+#
+# child_params: query parameters added once per child, e.g. age={age}.
 #
 # tracking_env: name of the ENV variable holding the affiliate tracking URL
 #   template once the programme has approved us. The template must contain
@@ -16,8 +21,10 @@ shared:
       checkin: "{check_in}"
       checkout: "{check_out}"
       group_adults: "{adults}"
-      group_children: "0"
+      group_children: "{children}"
       no_rooms: "1"
+    child_params:
+      age: "{age}"
     tracking_env: BOOKING_TRACKING_URL
   expedia:
     name: Expedia
@@ -25,7 +32,9 @@ shared:
     params:
       chkin: "{check_in}"
       chkout: "{check_out}"
-      rm1: "a{adults}"
+      rm1: "a{adults}{child_ages}"
+    child_age: ":c{age}"
+    child_age_separator: ""
     tracking_env: EXPEDIA_TRACKING_URL
   hotels_com:
     name: Hotels.com
@@ -33,7 +42,9 @@ shared:
     params:
       chkin: "{check_in}"
       chkout: "{check_out}"
-      rm1: "a{adults}"
+      rm1: "a{adults}{child_ages}"
+    child_age: ":c{age}"
+    child_age_separator: ""
     tracking_env: HOTELS_COM_TRACKING_URL
   vrbo:
     name: Vrbo
@@ -42,6 +53,9 @@ shared:
       startDate: "{check_in}"
       endDate: "{check_out}"
       adults: "{adults}"
+      children: "{child_ages}"
+    # Room number and age, e.g. 1_5,1_8
+    child_age: "1_{age}"
     tracking_env: VRBO_TRACKING_URL
   agoda:
     name: Agoda
@@ -50,6 +64,8 @@ shared:
       checkIn: "{check_in}"
       los: "{nights}"
       adults: "{adults}"
+      children: "{children}"
+      childages: "{child_ages}"
       rooms: "1"
     tracking_env: AGODA_TRACKING_URL
   trip_com:
@@ -59,5 +75,7 @@ shared:
       checkIn: "{check_in}"
       checkOut: "{check_out}"
       adult: "{adults}"
+      children: "{children}"
+      ages: "{child_ages}"
       crn: "1"
     tracking_env: TRIP_COM_TRACKING_URL

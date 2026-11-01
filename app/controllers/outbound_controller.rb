@@ -7,7 +7,7 @@ class OutboundController < ApplicationController
 
     OutboundClick.create!(
       listing:, property: listing.property, provider: listing.provider,
-      check_in: stay&.check_in, check_out: stay&.check_out, adults: stay&.adults,
+      check_in: stay&.check_in, check_out: stay&.check_out, adults: stay&.adults, children: stay&.children,
       source_path: source_path
     )
 

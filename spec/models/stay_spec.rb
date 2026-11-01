@@ -27,6 +27,27 @@ RSpec.describe Stay do
 
       expect(stay.check_in).to eq(check_in)
       expect(stay.adults).to eq(2)
+      expect(stay.children).to eq(0)
+      expect(stay.child_ages).to eq([])
+    end
+
+    it "keeps one age per child and ignores the unused age fields" do
+      params = ActionController::Parameters.new(check_in: check_in.iso8601, check_out: (check_in + 2).iso8601,
+                                                children: "2", child_ages: [ "5", "0", "", "" ], id: "makarska")
+      stay = described_class.from_params(params)
+
+      expect(stay).to be_valid
+      expect(stay.child_ages).to eq([ 5, 0 ])
+      expect(stay.to_params).to include(children: 2, child_ages: [ 5, 0 ])
+    end
+
+    it "asks for the age of every child" do
+      params = ActionController::Parameters.new(check_in: check_in.iso8601, check_out: (check_in + 2).iso8601,
+                                                children: "2", child_ages: [ "5", "" ])
+      stay = described_class.from_params(params)
+
+      expect(stay).not_to be_valid
+      expect(stay.errors[:child_ages]).to be_present
     end
   end
 end

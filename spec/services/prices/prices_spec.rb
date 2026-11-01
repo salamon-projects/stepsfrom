@@ -22,6 +22,16 @@ RSpec.describe Prices do
     expect(quotes.first.expires_at).to be > Time.current
   end
 
+  it "keeps separate quotes per child ages" do
+    family = Stay.new(check_in: stay.check_in, check_out: stay.check_out, adults: 2, children: 1, child_ages: [ 6 ])
+
+    described_class.refresh(listings, stay)
+    described_class.refresh(listings, family)
+
+    expect(PriceQuote.for_stay(stay).count).to eq(2)
+    expect(PriceQuote.for_stay(family).pluck(:child_ages)).to eq([ [ 6 ], [ 6 ] ])
+  end
+
   it "does not ask again while quotes are fresh" do
     described_class.refresh(listings, stay)
     PriceQuote.update_all(total_cents: 1)

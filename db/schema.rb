@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_30_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -86,6 +86,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_130000) do
     t.integer "adults"
     t.string "source_path"
     t.datetime "created_at", null: false
+    t.integer "children"
     t.index ["created_at"], name: "index_outbound_clicks_on_created_at"
     t.index ["listing_id"], name: "index_outbound_clicks_on_listing_id"
     t.index ["property_id"], name: "index_outbound_clicks_on_property_id"
@@ -103,8 +104,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_130000) do
     t.datetime "expires_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "child_ages", default: [], null: false, array: true
     t.index ["expires_at"], name: "index_price_quotes_on_expires_at"
-    t.index ["listing_id", "check_in", "check_out", "adults"], name: "index_price_quotes_on_listing_and_stay", unique: true
+    t.index ["listing_id", "check_in", "check_out", "adults", "child_ages"], name: "index_price_quotes_on_listing_and_stay", unique: true
   end
 
   create_table "properties", force: :cascade do |t|

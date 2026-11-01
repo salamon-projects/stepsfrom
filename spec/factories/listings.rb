@@ -9,6 +9,11 @@ FactoryBot.define do
       sequence(:url) { |n| "https://www.expedia.com/Makarska-Hotels-Sample.h#{n}.Hotel-Information" }
     end
 
+    trait :vrbo do
+      provider { "vrbo" }
+      sequence(:url) { |n| "https://www.vrbo.com/#{1_000_000 + n}" }
+    end
+
     trait :agoda do
       provider { "agoda" }
       sequence(:url) { |n| "https://www.agoda.com/sample-#{n}/hotel/makarska-hr.html" }

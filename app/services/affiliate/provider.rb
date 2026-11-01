@@ -1,7 +1,7 @@
 module Affiliate
   # A booking site we link to, configured in config/affiliates.yml.
   class Provider
-    attr_reader :key, :name, :params, :tracking_env
+    attr_reader :key, :name, :params, :child_params, :child_age, :child_age_separator, :tracking_env
 
     def self.all
       @all ||= Rails.application.config_for(:affiliates).to_h.map { |key, attrs| new(key.to_s, attrs) }.index_by(&:key)
@@ -20,6 +20,9 @@ module Affiliate
       @name = attrs.fetch(:name)
       @host_pattern = Regexp.new(attrs.fetch(:host_pattern))
       @params = attrs.fetch(:params, {}).transform_keys(&:to_s)
+      @child_params = attrs.fetch(:child_params, {}).transform_keys(&:to_s)
+      @child_age = attrs.fetch(:child_age, "{age}")
+      @child_age_separator = attrs.fetch(:child_age_separator, ",")
       @tracking_env = attrs[:tracking_env]
     end
 

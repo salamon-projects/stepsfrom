@@ -28,6 +28,39 @@ RSpec.describe Affiliate::LinkBuilder do
     expect(query).to include("checkIn" => "2027-07-01", "los" => "7", "adults" => "3")
   end
 
+  context "with children" do
+    let(:stay) do
+      Stay.new(check_in: Date.new(2027, 7, 1), check_out: Date.new(2027, 7, 8), adults: 2, children: 2, child_ages: [ 5, 8 ])
+    end
+
+    def query_for(listing)
+      URI.decode_www_form(URI.parse(described_class.new(listing, stay).url).query)
+    end
+
+    it "gives Booking.com the count and one age parameter per child" do
+      query = query_for(build(:listing, url: "https://www.booking.com/hotel/hr/sample.html?age=3"))
+
+      expect(query).to include([ "group_children", "2" ])
+      expect(query.select { |key, _| key == "age" }).to eq([ [ "age", "5" ], [ "age", "8" ] ])
+    end
+
+    it "writes the ages in each provider's format" do
+      expedia = build(:listing, :expedia, url: "https://www.expedia.com/Makarska-Hotels-Sample.h1.Hotel-Information")
+      vrbo = build(:listing, :vrbo, url: "https://www.vrbo.com/1234567")
+      agoda = build(:listing, :agoda, url: "https://www.agoda.com/sample/hotel/makarska-hr.html")
+
+      expect(query_for(expedia)).to include([ "rm1", "a2:c5:c8" ])
+      expect(query_for(vrbo)).to include([ "children", "1_5,1_8" ])
+      expect(query_for(agoda)).to include([ "children", "2" ], [ "childages", "5,8" ])
+    end
+  end
+
+  it "leaves out child parameters without children" do
+    listing = build(:listing, :vrbo, url: "https://www.vrbo.com/1234567")
+
+    expect(Rack::Utils.parse_query(URI.parse(described_class.new(listing, stay).url).query)).not_to have_key("children")
+  end
+
   it "ignores an invalid stay" do
     listing = build(:listing, url: "https://www.booking.com/hotel/hr/sample.html")
     invalid = Stay.new(check_in: Date.new(2027, 7, 8), check_out: Date.new(2027, 7, 1))
