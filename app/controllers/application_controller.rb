@@ -19,6 +19,6 @@ class ApplicationController < ActionController::Base
     return @current_stay if defined?(@current_stay)
 
     stay = Stay.from_params(params)
-    @current_stay = stay if stay&.valid?
+    @current_stay = stay&.valid? ? stay : nil
   end
 end

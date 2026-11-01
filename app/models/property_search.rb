@@ -4,6 +4,7 @@
 class PropertySearch
   SORTS = %w[price waterfront].freeze
   SURFACES = %w[sand pebble rock].freeze
+  PARAMS = %i[category surface kind sort].freeze
 
   attr_reader :destination, :stay, :category, :surface, :kind
 

@@ -16,8 +16,11 @@ class Stay
 
   # Returns nil when the visitor did not enter dates.
   def self.from_params(params)
-    attrs = params.respond_to?(:permit) ? params.permit(:check_in, :check_out, :adults).to_h : params.to_h
-    attrs = attrs.symbolize_keys.slice(:check_in, :check_out, :adults)
+    keys = %i[check_in check_out adults]
+    # Slice before permitting so other request params (route :id, filters)
+    # are not logged as unpermitted.
+    attrs = params.respond_to?(:permit) ? params.slice(*keys).permit(*keys).to_h : params.to_h
+    attrs = attrs.symbolize_keys.slice(*keys)
     return if attrs[:check_in].blank? && attrs[:check_out].blank?
 
     attrs.delete(:adults) if attrs[:adults].blank?

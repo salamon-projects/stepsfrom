@@ -8,7 +8,7 @@ class DestinationsController < ApplicationController
     end
 
     @search = PropertySearch.new(destination: @destination, stay: current_stay,
-                                 params: params.permit(:category, :surface, :kind, :sort))
+                                 params: params.slice(*PropertySearch::PARAMS).permit(*PropertySearch::PARAMS))
     @pagy, @properties = pagy(@search.results)
     return if redirect_past_last_page(@pagy)
 
