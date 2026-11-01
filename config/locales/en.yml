@@ -38,6 +38,11 @@ en:
     measured: "Measured: %{distance} m to %{water}"
     measured_short: "%{distance} m to the water"
     on_the_water: "Right on %{water}"
+    measured_label: Measured
+    to_water: "to %{water}"
+    right_on: "right on %{water}"
+    ruler_label: "Measured distance to the water on a scale up to %{max} m"
+    ruler_water: Water
     road_between: A road or railway runs between the property and the water
     promenade_between: A promenade or path runs in front of the property
     beach_surfaces:
@@ -66,8 +71,17 @@ en:
     view_on: View on %{provider}
     from_price: "%{price} on %{provider}"
     best_price: Best price
+    compare:
+      one: Available on 1 booking site
+      other: Compare %{count} booking sites
+    view_deal: View deal
+    check_price: Check price
+    check_availability: Check availability
+    per_night: "%{price} per night"
+    saving: "%{amount} cheaper than the highest price we found"
+    add_dates: Add dates to see prices
+    direct_booking: You book directly with the site. We never add a fee.
     checked_ago: checked %{time} ago
-    enter_dates: Enter your dates to compare prices.
     no_prices_yet: We don't have live prices for these dates yet — check them on the booking sites.
     none: Not bookable through our partners yet.
     disclosure: We may earn a commission when you book through these links. It never affects our measurements or the order of results.

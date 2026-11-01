@@ -2,7 +2,7 @@
 
 .site-header {
   border-bottom: 1px solid $border;
-  background: $white;
+  background: $paper;
 
   &__inner {
     display: flex;
@@ -10,91 +10,142 @@
     align-items: center;
     justify-content: space-between;
     gap: 0 1.5rem;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
+    min-height: 4.25rem;
   }
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   min-height: 2.75rem;
   color: $sea;
-  font-weight: 800;
-  font-size: 1.2rem;
+  font-family: $serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   text-decoration: none;
+
+  &:hover {
+    color: $sea;
+  }
 
   &__mark {
     display: inline-grid;
     place-items: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    background: $sea;
-    color: $white;
+    width: 1.75rem;
+    height: 1.75rem;
+    color: $measure;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 
 .site-nav {
   display: flex;
-  gap: 1.25rem;
+  gap: 1.75rem;
 
   a {
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
     color: $ink;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 500;
     text-decoration: none;
 
     &:hover {
-      color: $sea;
-      text-decoration: underline;
+      color: $measure;
     }
   }
 }
 
 .site-footer {
-  margin-top: 3rem;
-  padding: 2rem 0;
-  background: $sea;
-  color: #d8e6ee;
+  margin-top: 5rem;
+  padding: 3.5rem 0 2.5rem;
+  background: $sea-deep;
+  color: rgba($white, 0.7);
   font-size: 0.9rem;
 
   a {
     color: $white;
+
+    &:hover {
+      color: $measure-light;
+    }
+  }
+
+  &__top {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba($white, 0.12);
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+  }
+
+  &__brand {
+    margin: 0;
+    color: $white;
+    font-family: $serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    line-height: 1.15;
+
+    em {
+      color: $measure-light;
+    }
   }
 
   &__links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0 1.5rem;
-    margin-bottom: 0.5rem;
+    gap: 0 1.75rem;
 
     a {
       display: inline-flex;
       align-items: center;
       min-height: 2.75rem;
+      text-decoration: none;
     }
+  }
+
+  &__disclosure,
+  &__attribution {
+    max-width: 44rem;
   }
 }
 
 .page-header {
-  padding: 2rem 0 1.5rem;
-  background: linear-gradient(180deg, $sea-light, $white);
+  padding: 2.5rem 0 2rem;
+  border-bottom: 1px solid $border;
+
+  @media (min-width: $bp-md) {
+    padding: 3.5rem 0 2.5rem;
+  }
 
   &__title {
-    font-size: clamp(1.7rem, 4vw, 2.4rem);
+    max-width: 48rem;
+    font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
   }
 
   &__lead {
+    margin: 0;
     color: $muted;
     font-size: 1.1rem;
   }
 
   &__summary {
-    max-width: 46rem;
+    max-width: 42rem;
+    margin-top: 1rem;
   }
 }
 
@@ -102,39 +153,47 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0 0.4rem;
-  margin-bottom: 0.25rem;
-  color: $muted;
-  font-size: 0.9rem;
+  gap: 0 0.5rem;
+  margin-bottom: 0.5rem;
+  color: $faint;
+  font-size: 0.85rem;
 
   a {
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
+    color: $muted;
+    text-decoration: none;
+
+    &:hover {
+      color: $measure;
+    }
   }
 }
 
 .listing-layout,
 .property-layout {
   display: grid;
-  gap: 1.5rem;
-  padding-top: 1.5rem;
+  gap: 2rem;
+  padding-top: 2rem;
 }
 
 // Phones get summary, booking panel, then map and checks; wide screens keep
 // the booking panel in a sticky right-hand column.
 @media (min-width: $bp-lg) {
   .listing-layout {
-    grid-template-columns: 17rem 1fr;
+    grid-template-columns: 17.5rem 1fr;
     align-items: start;
+    gap: 2.5rem;
   }
 
   .property-layout {
-    grid-template-columns: 1fr 22rem;
+    grid-template-columns: 1fr 23rem;
     grid-template-rows: auto 1fr;
     grid-template-areas:
       "summary booking"
       "details booking";
+    column-gap: 3rem;
   }
 
   .property-layout__summary {
@@ -153,6 +212,6 @@
   .listing-layout__filters,
   .property-layout__booking {
     position: sticky;
-    top: 1rem;
+    top: 1.5rem;
   }
 }

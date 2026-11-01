@@ -27,6 +27,43 @@ module PropertiesHelper
     end
   end
 
+  # The measured distance split for display: ["18 m", "to the Adriatic Sea"].
+  def distance_parts(property)
+    waterfront = property.waterfront
+    return if waterfront&.distance_m.nil?
+
+    water = waterfront.water_display_name
+    caption = waterfront.distance_m.zero? ? t("waterfront.right_on", water:) : t("waterfront.to_water", water:)
+    [ "#{number_with_delimiter(waterfront.distance_m)} m", caption ]
+  end
+
+  # Positions on the distance ruler (shared/_distance_ruler): SVG x for a
+  # distance, on a scale up to the walkable limit.
+  def ruler_x(metres, max)
+    12 + (metres.to_f.clamp(0, max) / max * 292).round(1)
+  end
+
+  # The booking site's official logo once one is configured (see
+  # config/affiliates.yml), otherwise its name.
+  def provider_mark(listing)
+    config = listing.provider_config
+    if config&.logo
+      image_tag(config.logo, alt: listing.provider_name, class: "provider-mark provider-mark--logo")
+    else
+      tag.span(listing.provider_name, class: "provider-mark")
+    end
+  end
+
+  # How much the best price saves against the highest one, when that is
+  # worth mentioning.
+  def offers_saving(offers)
+    totals = offers.filter_map { |offer| offer.quote&.total_cents }
+    return if totals.size < 2
+
+    saving = totals.max - totals.min
+    saving if saving >= 100
+  end
+
   def property_kind(property)
     label = t("properties.kinds.#{property.kind}")
     property.stars ? "#{label} · #{'★' * property.stars}" : label

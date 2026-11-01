@@ -1,7 +1,7 @@
 @use "variables" as *;
 
 .admin {
-  background: #f5f7f9;
+  background: $paper;
 
   .site-header {
     background: $ink;

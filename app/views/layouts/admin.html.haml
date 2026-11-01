@@ -16,7 +16,7 @@
     %header.site-header
       .container.site-header__inner
         = link_to admin_root_path, class: "brand" do
-          %span.brand__mark{ "aria-hidden": "true" } ≈
+          = render "layouts/brand_mark"
           %span.brand__name Admin
         %nav.site-nav{ "aria-label": "Admin" }
           - if admin_signed_in?

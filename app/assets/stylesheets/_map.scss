@@ -3,32 +3,57 @@
 .map {
   width: 100%;
   border: 1px solid $border;
-  border-radius: $radius;
+  border-radius: $radius-lg;
   background: $sea-light;
 
   &--overview {
-    height: 18rem;
-    margin-bottom: 1.25rem;
+    height: 20rem;
+    margin-bottom: 1.5rem;
   }
 
   &--property {
     height: 22rem;
-    margin-top: 1.25rem;
 
     @media (min-width: $bp-md) {
-      height: 28rem;
+      height: 30rem;
     }
+  }
+
+  // Quieter tiles so the measurement and markers stand out.
+  .leaflet-tile-pane {
+    filter: saturate(0.55) sepia(0.12) contrast(0.95);
+  }
+
+  .leaflet-control-zoom a {
+    color: $sea;
+  }
+
+  .leaflet-control-attribution {
+    background: rgba($white, 0.85);
+    font-size: 0.7rem;
   }
 }
 
 .leaflet-tooltip.map-label {
+  padding: 0.2rem 0.5rem;
   border: 0;
-  background: $coral-dark;
+  border-radius: $radius;
+  background: $measure;
   color: $white;
+  font-family: $font;
   font-weight: 700;
   box-shadow: none;
 
   &::before {
     display: none;
   }
+}
+
+.map.leaflet-container {
+  font-family: $font;
+}
+
+.leaflet-popup-content a {
+  color: $sea;
+  font-weight: 600;
 }

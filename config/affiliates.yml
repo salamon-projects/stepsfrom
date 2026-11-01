@@ -8,6 +8,10 @@
 #
 # child_params: query parameters added once per child, e.g. age={age}.
 #
+# logo: optional image under app/assets/images (e.g. partners/booking.svg),
+#   shown instead of the name. Use only the official logo from the
+#   programme's brand kit, once the programme has approved us.
+#
 # tracking_env: name of the ENV variable holding the affiliate tracking URL
 #   template once the programme has approved us. The template must contain
 #   {url}, which is replaced by the URL-encoded target, e.g. for CJ:

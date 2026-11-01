@@ -12,16 +12,22 @@ html {
 
 body {
   margin: 0;
-  background: $white;
+  background: $paper;
   color: $ink;
   font-family: $font;
   font-size: 1rem;
+  font-feature-settings: "ss01";
   line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3 {
-  line-height: 1.2;
   margin: 0 0 0.5em;
+  font-family: $serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.12;
 }
 
 p {
@@ -30,6 +36,21 @@ p {
 
 a {
   color: $sea;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+
+  &:hover {
+    color: $measure;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid $measure;
+  outline-offset: 2px;
+}
+
+::selection {
+  background: $measure-light;
 }
 
 img {
@@ -41,18 +62,44 @@ img {
   max-width: $container;
   margin: 0 auto;
   padding: 0 1rem;
+
+  @media (min-width: $bp-md) {
+    padding: 0 2rem;
+  }
 }
 
 .section {
-  padding: 2.5rem 0;
+  padding: 3.5rem 0;
+
+  @media (min-width: $bp-md) {
+    padding: 5rem 0;
+  }
 
   &--sand {
-    background: $sand;
+    background: $paper-deep;
   }
 
   &__title {
-    font-size: 1.6rem;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
   }
+
+  &__intro {
+    max-width: 34rem;
+    color: $muted;
+    font-size: 1.05rem;
+  }
+}
+
+// Small label above a title, e.g. "Destinations" or "Method".
+.eyebrow {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: $measure;
+  font-family: $font;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .skip-link {
@@ -61,7 +108,7 @@ img {
   left: 0.5rem;
   z-index: 1000;
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: $radius;
   background: $sea;
   color: $white;
   font-weight: 700;
@@ -86,34 +133,61 @@ main:focus {
 }
 
 .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: $sea;
   font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid $border-strong;
+
+  &::after {
+    content: "→";
+    transition: transform 0.2s;
+  }
+
+  &:hover {
+    border-color: $measure;
+    color: $measure;
+
+    &::after {
+      transform: translateX(3px);
+    }
+  }
 }
 
 .empty-state {
-  padding: 2rem;
-  border: 1px dashed $border;
-  border-radius: $radius;
+  padding: 2.5rem 2rem;
+  border: 1px dashed $border-strong;
+  border-radius: $radius-lg;
   color: $muted;
+  font-family: $serif;
+  font-size: 1.15rem;
+  font-style: italic;
   text-align: center;
 }
 
 .flash {
   padding: 0.75rem 0;
+  border-bottom: 1px solid $border;
   background: $sea-light;
 
   &--alert {
-    background: #fbe9e4;
+    background: $measure-light;
     color: $warn;
   }
 }
 
 .prose {
-  max-width: 46rem;
-  padding-bottom: 3rem;
+  max-width: 42rem;
+  padding-bottom: 4rem;
+  font-size: 1.05rem;
 
   h2 {
-    margin-top: 2rem;
-    font-size: 1.3rem;
+    margin-top: 2.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid $border;
+    font-size: 1.6rem;
   }
 
   li {

@@ -1,42 +1,136 @@
+@use "sass:color";
 @use "variables" as *;
 
+// Category label: a coloured rule and small capitals rather than a pill.
 .badge {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  background: $slate;
-  color: $white;
-  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $gray;
+  font-size: 0.72rem;
   font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.3;
+  text-transform: uppercase;
   white-space: nowrap;
 
+  &::before {
+    content: "";
+    width: 1.1rem;
+    height: 3px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+
   &--direct {
-    background: $teal;
+    color: $teal;
   }
 
   &--near {
-    background: $blue;
+    color: $blue;
   }
 
   &--walkable {
-    background: $slate;
-  }
-
-  &--not_waterfront,
-  &--unknown {
-    background: $gray;
+    color: $slate;
   }
 
   &--large {
-    padding: 0.35rem 0.9rem;
-    font-size: 1rem;
+    font-size: 0.8rem;
+
+    &::before {
+      width: 1.6rem;
+    }
   }
 }
 
 .waterfront-summary {
   &__distance {
-    margin: 0.5rem 0 0.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.5rem;
+    margin: 0.85rem 0 0.35rem;
+  }
+
+  &__label {
+    flex-basis: 100%;
+    color: $faint;
+    font-size: 0.68rem;
     font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  &__metres {
+    color: $measure;
+    font-family: $serif;
+    font-size: 2.1rem;
+    font-weight: 400;
+    font-variant-numeric: lining-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  &__to {
+    color: $muted;
+  }
+
+  &--large &__metres {
+    font-size: clamp(3rem, 8vw, 4.5rem);
+  }
+
+  &--large &__to {
+    font-size: 1.15rem;
+  }
+
+  &--large .distance-ruler {
+    max-width: 30rem;
+  }
+}
+
+.distance-ruler {
+  display: block;
+  width: 100%;
+  max-width: 22rem;
+  height: auto;
+  margin-bottom: 0.75rem;
+  overflow: visible;
+
+  &__zone {
+    &--direct {
+      fill: rgba($teal, 0.28);
+    }
+
+    &--near {
+      fill: rgba($blue, 0.2);
+    }
+
+    &--walkable {
+      fill: rgba($slate, 0.16);
+    }
+  }
+
+  &__span {
+    fill: none;
+    stroke: $measure;
+    stroke-width: 2;
+  }
+
+  &__mark {
+    fill: $white;
+    stroke: $measure;
+    stroke-width: 2.5;
+  }
+
+  &__tick {
+    stroke: $border-strong;
+  }
+
+  &__label {
+    fill: $faint;
+    font-family: $font;
+    font-size: 9.5px;
+    font-weight: 600;
   }
 }
 
@@ -47,8 +141,8 @@
   font-size: 0.9rem;
 
   li {
-    padding-left: 1.2rem;
     position: relative;
+    padding: 0.1rem 0 0.1rem 1.15rem;
   }
 
   li::before {
@@ -69,14 +163,15 @@
     color: $muted;
 
     &::before {
-      content: "•";
+      content: "–";
+      color: $faint;
     }
   }
 }
 
 .property-list {
   display: grid;
-  gap: $gap;
+  gap: 1rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -84,19 +179,35 @@
 
 .property-card {
   display: grid;
-  gap: 1rem;
-  padding: 1.2rem;
+  gap: 1.25rem;
+  padding: 1.5rem;
   border: 1px solid $border;
-  border-radius: $radius;
+  border-radius: $radius-lg;
   background: $white;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: $border-strong;
+  }
 
   @media (min-width: $bp-md) {
-    grid-template-columns: 1fr 16rem;
+    grid-template-columns: 1fr 19rem;
+    gap: 2rem;
+  }
+
+  &__kind {
+    margin: 0 0 0.25rem;
+    color: $faint;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   &__name {
-    margin-bottom: 0.15rem;
-    font-size: 1.25rem;
+    margin-bottom: 0.85rem;
+    font-size: 1.65rem;
+    letter-spacing: -0.015em;
 
     a {
       color: $ink;
@@ -105,100 +216,281 @@
       &:hover {
         color: $sea;
         text-decoration: underline;
+        text-decoration-color: $measure;
       }
     }
   }
 
-  &__kind {
-    margin-bottom: 0.6rem;
-    color: $muted;
-    font-size: 0.9rem;
+  &__offers {
+    @media (min-width: $bp-md) {
+      padding-left: 2rem;
+      border-left: 1px solid $border;
+    }
   }
 }
 
 .offers {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.75rem;
+
+  &__heading {
+    margin: 0;
+    color: $faint;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  &__saving {
+    margin: -0.25rem 0 0;
+    color: $teal;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    &::before {
+      content: "↓ ";
+    }
+  }
+
+  // Opens the calendar (stay_fields.js); a jump to the date field without JS.
+  &__dates {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0.5rem 1rem;
+    border: 1px dashed $sea;
+    border-radius: $radius;
+    background: $sea-light;
+    color: $sea;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s;
+
+    &::before {
+      content: "";
+      width: 1rem;
+      height: 1rem;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23123f47' stroke-width='1.4'%3E%3Crect x='1.5' y='3' width='13' height='11.5' rx='1.5'/%3E%3Cpath d='M1.5 6.5h13M5 1v3.5M11 1v3.5'/%3E%3C/svg%3E") no-repeat center / contain;
+    }
+
+    &:hover {
+      border-style: solid;
+      background: color.adjust($sea-light, $lightness: -3%);
+      color: $sea;
+    }
+  }
+
+  &__note,
+  &__trust {
+    margin: 0;
+    color: $muted;
+    font-size: 0.8rem;
+  }
+
+  &__trust {
+    display: flex;
+    gap: 0.4rem;
+    color: $faint;
+
+    &::before {
+      content: "✓";
+      color: $teal;
+      font-weight: 700;
+    }
+  }
+}
+
+.provider-mark {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+
+  &--logo {
+    display: block;
+    width: auto;
+    height: 1.25rem;
+  }
+}
+
+.offer-list {
+  display: grid;
   margin: 0;
   padding: 0;
   list-style: none;
+
+  // Without prices every site is a tile of equal weight.
+  &--tiles {
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    gap: 0.5rem;
+
+    .offer__link {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+      min-height: 5rem;
+      padding: 0.85rem 0.9rem;
+      border: 1px solid $border-strong;
+      border-radius: $radius;
+      background: $white;
+
+      &:hover,
+      &:focus-visible {
+        padding: 0.85rem 0.9rem;
+        border-color: $sea;
+        background: $white;
+        box-shadow: 0 10px 20px -14px rgba($sea-deep, 0.5);
+      }
+    }
+
+    .offer__cta {
+      align-self: end;
+      font-size: 0.8rem;
+    }
+  }
+
+  &:not(&--tiles) .offer {
+    border-bottom: 1px solid $border;
+  }
 }
 
 .offer__link {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 0 0.5rem;
-  padding: 0.55rem 0.75rem;
-  border: 1px solid $border;
-  border-radius: 8px;
+  gap: 0 0.75rem;
+  min-height: 3rem;
+  padding: 0.5rem 0.25rem;
   color: $ink;
   text-decoration: none;
+  transition: background-color 0.15s, padding 0.15s, border-color 0.15s;
 
   &:hover,
   &:focus-visible {
-    border-color: $sea;
+    padding-right: 0.6rem;
+    padding-left: 0.6rem;
+    background: $paper;
+    color: $ink;
+
+    .offer__cta,
+    .offer__price::after {
+      color: $measure;
+    }
   }
 }
 
-.offer--best .offer__link {
-  border: 2px solid $teal;
-  background: #eef8f6;
-}
+// The cheapest site: the one block on the card meant to be clicked.
+.offer-deal {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.75rem;
+  padding: 1rem 1rem 0.9rem;
+  border-radius: $radius-lg;
+  background: $sea;
+  color: $white;
+  text-decoration: none;
+  transition: background-color 0.15s, transform 0.15s;
 
-.offer__provider {
-  font-weight: 700;
+  &:hover,
+  &:focus-visible {
+    padding: 1rem 1rem 0.9rem;
+    background: $sea-deep;
+    color: $white;
+    transform: translateY(-1px);
+
+    .offer-deal__cta::after {
+      transform: translateX(3px);
+    }
+  }
+
+  &__label {
+    grid-column: 1 / -1;
+    color: $measure-light;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  &__provider {
+    align-self: center;
+    font-size: 1.05rem;
+  }
+
+  &__price {
+    font-family: $serif;
+    font-size: 2rem;
+    font-variant-numeric: lining-nums;
+    line-height: 1.1;
+    text-align: right;
+  }
+
+  &__meta {
+    grid-column: 1 / -1;
+    color: rgba($white, 0.7);
+    font-size: 0.8rem;
+    text-align: right;
+  }
+
+  &__cta {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    margin-top: 0.6rem;
+    border-radius: $radius;
+    background: $measure;
+    color: $white;
+    font-weight: 700;
+
+    &::after {
+      content: "→";
+      transition: transform 0.15s;
+    }
+  }
 }
 
 .offer__price {
-  font-weight: 800;
-  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
 
-  small {
-    display: block;
-    color: $muted;
+  &::after {
+    content: " →";
+    color: $faint;
     font-weight: 400;
   }
 }
 
 .offer__cta {
   color: $sea;
-  font-weight: 600;
-}
-
-.offer__best {
-  grid-column: 1 / -1;
-  color: $teal;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.offers__note {
-  margin: 0.5rem 0 0;
-  color: $muted;
   font-size: 0.85rem;
+  font-weight: 600;
+
+  &::after {
+    content: " →";
+  }
 }
 
 .filters {
   border: 1px solid $border;
-  border-radius: $radius;
+  border-radius: $radius-lg;
   background: $white;
 
   .filter-form {
     border: 0;
     border-top: 1px solid $border;
-    border-radius: 0 0 $radius $radius;
+    border-radius: 0 0 $radius-lg $radius-lg;
   }
 
   &__summary {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 3.5rem;
-    padding: 0.6rem 2.75rem 0.6rem 1rem;
     position: relative;
+    min-height: 3.75rem;
+    padding: 0.75rem 2.75rem 0.75rem 1.25rem;
     cursor: pointer;
     list-style: none;
 
@@ -207,43 +499,49 @@
     }
 
     &::after {
-      content: "▾";
+      content: "";
       position: absolute;
       top: 50%;
-      right: 1rem;
-      color: $sea;
-      font-size: 1.2rem;
-      transform: translateY(-50%);
+      right: 1.25rem;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-right: 1.5px solid $sea;
+      border-bottom: 1.5px solid $sea;
+      transform: translateY(-75%) rotate(45deg);
+      transition: transform 0.2s;
     }
   }
 
   &[open] &__summary::after {
-    content: "▴";
+    transform: translateY(-25%) rotate(-135deg);
   }
 
   &__title {
-    font-weight: 700;
+    font-family: $serif;
+    font-size: 1.2rem;
   }
 
   &__current {
     color: $muted;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
   }
 }
 
 .ranking-note {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border;
   color: $muted;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .pagination {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 
   .pagy {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 0.35rem;
 
     a {
       display: inline-flex;
@@ -251,10 +549,17 @@
       justify-content: center;
       min-width: 2.75rem;
       min-height: 2.75rem;
-      padding: 0.3rem 0.7rem;
+      padding: 0.3rem 0.75rem;
       border: 1px solid $border;
-      border-radius: 6px;
+      border-radius: $radius;
+      background: $white;
+      color: $ink;
+      font-variant-numeric: tabular-nums;
       text-decoration: none;
+
+      &:hover {
+        border-color: $sea;
+      }
 
       &[aria-current="page"] {
         border-color: $sea;
@@ -263,39 +568,50 @@
       }
 
       &[aria-disabled="true"]:not([aria-current]) {
-        color: $muted;
+        color: $faint;
       }
     }
   }
 }
 
 .checks {
-  margin-top: 1.5rem;
+  margin-top: 2.5rem;
 
   &__title {
-    font-size: 1.2rem;
+    font-size: 1.6rem;
   }
 }
 
 .checklist {
-  margin: 0 0 0.75rem;
+  margin: 0 0 1.25rem;
   padding: 0;
   list-style: none;
 
   &__item {
     position: relative;
-    padding: 0.35rem 0 0.35rem 1.8rem;
+    padding: 0.8rem 0 0.8rem 2.25rem;
+    border-bottom: 1px solid $border;
+
+    &:first-child {
+      border-top: 1px solid $border;
+    }
 
     &::before {
+      display: grid;
+      place-items: center;
       position: absolute;
+      top: 0.85rem;
       left: 0;
-      width: 1.3rem;
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 50%;
+      font-size: 0.75rem;
       font-weight: 800;
-      text-align: center;
     }
 
     &--ok::before {
       content: "✓";
+      background: rgba($teal, 0.12);
       color: $teal;
     }
 
@@ -304,45 +620,55 @@
 
       &::before {
         content: "!";
+        background: $measure-light;
       }
     }
 
     &--info::before {
       content: "i";
+      background: rgba($blue, 0.1);
       color: $blue;
+      font-family: $serif;
+      font-style: italic;
     }
   }
 }
 
 .booking-panel {
-  padding: 1.2rem;
+  padding: 1.5rem;
   border: 1px solid $border;
-  border-radius: $radius;
+  border-radius: $radius-lg;
   background: $white;
+  box-shadow: 0 24px 48px -36px rgba($sea-deep, 0.4);
 
   &__title {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
   }
 
   .filter-form {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
     padding: 0;
     border: 0;
   }
 
   &__disclosure {
-    margin: 1rem 0 0;
-    color: $muted;
-    font-size: 0.8rem;
+    margin: 1.25rem 0 0;
+    color: $faint;
+    font-size: 0.78rem;
   }
 }
 
 .badge-legend {
   dt {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
   }
 
   dd {
-    margin: 0.3rem 0 0;
+    margin: 0.35rem 0 0;
   }
+}
+
+// The booking panel has the date fields right above its offers.
+.booking-panel .offers__dates {
+  display: none;
 }

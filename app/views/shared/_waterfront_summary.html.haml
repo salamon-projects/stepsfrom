@@ -1,8 +1,12 @@
 -# locals: (property:, large: false)
-.waterfront-summary
+.waterfront-summary{ class: ("waterfront-summary--large" if large) }
   = waterfront_badge(property, large:)
-  - if (distance = measured_distance(property))
-    %p.waterfront-summary__distance= distance
+  - if (parts = distance_parts(property))
+    %p.waterfront-summary__distance
+      %span.waterfront-summary__label= t("waterfront.measured_label")
+      %span.waterfront-summary__metres= parts.first
+      %span.waterfront-summary__to= parts.last
+    = render "shared/distance_ruler", property:
   - notes = waterfront_notes(property)
   - if notes.any?
     %ul.waterfront-notes

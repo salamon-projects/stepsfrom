@@ -1,0 +1,20 @@
+-# locals: (property:)
+-# The measured distance against the category limits. SVG because the
+-# position comes from data and the CSP does not allow inline styles.
+- distance = property.waterfront&.distance_m
+- if distance
+  - config = Waterfront.config
+  - max = config.fetch(:walkable_max_m).to_f
+  - limits = [ 0, config.fetch(:direct_max_m), config.fetch(:near_max_m), max.to_i ]
+  - x = ruler_x(distance, max)
+  %svg.distance-ruler{ viewBox: "0 0 320 36", role: "img", "aria-label": t("waterfront.ruler_label", max: max.to_i) }
+    - %w[direct near walkable].each_with_index do |zone, index|
+      %rect{ class: "distance-ruler__zone distance-ruler__zone--#{zone}",
+        x: ruler_x(limits[index], max), y: "8", width: ruler_x(limits[index + 1], max) - ruler_x(limits[index], max), height: "6" }
+    %path.distance-ruler__span{ d: "M12 11H#{x}" }
+    %circle.distance-ruler__mark{ cx: x, cy: "11", r: "5" }
+    - limits.each_with_index do |limit, index|
+      %path.distance-ruler__tick{ d: "M#{ruler_x(limit, max)} 16v4" }
+      %text.distance-ruler__label{ x: ruler_x(limit, max), y: "32",
+        "text-anchor": (index.zero? ? "start" : index == limits.size - 1 ? "end" : "middle") }
+        = index.zero? ? t("waterfront.ruler_water") : (index == limits.size - 1 ? "#{limit} m" : limit)

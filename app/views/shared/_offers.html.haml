@@ -1,24 +1,40 @@
 -# locals: (offers:)
+-# With prices: the cheapest site as a deal block, then the others by price.
+-# Without: every site as a tile, and a prompt to add dates for prices.
+- link_options = { rel: "sponsored nofollow noopener", target: "_blank" }
 - if offers.empty?
   %p.offers__note= t("offers.none")
 - else
-  %ul.offers
-    - offers.each do |offer|
-      %li.offer{ class: ("offer--best" if offer.best) }
-        = link_to outbound_path(offer.listing, stay_params), class: "offer__link", rel: "sponsored nofollow noopener", target: "_blank" do
-          %span.offer__provider= offer.listing.provider_name
-          - if offer.quote
-            %span.offer__price
-              = format_price(offer.quote.total_cents, offer.quote.currency)
-              %small= "#{current_stay.nights} #{'night'.pluralize(current_stay.nights)}"
-          - else
-            %span.offer__cta= current_stay ? "Check price" : "View"
-          - if offer.best
-            %span.offer__best= t("offers.best_price")
-  - priced = offers.select(&:quote)
-  - if current_stay.nil?
-    %p.offers__note= t("offers.enter_dates")
-  - elsif priced.empty?
-    %p.offers__note= t("offers.no_prices_yet")
-  - else
-    %p.offers__note= t("offers.checked_ago", time: time_ago_in_words(priced.map { |o| o.quote.fetched_at }.min))
+  - best = offers.find(&:best)
+  - others = offers - [ best ]
+  .offers{ class: (best ? "offers--priced" : "offers--unpriced") }
+    %p.offers__heading= t("offers.compare", count: offers.size)
+    - if best
+      - nights = current_stay.nights
+      = link_to outbound_path(best.listing, stay_params), class: "offer__link offer-deal", **link_options do
+        %span.offer-deal__label= t("offers.best_price")
+        %span.offer-deal__provider= provider_mark(best.listing)
+        %span.offer-deal__price= format_price(best.quote.total_cents, best.quote.currency)
+        %span.offer-deal__meta
+          = "#{nights} #{'night'.pluralize(nights)} ·"
+          = t("offers.per_night", price: format_price(best.quote.total_cents / nights, best.quote.currency))
+        %span.offer-deal__cta= t("offers.view_deal")
+      - if (saving = offers_saving(offers))
+        %p.offers__saving= t("offers.saving", amount: format_price(saving, best.quote.currency))
+    - elsif current_stay.nil?
+      %a.offers__dates{ href: "#check_in", data: { open_calendar: true } }= t("offers.add_dates")
+    - if others.any?
+      %ul.offer-list{ class: ("offer-list--tiles" unless best) }
+        - others.each do |offer|
+          %li.offer
+            = link_to outbound_path(offer.listing, stay_params), class: "offer__link", **link_options do
+              %span.offer__provider= provider_mark(offer.listing)
+              - if offer.quote
+                %span.offer__price= format_price(offer.quote.total_cents, offer.quote.currency)
+              - else
+                %span.offer__cta= t(current_stay ? "offers.check_price" : "offers.check_availability")
+    - if current_stay && offers.none?(&:quote)
+      %p.offers__note= t("offers.no_prices_yet")
+    - elsif best
+      %p.offers__note= t("offers.checked_ago", time: time_ago_in_words(offers.filter_map { |o| o.quote&.fetched_at }.min))
+    %p.offers__trust= t("offers.direct_booking")

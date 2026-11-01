@@ -58,8 +58,9 @@ RSpec.describe "Public pages" do
 
       get destination_path(destination)
 
-      expect(response.body).to include("Hotel Riva", "Verified beachfront", "Measured: 18 m to the Adriatic Sea",
-                                       "Pebble beach", "A promenade or path runs in front")
+      expect(response.body).to include("Hotel Riva", "Verified beachfront", "Pebble beach", "A promenade or path runs in front")
+      expect(Nokogiri::HTML(response.body).at_css(".waterfront-summary__distance").text.squish)
+        .to eq("Measured 18 m to the Adriatic Sea")
       expect(response.body).not_to include("Pending Hotel", "Inland Hotel")
       expect(response.body).to include("data-map=")
     end

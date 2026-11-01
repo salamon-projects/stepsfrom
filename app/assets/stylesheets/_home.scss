@@ -1,45 +1,208 @@
 @use "variables" as *;
 
 .hero {
-  padding: 3rem 0 3.5rem;
-  background:
-    radial-gradient(circle at 85% 10%, rgba($white, 0.18), transparent 40%),
-    linear-gradient(160deg, $sea 0%, #155e75 55%, #1d8a8a 100%);
-  color: $white;
+  padding: 2.5rem 0 3rem;
+  border-bottom: 1px solid $border;
+
+  @media (min-width: $bp-md) {
+    padding: 4rem 0 4.5rem;
+  }
+
+  &__inner {
+    display: grid;
+    gap: 2rem;
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: 1.05fr 1fr;
+      grid-template-areas:
+        "text figure"
+        "search search";
+      align-items: center;
+      column-gap: 3rem;
+      row-gap: 2.5rem;
+    }
+  }
+
+  @media (min-width: $bp-lg) {
+    &__text {
+      grid-area: text;
+    }
+
+    &__figure {
+      grid-area: figure;
+    }
+
+    &__search {
+      grid-area: search;
+    }
+  }
 
   &__title {
-    max-width: 40rem;
-    font-size: clamp(2rem, 6vw, 3.2rem);
+    max-width: 14ch;
+    margin-bottom: 1.25rem;
+    font-size: clamp(2.6rem, 7vw, 4.6rem);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+
+    em {
+      color: $measure;
+      font-style: italic;
+    }
   }
 
   &__lead {
-    max-width: 40rem;
-    margin-bottom: 2rem;
-    color: #d8eef2;
+    max-width: 32rem;
+    margin: 0;
+    color: $muted;
     font-size: 1.15rem;
+  }
+
+  &__notice {
+    margin: 0;
+    padding: 1.25rem 1.5rem;
+    border: 1px dashed $border-strong;
+    border-radius: $radius-lg;
+    font-family: $serif;
+    font-size: 1.2rem;
+    font-style: italic;
   }
 }
 
-.hero__notice {
-  display: inline-block;
-  padding: 1rem 1.25rem;
-  border-radius: $radius;
-  background: rgba($white, 0.12);
-  font-weight: 600;
+// Plan-view sketch in the hero. Colours live here so the SVG stays plain.
+.hero-plan {
+  display: block;
+  width: 100%;
+  max-width: 34rem;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: $white;
+
+  &__sea {
+    fill: $sea;
+  }
+
+  &__contour {
+    fill: none;
+    stroke: rgba($white, 0.12);
+    stroke-width: 1;
+  }
+
+  &__beach {
+    fill: #ead9b8;
+  }
+
+  &__road {
+    fill: none;
+    stroke: $paper-deep;
+    stroke-width: 16;
+  }
+
+  &__road-line {
+    fill: none;
+    stroke: $white;
+    stroke-dasharray: 8 8;
+    stroke-width: 1.5;
+  }
+
+  &__blocks rect {
+    fill: none;
+    stroke: $border-strong;
+    stroke-width: 1.5;
+  }
+
+  &__building {
+    fill: $white;
+    stroke: $ink;
+    stroke-width: 2;
+  }
+
+  text {
+    font-family: $font;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  &__note {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__verified {
+    .hero-plan__measure-line {
+      fill: none;
+      stroke: $measure;
+      stroke-width: 2.5;
+    }
+
+    text {
+      fill: $measure;
+    }
+
+    .hero-plan__note {
+      fill: $measure-light;
+    }
+  }
+
+  &__rejected {
+    path {
+      fill: none;
+      stroke: $faint;
+      stroke-width: 2;
+    }
+
+    .hero-plan__measure-line {
+      stroke-dasharray: 4 5;
+    }
+
+    text {
+      fill: $faint;
+    }
+  }
+
+  &__scale {
+    path {
+      fill: none;
+      stroke: rgba($white, 0.7);
+      stroke-width: 1.5;
+    }
+
+    text {
+      fill: rgba($white, 0.7);
+      font-size: 11px;
+      font-weight: 600;
+    }
+  }
 }
 
 .country-title {
-  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2.5rem 0 1rem;
   color: $muted;
-  font-size: 1rem;
-  letter-spacing: 0.04em;
+  font-family: $font;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: $border;
+  }
 }
 
 .destination-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-  gap: $gap;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 1rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -48,58 +211,117 @@
 .destination-tile__link {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  position: relative;
   height: 100%;
-  padding: 1.1rem 1.2rem;
+  min-height: 11rem;
+  padding: 1.5rem 1.5rem 1.25rem;
   border: 1px solid $border;
-  border-radius: $radius;
+  border-radius: $radius-lg;
+  background: $white;
   color: $ink;
   text-decoration: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.2s, transform 0.2s;
 
   &:hover,
   &:focus-visible {
     border-color: $sea;
-    box-shadow: 0 6px 18px rgba($sea, 0.12);
+    color: $ink;
+    transform: translateY(-2px);
+
+    .destination-tile__arrow {
+      color: $measure;
+      transform: translateX(3px);
+    }
   }
 }
 
-.destination-tile__name {
-  font-size: 1.15rem;
+.destination-tile__sea {
+  color: $faint;
+  font-size: 0.75rem;
   font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.destination-tile__sea,
+.destination-tile__name {
+  margin: 0.35rem 0 auto;
+  padding-bottom: 1.25rem;
+  font-family: $serif;
+  font-size: 1.85rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
 .destination-tile__counts {
+  padding-top: 0.85rem;
+  padding-right: 2rem;
+  border-top: 1px solid $border;
   color: $muted;
   font-size: 0.9rem;
 }
 
-.steps {
-  display: grid;
-  gap: $gap;
-  margin: 0 0 1rem;
-  padding: 0;
-  list-style: none;
-  counter-reset: step;
+.destination-tile__count {
+  color: $ink;
+  font-weight: 600;
+}
 
-  @media (min-width: $bp-md) {
-    grid-template-columns: repeat(3, 1fr);
+.destination-tile__arrow {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.2rem;
+  color: $faint;
+  font-size: 1.1rem;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.method {
+  display: grid;
+  gap: 2.5rem;
+
+  @media (min-width: $bp-lg) {
+    grid-template-columns: 22rem 1fr;
+    gap: 4rem;
   }
 }
 
+.steps {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
 .step {
-  padding: 1.2rem;
-  border-radius: $radius;
-  background: $white;
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  padding: 1.5rem 0;
+  border-top: 1px solid $border-strong;
   counter-increment: step;
 
-  &__title::before {
-    content: counter(step) ". ";
-    color: $teal;
+  &:last-child {
+    border-bottom: 1px solid $border-strong;
+  }
+
+  &::before {
+    content: counter(step, decimal-leading-zero);
+    grid-row: span 2;
+    color: $measure;
+    font-family: $serif;
+    font-size: 1.5rem;
+    font-style: italic;
+    line-height: 1.2;
   }
 
   &__title {
-    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+    font-size: 1.45rem;
+  }
+
+  p {
+    max-width: 36rem;
+    margin: 0;
+    color: $muted;
   }
 }

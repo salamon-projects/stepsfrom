@@ -1,22 +1,37 @@
-$ink: #0b2633;
-$muted: #55687a;
-$sea: #0b3954;
-$sea-light: #e7f1f6;
-$teal: #0f7a6c;
-$blue: #1f6fb2;
-$slate: #56687f;
-$sand: #f6efe2;
-$coral: #e4572e;
-$coral-dark: #c2410c;
-$gray: #6b7682;
-$warn: #a8402a;
-$border: #d6e0e7;
-$white: #ffffff;
+// Palette: warm paper and deep Adriatic water. Orange is reserved for
+// measurements (lines, distances, the ruler) so it always means "we measured".
+$paper: #f6f2ea;
+$paper-deep: #ece5d8;
+$white: #fffdf9;
+$ink: #152321;
+$muted: #5e6a67;
+$faint: #8c9592;
+$sea: #123f47;
+$sea-deep: #0b2a30;
+$sea-light: #e3ecea;
+$measure: #c4542b;
+$measure-light: #f7e4da;
+$border: #e2dbcd;
+$border-strong: #cfc5b3;
 
-$radius: 10px;
+// Waterfront categories (keep map.js in step).
+$teal: #1d6b5a;
+$blue: #2f5f86;
+$slate: #8a7350;
+$gray: #8c9592;
+
+$sand: $paper-deep;
+$coral: $measure;
+$coral-dark: $measure;
+$warn: #a3402a;
+
+$radius: 4px;
+$radius-lg: 8px;
 $gap: 1rem;
-$container: 72rem;
-$font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$container: 74rem;
+
+$font: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+$serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 
 $bp-md: 48rem;
 $bp-lg: 64rem;
