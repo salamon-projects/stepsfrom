@@ -18,7 +18,7 @@ Principles:
 
 ## Stack
 
-Ruby 3.3, Rails 8.1, PostgreSQL 16 + PostGIS 3 (`activerecord-postgis-adapter`),
+Ruby 4.0, Rails 8.1, PostgreSQL 16 + PostGIS 3 (`activerecord-postgis-adapter`),
 HAML, SCSS (`dartsass-rails`), Propshaft. Pages are rendered on the server, with no
 Hotwire, Stimulus or importmap. The only JavaScript is `app/assets/javascripts/map.js`,
 which draws the maps with Leaflet 1.9.4 (vendored in `vendor/assets/leaflet`, BSD-2).
