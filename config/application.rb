@@ -36,6 +36,13 @@ module Stepsfrom
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # Nothing in front of Puma compresses responses (kamal-proxy doesn't), so
+    # gzip pages and assets here. Before ActionDispatch::Static so that files
+    # served from public/ and by Propshaft are compressed too. Only text:
+    # images and woff2 fonts are compressed already.
+    config.middleware.insert_before ActionDispatch::Static, Rack::Deflater,
+      include: %w[text/html text/css text/javascript text/plain application/json application/xml image/svg+xml]
+
     # Price providers to query (see app/services/prices.rb), e.g. "stay22,agoda"
     # once an adapter exists for an approved programme.
     config.x.price_providers = ENV.fetch("PRICE_PROVIDERS", "").split(",").map(&:strip).compact_blank
