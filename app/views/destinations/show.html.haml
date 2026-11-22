@@ -1,10 +1,12 @@
-- content_for :title, "Beachfront stays in #{@destination.name}, #{@destination.country_name}"
+- content_for :title, "Beachfront stays in #{@destination.name}, #{@destination.country_name}#{" — page #{@pagy.page}" if @pagy.page > 1}"
 - content_for :description, "#{pluralize(@pagy.count, 'hotel and apartment', plural: 'hotels and apartments')} in #{@destination.name}, #{@destination.country_name}, measured to be on or right by #{@destination.sea_name.presence ? "the #{@destination.sea_name}" : 'the water'}. Compare booking sites for your dates."
-- content_for :canonical, destination_url(@destination)
+-# Later pages are pages of their own for search engines: each is its own
+-# canonical. Any search or filter makes the page noindex.
+- content_for :canonical, destination_url(@destination, (@pagy.page > 1 ? { page: @pagy.page } : {}))
 - content_for :head do
   = json_ld(breadcrumb_ld([ [ "Destinations", root_url ], [ @destination.country_name, country_url(Country.new(@destination.country_code)) ], [ @destination.name, destination_url(@destination) ] ]))
   = json_ld(destination_ld(@destination, @properties, offset: @pagy.offset))
-- if params.keys.intersect?(%w[check_in check_out adults children child_ages category surface kind sort page])
+- if params.keys.intersect?(%w[check_in check_out adults children child_ages category surface kind sort])
   - content_for :noindex, true
 = render "layouts/map_assets"
 - content_for :scripts do

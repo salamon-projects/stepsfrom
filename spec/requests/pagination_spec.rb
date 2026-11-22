@@ -22,6 +22,25 @@ RSpec.describe "Pagination" do
     expect(names).to eq([ "Hotel 20" ])
   end
 
+  it "lets search engines index later pages, each as its own canonical page" do
+    get destination_path(destination, page: 2)
+
+    document = Nokogiri::HTML(response.body)
+    expect(document.at_css("meta[name=robots]")).to be_nil
+    expect(document.at_css("link[rel=canonical]")["href"]).to eq(destination_url(destination, page: 2))
+    expect(document.at_css("title").text).to start_with("Beachfront stays in #{destination.name}, #{destination.country_name} — page 2")
+
+    get destination_path(destination, page: 1)
+
+    expect(Nokogiri::HTML(response.body).at_css("link[rel=canonical]")["href"]).to eq(destination_url(destination))
+  end
+
+  it "keeps filtered pages out of search engines" do
+    get destination_path(destination, category: "direct", page: 2)
+
+    expect(Nokogiri::HTML(response.body).at_css("meta[name=robots]")["content"]).to eq("noindex")
+  end
+
   it "sends pages beyond the last one to the last page, keeping the filters" do
     get destination_path(destination, category: "direct", page: 9)
 
