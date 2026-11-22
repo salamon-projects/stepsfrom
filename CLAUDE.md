@@ -15,7 +15,8 @@ bin/rubocop                               # rubocop-rails-omakase style
 bin/brakeman && bin/bundler-audit         # security checks run in CI
 bin/ci                                    # local CI: setup, rubocop, bundler-audit, brakeman (not the specs)
 bin/rails osm:import[makarska-riviera]    # import + measure one destination (osm:import_all for all)
-bin/rails waterfront:classify[makarska-riviera]   # re-measure without re-importing
+bin/rails waterfront:classify[makarska-riviera]   # re-measure without re-importing (no slug = all)
+bin/rails websites:check                  # check listed properties' websites now, report broken ones
 ```
 
 CI runs `bin/rails dartsass:build` before the specs; do the same if a request spec fails on a missing stylesheet. DB connection comes from `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD` or a `postgis://` `DATABASE_URL`. Any PostGIS 3 image works; production and CI run `pgrouting/pgrouting:16-3.5-3.8.0` (PostGIS plus an unused pgRouting), and changing the image in `config/deploy.yml` needs the Deploy workflow's `db-upgrade` command (`kamal accessory reboot db`). `bin/bundler-audit` in CI uses the latest advisory database, so it can fail on an unchanged commit when a gem (e.g. Rails) gets a security release — update the gem.
@@ -24,7 +25,7 @@ Every push to `main` deploys to production (Kamal) once CI passes — a green co
 
 ## Stack constraints
 
-Rails 8.1, Ruby 4.0, HAML views, SCSS via dartsass-rails, Propshaft. Server-rendered only: **no Hotwire, Stimulus or importmap**. JavaScript is limited to small plain scripts in `app/assets/javascripts/` (`map.js` draws Leaflet maps from vendored `vendor/assets/leaflet`; `filters.js` and `stay_fields.js` — range calendar and guest steppers over `shared/_stay_fields` — are progressive enhancement). Pages must work without JS, and the enhanced fields must submit the same params as the plain ones. Solid Queue / Solid Cache for jobs and cache.
+Rails 8.1, Ruby 4.0, HAML views, SCSS via dartsass-rails, Propshaft. Server-rendered only: **no Hotwire, Stimulus or importmap**. JavaScript is limited to small plain scripts in `app/assets/javascripts/` (`map.js` draws Leaflet maps from vendored `vendor/assets/leaflet`; `filters.js`, `stay_fields.js` — range calendar and guest steppers over `shared/_stay_fields` — and the home page's `search_form.js` and `country_tabs.js` are progressive enhancement). Pages must work without JS, and the enhanced fields must submit the same params as the plain ones. Solid Queue / Solid Cache for jobs and cache.
 
 The CSP (`config/initializers/content_security_policy.rb`) allows only same-origin scripts, styles and fonts and no inline `style` attributes: fonts are self-hosted in `app/assets/fonts`, and data-driven positions are drawn as inline SVG attributes (e.g. `shared/_distance_ruler`). Design tokens live in `_variables.scss` (2026-11 redesign: night-sea masthead and panels, Bricolage Grotesque / Inter / JetBrains Mono, coral `$accent` for calls to action and focus, mint/amber/slate for the three listed waterfront categories — keep `map.js` in step). Every page opens on the dark `.masthead` from the layout: put the page title in `content_for :masthead`.
 
