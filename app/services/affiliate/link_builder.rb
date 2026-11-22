@@ -12,6 +12,10 @@ module Affiliate
     end
 
     def url
+      if @listing.generator == "stay22"
+        return Stay22.outbound_url(@listing.url, stay: @stay, campaign: @listing.property&.destination&.slug)
+      end
+
       template = @provider.tracking_template
       template ? template.gsub("{url}") { CGI.escape(target_url) } : target_url
     end

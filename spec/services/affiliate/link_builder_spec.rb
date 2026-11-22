@@ -77,3 +77,33 @@ RSpec.describe Affiliate::LinkBuilder do
     expect(CGI.unescape(url.split("url=", 2).last)).to include("checkin=2027-07-01")
   end
 end
+
+RSpec.describe Affiliate::LinkBuilder, "for Stay22 listings" do
+  before { stub_const("ENV", ENV.to_h.merge("STAY22_AID" => "stepsfrom")) }
+
+  let(:destination) { create(:destination, slug: "makarska-riviera") }
+  let(:property) { create(:property, destination:, name: "Hotel Riva") }
+  let(:listing) do
+    create(:listing, property:, generator: "stay22", url: Affiliate::Stay22.listing_url(property, "booking"))
+  end
+
+  it "adds our affiliate id and the destination as campaign" do
+    query = Rack::Utils.parse_query(URI.parse(described_class.new(listing).url).query)
+
+    expect(query).to include("aid" => "stepsfrom", "campaign" => "makarska_riviera", "hotelname" => "Hotel Riva")
+    expect(query).not_to include("checkin")
+  end
+
+  it "passes the stay in Stay22's format, never through a booking site's tracking URL" do
+    stub_const("ENV", ENV.to_h.merge("BOOKING_TRACKING_URL" => "https://www.awin1.com/cread.php?p={url}"))
+    travel_to Date.new(2027, 1, 1)
+    stay = Stay.new(check_in: Date.new(2027, 7, 1), check_out: Date.new(2027, 7, 8), adults: 2, children: 2, child_ages: [ 5, 8 ])
+
+    url = described_class.new(listing, stay).url
+
+    expect(url).to start_with("https://www.stay22.com/allez/booking?")
+    expect(Rack::Utils.parse_query(URI.parse(url).query)).to include(
+      "checkin" => "2027-07-01", "checkout" => "2027-07-08", "adults" => "2", "children" => "2", "childrenAges" => "5,8"
+    )
+  end
+end

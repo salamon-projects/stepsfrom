@@ -82,9 +82,11 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
    on later imports.
    "OTA claim conflicts" lists properties that a booking site calls beachfront but
    that we measured further away.
-4. **Listings.** On each property, add its page on Booking.com, Expedia, Hotels.com,
-   Vrbo, Agoda or Trip.com. Optionally enter the position the site shows. If it is
-   more than 150 m from ours, the property is flagged.
+4. **Listings.** Once `STAY22_AID` is set, every property gets automatic listings
+   (see [Automatic listings](#automatic-listings)). For the properties that matter
+   most, add or correct the property's own page on Booking.com, Expedia,
+   Hotels.com, Vrbo, Agoda or Trip.com. Optionally enter the position the site
+   shows. If it is more than 150 m from ours, the property is flagged.
 5. **Publish** the destination.
 
 To re-measure without re-importing:
@@ -154,6 +156,34 @@ URL-encoded target:
 Until a template is set, that site's buttons link directly (untracked), and the
 admin shows a warning.
 
+### Automatic listings
+
+Looking up 3,000+ properties on each booking site by hand doesn't scale, so
+`Affiliate::AutoListings` gives every property a listing on each site that has a
+way to find it (`stay22` / `search_url` in `config/affiliates.yml`):
+
+- With `STAY22_AID` (an id from the [Stay22 hub](https://hub.stay22.com)), a
+  [Stay22 Allez](https://dev.stay22.com/docs/allez) link for Booking.com, Expedia
+  and Agoda. Stay22 finds the property by name and position and forwards the
+  visitor with our affiliate id; the visitor's dates and guests are passed on.
+- Once Booking.com's own programme is set up (`BOOKING_TRACKING_URL`), Booking.com
+  links search the site for the property's name instead.
+
+Stay22 matches names approximately and a search shows a list, so automatic
+listings can land on the wrong place. The admin marks them "Automatic": editing
+one's URL to the property's own page makes it a normal listing that is never
+regenerated, and "Switch off" hides it for good. Listings an admin entered are
+never touched. Automatic listings are refreshed after every OSM import and daily
+(`config/recurring.yml`); run `bin/rails affiliate:auto_listings[slug]` (or the
+Deploy workflow's `auto-listings` command) to do it now. Without `STAY22_AID` or
+a tracking URL nothing is created, and removing them removes the automatic
+listings again.
+
+In production these variables come from the repository's Actions **variables**
+(not secrets: they appear in links anyway): `STAY22_AID` and the
+`*_TRACKING_URL` templates. Set one, then deploy (Actions → Deploy → `deploy`)
+and run `auto-listings`.
+
 ## Prices
 
 Prices come from **providers** (`app/services/prices/provider.rb`). Each one wraps
@@ -220,6 +250,7 @@ inside Puma.
 | `MAP_TILE_URL` | Map tile template (default: OpenStreetMap's tile server) |
 | `PRICE_PROVIDERS` | Price providers to use, e.g. `stay22` |
 | `*_TRACKING_URL` | Affiliate tracking templates, see above |
+| `STAY22_AID` | Stay22 affiliate id for automatic listings, see above |
 
 The OpenStreetMap tile server is fine at low traffic, but read its
 [usage policy](https://operations.osmfoundation.org/policies/tiles/) and switch to a

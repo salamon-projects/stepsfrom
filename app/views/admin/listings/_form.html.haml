@@ -1,5 +1,9 @@
 = form_with model: [ :admin, property, listing ], class: "admin-form" do |f|
   = render "admin/shared/errors", record: listing
+  - if listing.automatic?
+    %p.admin-hint
+      This listing was made automatically. Replace the URL with the property's own page on the site to make it exact;
+      it will then be kept as you entered it.
   .field
     = f.label :provider, "Booking site"
     = f.select :provider, Affiliate::Provider.all.values.map { |p| [ p.name, p.key ] }

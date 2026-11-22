@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -73,6 +73,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_090000) do
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "generator"
     t.index ["property_id", "provider"], name: "index_listings_on_property_id_and_provider", unique: true
     t.index ["property_id"], name: "index_listings_on_property_id"
   end

@@ -36,6 +36,11 @@ env:
     DB_HOST: stepsfrom-db
     # Run Solid Queue (background jobs, recurring tasks) inside Puma
     SOLID_QUEUE_IN_PUMA: true
+    # Affiliate ids and tracking templates, from the Deploy workflow's
+    # repository variables (empty until a programme approves us).
+<% %w[STAY22_AID BOOKING_TRACKING_URL EXPEDIA_TRACKING_URL HOTELS_COM_TRACKING_URL VRBO_TRACKING_URL AGODA_TRACKING_URL TRIP_COM_TRACKING_URL].each do |name| %>
+    <%= name %>: <%= ENV[name].to_s.inspect %>
+<% end %>
   secret:
     - SECRET_KEY_BASE
     - STEPSFROM_DATABASE_PASSWORD

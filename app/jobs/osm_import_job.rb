@@ -23,6 +23,7 @@ class OsmImportJob < ApplicationJob
 
     counts = Osm::DestinationImport.new(destination, progress: import_run.method(:progress!)).call
     import_run.succeed!(counts)
+    AutoListingsJob.perform_later(destination.id)
   rescue Osm::OverpassClient::Error => e
     import_run&.retrying!(e.message, retry_at: RETRY_WAIT.from_now) if executions < ATTEMPTS
     raise

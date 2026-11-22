@@ -109,11 +109,16 @@
   - if @property.listings.empty?
     %p No listings yet. Add the property's page on each booking site so visitors can book it.
   - else
+    - if @property.listings.any?(&:automatic?)
+      %p.admin-hint
+        Automatic listings find the property by name (a Stay22 link or a search on the site) and can land on the wrong
+        place. Edit one and paste the property's own page to make it exact; switched-off ones stay off.
     .table-wrap
       %table.admin-table
         %thead
           %tr
             %th Site
+            %th Source
             %th URL
             %th Says beachfront
             %th Reported position
@@ -124,6 +129,7 @@
           - @property.listings.sort_by(&:provider).each do |listing|
             %tr
               %td= listing.provider_name
+              %td= { "stay22" => "Automatic (Stay22)", "search" => "Automatic (site search)" }.fetch(listing.generator, "Entered")
               %td= external_link(listing.url.truncate(60), listing.url)
               %td= { true => "Yes", false => "No", nil => "?" }.fetch(listing.claims_beachfront)
               %td= listing.reported_lonlat ? "#{listing.reported_latitude.round(5)}, #{listing.reported_longitude.round(5)}" : "–"
@@ -131,6 +137,10 @@
               %td
                 .actions
                   = link_to "Edit", edit_admin_property_listing_path(@property, listing), class: "button button--small"
-                  = button_to "Remove", admin_property_listing_path(@property, listing), method: :delete, class: "button button--small button--danger"
+                  - if listing.automatic?
+                    - if listing.active?
+                      = button_to "Switch off", admin_property_listing_path(@property, listing), method: :delete, class: "button button--small button--danger"
+                  - else
+                    = button_to "Remove", admin_property_listing_path(@property, listing), method: :delete, class: "button button--small button--danger"
 
 = render "list_nav", placement: "bottom"

@@ -19,6 +19,7 @@ on:
           - setup
           - seed
           - osm-import
+          - auto-listings
           - db-upgrade
       destination:
         description: Destination slug for osm-import (e.g. makarska-riviera)
@@ -48,6 +49,15 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       ADMIN_USER: ${{ secrets.ADMIN_USER }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      # Affiliate ids and tracking templates (repository variables; empty
+      # until a programme approves us). See config/affiliates.yml.
+      STAY22_AID: ${{ vars.STAY22_AID }}
+      BOOKING_TRACKING_URL: ${{ vars.BOOKING_TRACKING_URL }}
+      EXPEDIA_TRACKING_URL: ${{ vars.EXPEDIA_TRACKING_URL }}
+      HOTELS_COM_TRACKING_URL: ${{ vars.HOTELS_COM_TRACKING_URL }}
+      VRBO_TRACKING_URL: ${{ vars.VRBO_TRACKING_URL }}
+      AGODA_TRACKING_URL: ${{ vars.AGODA_TRACKING_URL }}
+      TRIP_COM_TRACKING_URL: ${{ vars.TRIP_COM_TRACKING_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -87,6 +97,8 @@ jobs:
             deploy) bin/kamal deploy ;;
             setup) bin/kamal setup ;;
             seed) bin/kamal app exec "bin/rails db:seed" ;;
+            # Creates automatic booking-site listings now instead of at 4:30.
+            auto-listings) bin/kamal app exec "bin/rails affiliate:auto_listings" ;;
             # Restarts the database container on the image in config/deploy.yml
             # (the data volume is kept). The site is down for a few seconds.
             db-upgrade) bin/kamal accessory reboot db ;;

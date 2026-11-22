@@ -4,6 +4,10 @@ class Listing < ApplicationRecord
   has_many :price_quotes, dependent: :delete_all
   has_many :outbound_clicks, dependent: :nullify
 
+  # How StepsFrom made an automatic listing (see Affiliate::AutoListings);
+  # nil for listings an admin entered.
+  GENERATORS = %w[search stay22].freeze
+
   enum :provider, Affiliate::Provider.keys.index_by(&:itself), validate: true
 
   attribute :reported_latitude, :float
@@ -14,6 +18,7 @@ class Listing < ApplicationRecord
 
   validates :url, presence: true
   validates :provider, uniqueness: { scope: :property_id }
+  validates :generator, inclusion: { in: GENERATORS }, allow_nil: true
   validate :url_belongs_to_provider
 
   after_commit :reclassify_property, if: :saved_change_to_reported_lonlat?
@@ -26,6 +31,10 @@ class Listing < ApplicationRecord
 
   def provider_name
     provider_config&.name || provider
+  end
+
+  def automatic?
+    generator.present?
   end
 
   private
@@ -48,6 +57,7 @@ class Listing < ApplicationRecord
 
   def url_belongs_to_provider
     return if url.blank? || provider_config.nil?
+    return if generator == "stay22" && Affiliate::Stay22.link?(url)
 
     errors.add(:url, :invalid_for_provider, provider: provider_name) unless provider_config.accepts_url?(url)
   end

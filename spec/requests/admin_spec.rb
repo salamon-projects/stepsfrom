@@ -216,6 +216,26 @@ RSpec.describe "Admin" do
       expect(response.body).to include("is not a Booking.com address")
     end
 
+    it "makes an automatic listing the admin's once its URL is edited" do
+      listing = create(:listing, property:, generator: "stay22", url: Affiliate::Stay22.listing_url(property, "booking"))
+
+      get admin_property_path(property)
+      expect(response.body).to include("Automatic (Stay22)", "Switch off")
+
+      patch admin_property_listing_path(property, listing), params: { listing: { url: "https://www.booking.com/hotel/hr/riva.html" } }
+
+      expect(listing.reload).to have_attributes(generator: nil, url: "https://www.booking.com/hotel/hr/riva.html")
+    end
+
+    it "switches an automatic listing off instead of deleting it, so it is not made again" do
+      listing = create(:listing, property:, generator: "stay22", url: Affiliate::Stay22.listing_url(property, "booking"))
+
+      delete admin_property_listing_path(property, listing)
+
+      expect(listing.reload).not_to be_active
+      expect(listing.generator).to eq("stay22")
+    end
+
     it "flags a reported position far from ours" do
       lon, lat = offset(north_m: 400)
 

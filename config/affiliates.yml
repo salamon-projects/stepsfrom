@@ -12,6 +12,15 @@
 #   shown instead of the name. Use only the official logo from the
 #   programme's brand kit, once the programme has approved us.
 #
+# stay22: the site's Stay22 Allez endpoint (https://dev.stay22.com/docs/allez).
+#   With STAY22_AID set, every property without a listing on this site gets
+#   one automatically: a Stay22 link that finds the property by name and
+#   position (see Affiliate::AutoListings).
+#
+# search_url: the site's search page. Once the site's own programme is set up
+#   (tracking_env), automatic listings search it for the property's name
+#   instead of going through Stay22.
+#
 # tracking_env: name of the ENV variable holding the affiliate tracking URL
 #   template once the programme has approved us. The template must contain
 #   {url}, which is replaced by the URL-encoded target, e.g. for CJ:
@@ -30,6 +39,8 @@ shared:
     child_params:
       age: "{age}"
     tracking_env: BOOKING_TRACKING_URL
+    search_url: https://www.booking.com/searchresults.html
+    stay22: booking
   expedia:
     name: Expedia
     host_pattern: '(\A|\.)expedia\.[a-z]{2,3}(\.[a-z]{2})?\z'
@@ -40,6 +51,7 @@ shared:
     child_age: ":c{age}"
     child_age_separator: ""
     tracking_env: EXPEDIA_TRACKING_URL
+    stay22: expedia
   hotels_com:
     name: Hotels.com
     host_pattern: '(\A|\.)hotels\.com\z'
@@ -72,6 +84,7 @@ shared:
       childages: "{child_ages}"
       rooms: "1"
     tracking_env: AGODA_TRACKING_URL
+    stay22: agoda
   trip_com:
     name: Trip.com
     host_pattern: '(\A|\.)trip\.com\z'

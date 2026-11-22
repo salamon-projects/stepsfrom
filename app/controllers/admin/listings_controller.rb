@@ -18,8 +18,12 @@ module Admin
 
     def edit; end
 
+    # Editing the URL of an automatic listing makes it the admin's, so it is
+    # no longer regenerated.
     def update
-      if @listing.update(listing_params)
+      @listing.assign_attributes(listing_params)
+      @listing.generator = nil if @listing.url_changed?
+      if @listing.save
         redirect_to admin_property_path(@property), notice: "#{@listing.provider_name} listing updated."
       else
         render :edit, status: :unprocessable_content
@@ -27,6 +31,12 @@ module Admin
     end
 
     def destroy
+      if @listing.automatic?
+        # Deleting it would only bring it back on the next run.
+        @listing.update!(active: false)
+        return redirect_to admin_property_path(@property), notice: "#{@listing.provider_name} automatic listing switched off."
+      end
+
       @listing.destroy!
       redirect_to admin_property_path(@property), notice: "#{@listing.provider_name} listing removed."
     end

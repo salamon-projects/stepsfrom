@@ -48,4 +48,17 @@ RSpec.describe "Outbound clicks" do
 
     expect(response).to have_http_status(:not_found)
   end
+
+  it "sends automatic Stay22 listings through Stay22 with our affiliate id" do
+    stub_const("ENV", ENV.to_h.merge("STAY22_AID" => "stepsfrom"))
+    property = create(:property, name: "Hotel Riva")
+    stay22 = create(:listing, property:, provider: "expedia", generator: "stay22",
+                                     url: Affiliate::Stay22.listing_url(property, "expedia"))
+
+    get outbound_path(stay22, check_in: check_in.iso8601, check_out: (check_in + 3).iso8601, adults: 2)
+
+    expect(response.location).to start_with("https://www.stay22.com/allez/expedia?")
+    expect(response.location).to include("aid=stepsfrom", "hotelname=Hotel+Riva", "checkin=#{check_in.iso8601}")
+    expect(OutboundClick.last).to have_attributes(listing: stay22, provider: "expedia")
+  end
 end

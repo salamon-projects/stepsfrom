@@ -11,6 +11,11 @@ production:
   check_property_websites:
     class: CheckWebsitesJob
     schedule: every monday at 5am
+  # Picks up new properties, renamed ones and changes to STAY22_AID or a
+  # booking site's tracking URL.
+  sync_automatic_listings:
+    class: AutoListingsJob
+    schedule: every day at 4:30am
   purge_expired_price_quotes:
     command: "PriceQuote.where(expires_at: ...1.day.ago).delete_all"
     schedule: every day at 4am
