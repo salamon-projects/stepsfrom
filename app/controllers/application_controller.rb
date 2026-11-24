@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   include Pagy::Method
 
-  helper_method :current_stay
+  helper_method :current_stay, :prices_loading?
 
   private
 
@@ -15,6 +15,12 @@ class ApplicationController < ActionController::Base
   end
 
   # The visitor's dates, when they entered valid ones.
+  # Prices for the visitor's dates are being fetched in the background and
+  # the page has not reloaded for them yet (it reloads once, see the layout).
+  def prices_loading?
+    @prices_pending == true && params[:priced].blank?
+  end
+
   def current_stay
     return @current_stay if defined?(@current_stay)
 

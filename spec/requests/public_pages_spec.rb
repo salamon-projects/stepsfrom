@@ -120,6 +120,23 @@ RSpec.describe "Public pages" do
       Rails.configuration.x.price_providers = []
     end
 
+    it "reloads once while prices are fetched in the background" do
+      create(:listing, property: hotel)
+      slow = Class.new(Prices::Provider) { def inline? = false }
+      allow(Prices).to receive(:providers).and_return([ slow.new ])
+
+      get destination_path(destination, stay_params)
+
+      refresh = Nokogiri::HTML(response.body).at_css("meta[http-equiv=refresh]")
+      expect(refresh["content"]).to start_with("5;url=#{destination_path(destination)}?").and include("priced=1", "check_in=")
+      expect(response.body).to include("Getting live prices")
+
+      get destination_path(destination, stay_params.merge(priced: 1))
+
+      expect(Nokogiri::HTML(response.body).at_css("meta[http-equiv=refresh]")).to be_nil
+      expect(response.body).to include("have live prices for these dates yet")
+    end
+
     it "folds the filters and summarises the current search" do
       get destination_path(destination, stay_params.merge(surface: "pebble"))
 

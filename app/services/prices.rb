@@ -12,22 +12,25 @@ module Prices
 
   # Makes sure fresh quotes for the stay exist or are on their way. Inline
   # providers answer during the request; others run in RefreshPricesJob.
+  # Returns true while such a job is still fetching them.
   def self.refresh(listings, stay)
     providers = self.providers
-    return if providers.empty? || stay.nil? || !stay.valid?
+    return false if providers.empty? || stay.nil? || !stay.valid?
 
     fresh_ids = PriceQuote.fresh.for_stay(stay).where(listing_id: listings.map(&:id)).pluck(:listing_id)
     stale = listings.reject { |listing| fresh_ids.include?(listing.id) }
-    return if stale.empty?
+    return false if stale.empty?
 
     if providers.all?(&:inline?)
       Refresher.new(providers:).call(stale, stay)
+      false
     else
       key = [ "prices-pending", stay.to_params, stale.map(&:id).sort ].to_param
-      return if Rails.cache.exist?(key)
+      return true if Rails.cache.exist?(key)
 
       Rails.cache.write(key, true, expires_in: PENDING_TTL)
       RefreshPricesJob.perform_later(stale.map(&:id), stay.to_params)
+      true
     end
   end
 end

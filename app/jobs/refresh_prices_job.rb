@@ -5,6 +5,6 @@ class RefreshPricesJob < ApplicationJob
     stay = Stay.new(stay_params.symbolize_keys)
     return unless stay.valid?
 
-    Prices::Refresher.new.call(Listing.active.where(id: listing_ids).to_a, stay)
+    Prices::Refresher.new.call(Listing.active.includes(property: :destination).where(id: listing_ids).to_a, stay)
   end
 end

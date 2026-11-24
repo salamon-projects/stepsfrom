@@ -43,9 +43,10 @@ module Stepsfrom
     config.middleware.insert_before ActionDispatch::Static, Rack::Deflater,
       include: %w[text/html text/css text/javascript text/plain application/json application/xml image/svg+xml]
 
-    # Price providers to query (see app/services/prices.rb), e.g. "stay22,agoda"
-    # once an adapter exists for an approved programme.
+    # Price providers to query (see app/services/prices.rb), e.g. "stay22".
+    # Without PRICE_PROVIDERS, Stay22 prices switch on once its API key is set.
     config.x.price_providers = ENV.fetch("PRICE_PROVIDERS", "").split(",").map(&:strip).compact_blank
+    config.x.price_providers = %w[stay22] if config.x.price_providers.empty? && ENV["STAY22_API_KEY"].present?
 
     # Map tiles; the default is the OpenStreetMap tile server, which is fine for
     # low traffic but see https://operations.osmfoundation.org/policies/tiles/

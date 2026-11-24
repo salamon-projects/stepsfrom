@@ -33,7 +33,9 @@
                 %span.offer__price= format_price(offer.quote.total_cents, offer.quote.currency)
               - else
                 %span.offer__cta= t(current_stay ? "offers.check_price" : "offers.check_availability")
-    - if current_stay && offers.none?(&:quote)
+    - if current_stay && offers.none?(&:quote) && prices_loading?
+      %p.offers__note= t("offers.prices_loading")
+    - elsif current_stay && offers.none?(&:quote)
       %p.offers__note= t("offers.no_prices_yet")
     - elsif best
       %p.offers__note= t("offers.checked_ago", time: time_ago_in_words(offers.filter_map { |o| o.quote&.fetched_at }.min))

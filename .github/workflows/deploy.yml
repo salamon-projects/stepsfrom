@@ -49,6 +49,7 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       ADMIN_USER: ${{ secrets.ADMIN_USER }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      STAY22_API_KEY: ${{ secrets.STAY22_API_KEY }}
       # Affiliate ids and tracking templates (repository variables; empty
       # until a programme approves us). See config/affiliates.yml.
       STAY22_AID: ${{ vars.STAY22_AID }}

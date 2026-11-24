@@ -188,14 +188,26 @@ and run `auto-listings`.
 
 Prices come from **providers** (`app/services/prices/provider.rb`). Each one wraps
 an official API: a booking site's partner API or a licensed aggregator. Quotes are
-cached in `price_quotes` for the provider's TTL (6 hours by default). When dates are
+cached in `price_quotes` for the provider's TTL (6 hours by default, 55 minutes for Stay22). When dates are
 given, destination pages sort by the cheapest fresh quote.
 
-No real provider exists yet: they depend on partner approval (for example Stay22,
-Agoda Partners, the Booking.com Demand API or Expedia Rapid). To add one, subclass
-`Prices::Provider` in `app/services/prices/providers/` and list it in
-`PRICE_PROVIDERS` (comma-separated). Development uses the `fake` provider, which
-returns made-up prices and refuses to run in production.
+The one real provider is **Stay22** (`Prices::Providers::Stay22`, the
+[Direct Travel API](https://dev.stay22.com/docs/api)). It switches on when the
+repository secret `STAY22_API_KEY` is set (a key from the Stay22 hub, which Stay22
+must approve for the API) and the app is deployed. It asks for the prices of a
+destination's whole area (one property's surroundings on a property page), matches
+each result to a property by position (within 40 m, or 250 m with a shared name
+word) and gives each of the property's listings the price of the same booking site.
+Stay22 allows keeping prices for an hour at most, so quotes expire after 55 minutes
+and the hourly purge deletes them. Prices are fetched by `RefreshPricesJob`; a page
+asked for new dates says so and reloads once after five seconds (`?priced=1`).
+
+Other providers depend on partner approval (for example Agoda Partners, the
+Booking.com Demand API or Expedia Rapid). To add one, subclass `Prices::Provider`
+in `app/services/prices/providers/` and list it in `PRICE_PROVIDERS`
+(comma-separated; without it, `stay22` is used when its key is set). Development
+uses the `fake` provider, which returns made-up prices and refuses to run in
+production.
 
 ## Deploying (Kamal, Hetzner)
 
@@ -251,6 +263,7 @@ inside Puma.
 | `PRICE_PROVIDERS` | Price providers to use, e.g. `stay22` |
 | `*_TRACKING_URL` | Affiliate tracking templates, see above |
 | `STAY22_AID` | Stay22 affiliate id for automatic listings, see above |
+| `STAY22_API_KEY` | Stay22 Direct Travel API key for prices (a repository *secret*), see Prices |
 
 The OpenStreetMap tile server is fine at low traffic, but read its
 [usage policy](https://operations.osmfoundation.org/policies/tiles/) and switch to a

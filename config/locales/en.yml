@@ -83,6 +83,7 @@ en:
     add_dates: Add dates to see prices
     direct_booking: You book directly with the site. We never add a fee.
     checked_ago: checked %{time} ago
+    prices_loading: Getting live prices for your dates — this page updates in a few seconds.
     no_prices_yet: We don't have live prices for these dates yet — check them on the booking sites.
     none: Not bookable through our partners yet.
     disclosure: We may earn a commission when you book through these links. It never affects our measurements or the order of results.

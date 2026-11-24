@@ -9,6 +9,8 @@
       %meta{ name: "robots", content: "noindex" }
     - else
       %link{ rel: "canonical", href: canonical_url }
+    - if prices_loading?
+      %meta{ "http-equiv": "refresh", content: "5;url=#{request.path}?#{request.query_parameters.merge("priced" => "1").to_query}" }
     %meta{ name: "theme-color", content: "#0a3550" }
     %meta{ property: "og:site_name", content: t("site_name") }
     %meta{ property: "og:type", content: "website" }

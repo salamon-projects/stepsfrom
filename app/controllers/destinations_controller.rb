@@ -4,7 +4,7 @@ class DestinationsController < ApplicationController
     @stay = Stay.from_params(params)
 
     if current_stay
-      Prices.refresh(Listing.active.where(property_id: @destination.properties.published.select(:id)).to_a, current_stay)
+      @prices_pending = Prices.refresh(Listing.active.where(property_id: @destination.properties.published.select(:id)).to_a, current_stay)
     end
 
     @search = PropertySearch.new(destination: @destination, stay: current_stay,
