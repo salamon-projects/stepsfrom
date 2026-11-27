@@ -263,6 +263,32 @@ RSpec.describe "Public pages" do
       expect(response.body).to include("A road or railway runs between the property and the water")
     end
 
+    it "redirects a campsite's page permanently to its destination page" do
+      camp = create(:property, :direct, destination:, kind: "camp_site", name: "Kamp Dolac")
+
+      get property_path(camp, check_in: check_in.iso8601)
+
+      expect(response).to have_http_status(:moved_permanently)
+      expect(response).to redirect_to(destination_path(destination))
+    end
+
+    it "returns 404 for a campsite whose destination is not published" do
+      camp = create(:property, :direct, destination: create(:destination, published: false), kind: "camp_site")
+
+      get property_path(camp)
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "still shows a hostel" do
+      hostel = create(:property, :direct, destination:, kind: "hostel", name: "Hostel Riva")
+
+      get property_path(hostel)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Hostel Riva")
+    end
+
     it "returns 404 for hidden properties" do
       hotel.update!(hidden_at: Time.current)
 
