@@ -12,6 +12,10 @@
   %p
     Some links go through Stay22, an affiliate service that finds the property on the booking site for us. Stay22
     then forwards you to the booking site straight away.
+  - if (activity_sites = Affiliate::Activities.configured).any?
+    %p
+      = "Destination and guide pages also link to activity sites (#{activity_sites.map(&:name).to_sentence}),"
+      which may pay us a commission when you book a tour or activity there. We don't check or rank those activities.
   %p
     Links to booking sites are marked as sponsored. Commissions never affect which properties we list, the badges
     they get, or the order of results — see

@@ -1,0 +1,13 @@
+-# locals: (destination:)
+-# Links to activity sites' searches for the destination. Nothing at all
+-# unless at least one site's partner ids are set (config/activities.yml).
+- providers = Affiliate::Activities.configured
+- if providers.any?
+  %section.activities{ "aria-labelledby": "activities-title" }
+    %h2.activities__title#activities-title= t("activities.title", destination: destination.name)
+    %p.activities__text= t("activities.text")
+    %ul.activities__links
+      - providers.each do |provider|
+        %li= link_to t("activities.browse", provider: provider.name), activities_outbound_path(provider.key, destination),
+          class: "button activities__link", rel: "sponsored nofollow noopener", target: "_blank"
+    %p.activities__note= t("activities.disclosure")

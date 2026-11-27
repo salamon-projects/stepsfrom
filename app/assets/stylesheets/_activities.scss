@@ -1,0 +1,46 @@
+@use "variables" as *;
+
+// "Things to do" on destination and guide pages: links to activity sites,
+// kept quieter than the stays above them.
+.activities {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: $paper-deep;
+
+  &__title {
+    margin: 0 0 0.5rem;
+    color: $ink;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  &__text {
+    max-width: 40rem;
+    margin: 0 0 1rem;
+    color: $body;
+    font-size: 0.95rem;
+  }
+
+  &__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__link::after {
+    content: "↗";
+    font-weight: 400;
+  }
+
+  &__note {
+    margin: 1rem 0 0;
+    color: $muted;
+    font-size: 0.8rem;
+  }
+}

@@ -104,6 +104,12 @@ en:
     none: Not bookable through our partners yet.
     disclosure: We may earn a commission when you book through these links. It never affects our measurements or the order of results.
 
+  activities:
+    title: Things to do around %{destination}
+    text: Tours, boat trips and other activities in the area, listed by activity booking sites. We haven't checked them; they are not part of our measurements.
+    browse: Browse on %{provider}
+    disclosure: Sponsored links. We may earn a commission if you book.
+
   search:
     destination: Destination
     check_in: Check-in

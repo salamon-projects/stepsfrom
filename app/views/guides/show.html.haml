@@ -48,6 +48,7 @@
       = t("guides.ranking_note")
       = t("offers.disclosure")
     %p= link_to "See all #{pluralize(number_with_delimiter(facts[:listed_count]), 'verified stay')} in #{destination.name}", destination_path(destination), class: "text-link"
+    = render "shared/activities", destination:
 
 - if faq.any?
   .container.prose.guide-faq
