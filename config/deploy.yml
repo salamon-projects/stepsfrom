@@ -42,7 +42,7 @@ env:
     <%= name %>: <%= ENV[name].to_s.inspect %>
 <% end %>
     # Search engine settings, also repository variables (empty = off).
-<% %w[SITEMAP_EXCLUDE_WALKABLE].each do |name| %>
+<% %w[SITEMAP_EXCLUDE_WALKABLE GOOGLE_SITE_VERIFICATION BING_SITE_VERIFICATION].each do |name| %>
     <%= name %>: <%= ENV[name].to_s.inspect %>
 <% end %>
   secret:

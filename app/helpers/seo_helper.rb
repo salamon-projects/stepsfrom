@@ -15,6 +15,18 @@ module SeoHelper
                .map { |code| Country.new(code) }
   end
 
+  # Ownership proof for Google Search Console and Bing Webmaster Tools,
+  # from GOOGLE_SITE_VERIFICATION / BING_SITE_VERIFICATION; none when unset.
+  SITE_VERIFICATIONS = { "google-site-verification" => "GOOGLE_SITE_VERIFICATION",
+                         "msvalidate.01" => "BING_SITE_VERIFICATION" }.freeze
+
+  def site_verification_tags
+    safe_join(SITE_VERIFICATIONS.filter_map do |name, env|
+      token = ENV[env].to_s.strip.presence
+      tag.meta(name:, content: token) if token
+    end)
+  end
+
   def og_image_url
     "#{request.base_url}/og-image.jpg"
   end

@@ -254,6 +254,18 @@ RSpec.describe "Public pages" do
               .map { |(data)| JSON.parse(data) }.find { |data| data["@type"] == type }
     end
 
+    it "adds search console verification tags only when configured" do
+      get root_path
+      expect(response.body).not_to include("google-site-verification", "msvalidate.01")
+
+      stub_const("ENV", ENV.to_h.merge("GOOGLE_SITE_VERIFICATION" => " g00gle-token ", "BING_SITE_VERIFICATION" => "B1NG"))
+      get how_we_verify_path
+
+      head = Nokogiri::HTML(response.body).at_css("head")
+      expect(head.at_css("meta[name='google-site-verification']")["content"]).to eq("g00gle-token")
+      expect(head.at_css("meta[name='msvalidate.01']")["content"]).to eq("B1NG")
+    end
+
     it "describes the site, with sharing tags" do
       get root_path
 

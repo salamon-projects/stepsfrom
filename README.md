@@ -264,6 +264,8 @@ inside Puma.
 | `*_TRACKING_URL` | Affiliate tracking templates, see above |
 | `STAY22_AID` | Stay22 affiliate id for automatic listings, see above |
 | `STAY22_API_KEY` | Stay22 Direct Travel API key for prices (a repository *secret*), see Prices |
+| `GOOGLE_SITE_VERIFICATION` | Google Search Console token: the `content` of its HTML-tag method, rendered as `<meta name="google-site-verification">`. A repository *variable*; nothing rendered when unset |
+| `BING_SITE_VERIFICATION` | Bing Webmaster Tools token, rendered as `<meta name="msvalidate.01">`. A repository *variable*; nothing rendered when unset |
 | `SITEMAP_EXCLUDE_WALKABLE` | `1` leaves "Short walk to the water" stays out of `sitemap.xml` (default: all published stays). A repository *variable* |
 
 The OpenStreetMap tile server is fine at low traffic, but read its

@@ -61,6 +61,8 @@ jobs:
       TRIP_COM_TRACKING_URL: ${{ vars.TRIP_COM_TRACKING_URL }}
       # Search engine settings (repository variables, optional).
       SITEMAP_EXCLUDE_WALKABLE: ${{ vars.SITEMAP_EXCLUDE_WALKABLE }}
+      GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
+      BING_SITE_VERIFICATION: ${{ vars.BING_SITE_VERIFICATION }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
