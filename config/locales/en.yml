@@ -52,6 +52,22 @@ en:
       pebble: Pebble beach
       rock: Rocky shore
 
+  guides:
+    fact:
+      distance: "%{name} is %{distance} m from %{water} in a straight line"
+      on_the_water: "%{name} is right on %{water}"
+      no_road: with no road or railway in between
+      road: but a road or railway runs in between
+      beach: "Nearest mapped beach: %{where}."
+      beach_metres: "%{distance} m away"
+      beach_touching: touching the property
+    ranking_note: Verified beachfront first, then by measured distance to the water. No property pays to be listed or ranked.
+    faq_title: Questions about %{destination}
+    list_title:
+      one: The closest to the water
+      other: "The %{count} closest to the water"
+    eyebrow: Guide
+
   properties:
     kinds:
       hotel: Hotel

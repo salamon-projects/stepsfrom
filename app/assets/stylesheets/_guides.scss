@@ -1,0 +1,44 @@
+@use "variables" as *;
+
+// Guide pages (/guides/:slug): intro, a ranked list of property cards, FAQ.
+.guide-intro {
+  padding-bottom: 2.5rem;
+
+  .eyebrow {
+    margin-bottom: 1.25rem;
+  }
+}
+
+.guide-ranking {
+  padding-bottom: 1rem;
+
+  &__title {
+    margin: 0 0 1.5rem;
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+
+  // The rank, in front of the kind line: "01 · Hotel · ★★★★".
+  &__list {
+    counter-reset: guide-rank;
+
+    > li {
+      counter-increment: guide-rank;
+    }
+
+    .property-card__kind::before {
+      content: counter(guide-rank, decimal-leading-zero) " · ";
+      color: $measure;
+      font-weight: 700;
+    }
+  }
+}
+
+.guide-faq {
+  padding-top: 2rem;
+
+  @media (min-width: $bp-md) {
+    padding-top: 3rem;
+  }
+}

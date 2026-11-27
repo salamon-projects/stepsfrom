@@ -1,0 +1,57 @@
+- destination = @destination
+- country = @guide.country
+- facts = @guide.facts
+- content_for :title, @guide.title
+- content_for :description, @guide.description
+- content_for :canonical, guide_url(@guide)
+- content_for(:noindex, true) if params.keys.intersect?(%w[check_in check_out adults children child_ages])
+- faq = @guide.faq
+- content_for :head do
+  = json_ld(breadcrumb_ld([ [ "Destinations", root_url ], [ country.name, country_url(country) ], [ destination.name, destination_url(destination) ], [ @guide.heading, guide_url(@guide) ] ]))
+  = json_ld(guide_list_ld(@guide, @properties))
+  - if faq.any?
+    = json_ld(faq_ld(faq))
+
+- content_for :masthead do
+  .container.masthead__body
+    %nav.breadcrumbs{ "aria-label": "Breadcrumb" }
+      = link_to "Destinations", root_path(anchor: "destinations")
+      %span{ "aria-hidden": "true" } ›
+      = link_to country.name, country_path(country)
+      %span{ "aria-hidden": "true" } ›
+      = link_to destination.name, destination_path(destination)
+    %h1.masthead__title= @guide.heading
+    %p.masthead__lead= @guide.description
+    .masthead__meta
+      %span.chip
+        %span.chip__dot
+        = pluralize(number_with_delimiter(facts[:listed_count]), "verified waterfront stay")
+      - if facts[:direct].positive?
+        %span.chip= "#{number_with_delimiter(facts[:direct])} right on the beach"
+      - if destination.sea_name.present?
+        %span.chip= destination.sea_name
+
+.container.prose.guide-intro
+  %span.eyebrow= t("guides.eyebrow")
+  - @guide.intro.each do |paragraph|
+    %p= paragraph
+  %p= link_to "How we verify and rank", how_we_verify_path, class: "text-link"
+
+%section.guide-ranking
+  .container
+    %h2.guide-ranking__title= t("guides.list_title", count: @properties.size)
+    %ol.property-list.guide-ranking__list
+      - @properties.each do |property|
+        %li= render "destinations/property_card", property:, offers: @offers.fetch(property.id, []), heading: :h3,
+          note: guide_fact(property), dates_url: property_path(property, anchor: "check_in")
+    %p.ranking-note
+      = t("guides.ranking_note")
+      = t("offers.disclosure")
+    %p= link_to "See all #{pluralize(number_with_delimiter(facts[:listed_count]), 'verified stay')} in #{destination.name}", destination_path(destination), class: "text-link"
+
+- if faq.any?
+  .container.prose.guide-faq
+    %h2= t("guides.faq_title", destination: destination.name)
+    - faq.each do |question, answer|
+      %h3= question
+      %p= answer

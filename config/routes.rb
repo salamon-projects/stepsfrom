@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   resources :countries, only: :show, path: "beachfront"
   resources :destinations, only: :show
   resources :properties, only: :show
+  resources :guides, only: :show
 
   # Outbound click to a booking site; logged, then redirected.
   get "go/:listing_id", to: "outbound#show", as: :outbound

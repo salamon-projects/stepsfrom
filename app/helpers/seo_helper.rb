@@ -47,11 +47,20 @@ module SeoHelper
   end
 
   def destination_ld(destination, properties, offset: 0)
-    { "@context" => "https://schema.org", "@type" => "ItemList",
-      "name" => "Beachfront stays in #{destination.name}",
-      "itemListElement" => properties.each_with_index.map do |property, index|
-        { "@type" => "ListItem", "position" => offset + index + 1, "url" => property_url(property),
-          "name" => property.name }
+    property_list_ld("Beachfront stays in #{destination.name}", properties, offset:)
+  end
+
+  # The ranked stays of a guide, in their order.
+  def guide_list_ld(guide, properties)
+    property_list_ld(guide.heading, properties).merge("itemListOrder" => "https://schema.org/ItemListOrderAscending",
+                                                      "numberOfItems" => properties.size)
+  end
+
+  # pairs: [question, answer], as shown on the page.
+  def faq_ld(pairs)
+    { "@context" => "https://schema.org", "@type" => "FAQPage",
+      "mainEntity" => pairs.map do |question, answer|
+        { "@type" => "Question", "name" => question, "acceptedAnswer" => { "@type" => "Answer", "text" => answer } }
       end }
   end
 
@@ -61,6 +70,14 @@ module SeoHelper
       "itemListElement" => destinations.each_with_index.map do |destination, index|
         { "@type" => "ListItem", "position" => index + 1, "url" => destination_url(destination),
           "name" => destination.name }
+      end }
+  end
+
+  def property_list_ld(name, properties, offset: 0)
+    { "@context" => "https://schema.org", "@type" => "ItemList", "name" => name,
+      "itemListElement" => properties.each_with_index.map do |property, index|
+        { "@type" => "ListItem", "position" => offset + index + 1, "url" => property_url(property),
+          "name" => property.name }
       end }
   end
 
