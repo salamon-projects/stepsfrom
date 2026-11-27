@@ -347,6 +347,49 @@ RSpec.describe "Public pages" do
       expect(response.body.scan("<url>").size).to eq(5)
     end
 
+    describe "sitemap" do
+      def sitemap
+        get sitemap_path
+        Nokogiri::XML(response.body).remove_namespaces!.css("url").to_h do |url|
+          [ url.at_css("loc").text, url.at_css("lastmod")&.text ]
+        end
+      end
+
+      it "lists hubs first, then stays best waterfront first" do
+        walkable = create(:property, :walkable, destination:, name: "Villa Uphill")
+        near = create(:property, :near, destination:, name: "Hotel Across The Road")
+        closest = create(:property, :direct, destination:, name: "Hotel Shore", distance_to_water_m: 5)
+
+        expect(sitemap.keys).to eq([
+          root_url, destination_url(destination), country_url(Country.new(destination.country_code)), how_we_verify_url,
+          property_url(closest), property_url(hotel), property_url(near), property_url(walkable)
+        ])
+      end
+
+      it "dates each page by its last real change, not today" do
+        hotel.update_columns(updated_at: Time.utc(2026, 9, 1, 8))
+        hotel.waterfront.update_columns(updated_at: Time.utc(2026, 10, 2, 9))
+        destination.update_columns(updated_at: Time.utc(2026, 8, 1))
+
+        lastmods = sitemap
+        expect(lastmods[property_url(hotel)]).to eq("2026-10-02T09:00:00Z")
+        expect(lastmods[destination_url(destination)]).to eq("2026-10-02T09:00:00Z")
+        expect(lastmods[root_url]).to eq("2026-10-02T09:00:00Z")
+        expect(lastmods[country_url(Country.new(destination.country_code))]).to eq("2026-10-02T09:00:00Z")
+        expect(lastmods[how_we_verify_url]).to be_nil
+      end
+
+      it "leaves out short-walk stays when SITEMAP_EXCLUDE_WALKABLE is set" do
+        walkable = create(:property, :walkable, destination:)
+        expect(sitemap).to include(property_url(walkable))
+
+        stub_const("ENV", ENV.to_h.merge("SITEMAP_EXCLUDE_WALKABLE" => "1"))
+        urls = sitemap.keys
+        expect(urls).to include(property_url(hotel))
+        expect(urls).not_to include(property_url(walkable))
+      end
+    end
+
     it "points robots to the sitemap and away from redirects" do
       get "/robots.txt"
 

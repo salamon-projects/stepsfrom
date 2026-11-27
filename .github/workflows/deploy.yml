@@ -59,6 +59,8 @@ jobs:
       VRBO_TRACKING_URL: ${{ vars.VRBO_TRACKING_URL }}
       AGODA_TRACKING_URL: ${{ vars.AGODA_TRACKING_URL }}
       TRIP_COM_TRACKING_URL: ${{ vars.TRIP_COM_TRACKING_URL }}
+      # Search engine settings (repository variables, optional).
+      SITEMAP_EXCLUDE_WALKABLE: ${{ vars.SITEMAP_EXCLUDE_WALKABLE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7

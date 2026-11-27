@@ -41,6 +41,10 @@ env:
 <% %w[STAY22_AID BOOKING_TRACKING_URL EXPEDIA_TRACKING_URL HOTELS_COM_TRACKING_URL VRBO_TRACKING_URL AGODA_TRACKING_URL TRIP_COM_TRACKING_URL].each do |name| %>
     <%= name %>: <%= ENV[name].to_s.inspect %>
 <% end %>
+    # Search engine settings, also repository variables (empty = off).
+<% %w[SITEMAP_EXCLUDE_WALKABLE].each do |name| %>
+    <%= name %>: <%= ENV[name].to_s.inspect %>
+<% end %>
   secret:
     - SECRET_KEY_BASE
     - STEPSFROM_DATABASE_PASSWORD

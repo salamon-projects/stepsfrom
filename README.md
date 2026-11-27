@@ -264,6 +264,7 @@ inside Puma.
 | `*_TRACKING_URL` | Affiliate tracking templates, see above |
 | `STAY22_AID` | Stay22 affiliate id for automatic listings, see above |
 | `STAY22_API_KEY` | Stay22 Direct Travel API key for prices (a repository *secret*), see Prices |
+| `SITEMAP_EXCLUDE_WALKABLE` | `1` leaves "Short walk to the water" stays out of `sitemap.xml` (default: all published stays). A repository *variable* |
 
 The OpenStreetMap tile server is fine at low traffic, but read its
 [usage policy](https://operations.osmfoundation.org/policies/tiles/) and switch to a

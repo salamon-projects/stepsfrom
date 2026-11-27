@@ -1,18 +1,15 @@
 xml.instruct! :xml, version: "1.0", encoding: "UTF-8"
 xml.urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
-  xml.url { xml.loc root_url }
-  @countries.each { |country| xml.url { xml.loc country_url(country) } }
-  @destinations.each do |destination|
+  url = ->(loc, lastmod = nil) do
     xml.url do
-      xml.loc destination_url(destination)
-      xml.lastmod destination.updated_at.to_date.iso8601
+      xml.loc loc
+      xml.lastmod lastmod.utc.iso8601 if lastmod
     end
   end
-  @properties.each do |property|
-    xml.url do
-      xml.loc property_url(property)
-      xml.lastmod property.updated_at.to_date.iso8601
-    end
-  end
-  xml.url { xml.loc how_we_verify_url }
+
+  url.(root_url, @site_lastmod)
+  @lastmods.each { |destination, lastmod| url.(destination_url(destination), lastmod) }
+  @countries.each { |country, lastmod| url.(country_url(country), lastmod) }
+  url.(how_we_verify_url)
+  @properties.each { |property| url.(property_url(property), property.content_updated_at) }
 end
