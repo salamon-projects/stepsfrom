@@ -127,7 +127,20 @@ row in `verifications` (single-table inheritance): `Verifications::Waterfront`
 holds the category, the headline distance (`distance_m`), the measurement
 details in `evidence`. Properties keep only location data, plus `hidden_at`
 and `reviewed_at` for an admin's decisions. A property is listed once its
-waterfront result is in a listed category, unless it is hidden or missing from OSM.
+waterfront result is in a listed category, unless it is hidden, missing from OSM
+or of an excluded kind (below).
+
+### Excluded kinds
+
+`config/listing.yml` lists property kinds kept off the public site
+(`excluded_kinds`, values of `Property::KINDS`; default: `camp_site`). They are
+left out of `Property.published`, so out of every destination, country and home
+page count, search and its kind filter, guide and `sitemap.xml`, and their
+property pages redirect (301) to the destination page. They are still imported
+from OSM (`tourism=camp_site`, which also covers many caravan sites), measured
+and shown in admin as "kind not shown"; nothing is deleted. To show them again,
+empty the list (`excluded_kinds: []`) and restart (in production, deploy): no
+re-import is needed. The "How we verify" page names the excluded kinds.
 
 To add an attribute, for example a verified sea view:
 
@@ -151,7 +164,8 @@ paragraphs and FAQ. Placeholders such as `%{direct}`, `%{closest}` or
 the figures stay true after re-measuring (the file lists them all). An optional
 `kinds` list (values of `Property::KINDS`) restricts the guide to those kinds,
 both the ranked list and every figure in the copy; the current guides leave out
-campsites and hostels and say so in their copy. To add a
+campsites and hostels and say so in their copy (campsites are also off the whole
+site, see Excluded kinds). To add a
 guide, add an entry and restart (in production, deploy). A guide whose
 destination does not exist, is unpublished or lists nothing of its kinds is not found, and
 it is not linked from the destination and country pages or listed in
