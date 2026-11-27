@@ -33,6 +33,54 @@ RSpec.describe Guide do
     end
   end
 
+  describe "kinds" do
+    def guide_with(kinds)
+      described_class.new("hvar-beachfront-hotels", described_class.config.fetch("hvar-beachfront-hotels").merge("kinds" => kinds))
+    end
+
+    it "leaves campsites and hostels out of every configured guide" do
+      described_class.all.each do |guide|
+        expect(guide.kinds).to match_array(Property::KINDS - %w[camp_site hostel]), guide.slug
+      end
+    end
+
+    it "ranks and counts only the guide's kinds" do
+      create(:property, :direct, destination:, kind: "camp_site", name: "Kamp Dolac", distance_to_water_m: 2)
+      create(:property, :near, destination:, kind: "hostel", name: "Hostel Riva", distance_to_water_m: 4)
+      hotel = create(:property, :direct, destination:, kind: "hotel", name: "Hotel Amfora", distance_to_water_m: 30)
+      villa = create(:property, :walkable, destination:, kind: "villa", name: "Villa Mare", distance_to_water_m: 90)
+      guide = described_class.find_published("hvar-beachfront-hotels")
+
+      expect(guide.properties).to eq([ hotel, villa ])
+      expect(guide.facts).to include(listed: "2 places to stay", listed_count: 2, direct: 1, near: 0, walkable: 1,
+                                     shown: 2, closest_name: "Hotel Amfora", closest_m: 30)
+      expect(guide.faq.flatten.join).not_to include("Kamp Dolac")
+    end
+
+    it "ranks every kind when the guide names none" do
+      camp = create(:property, :direct, destination:, kind: "camp_site", distance_to_water_m: 2)
+
+      guide = guide_with(nil)
+
+      expect(guide.properties).to eq([ camp ])
+      expect(guide.facts).to include(listed_count: 1, closest_m: 2)
+    end
+
+    it "is unpublished when nothing of its kinds is listed" do
+      create(:property, :direct, destination:, kind: "camp_site")
+      create(:property, :direct, destination:, kind: "hostel")
+
+      expect(described_class.find_published("hvar-beachfront-hotels")).to be_nil
+      expect(described_class.published.map(&:slug)).not_to include("hvar-beachfront-hotels")
+      expect(described_class.for_destinations([ destination ])).to be_empty
+      expect(guide_with([])).not_to be_published
+    end
+
+    it "rejects a kind that is not a property kind" do
+      expect { guide_with(%w[hotel castle]) }.to raise_error(ArgumentError, /castle/)
+    end
+  end
+
   describe ".find_published" do
     it "finds a guide whose destination lists properties" do
       create(:property, :direct, destination:)

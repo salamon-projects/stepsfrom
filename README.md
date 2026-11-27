@@ -148,9 +148,12 @@ default. The copy lives in `config/guides.yml`, one entry per guide keyed by its
 slug: the destination slug, title, meta description, H1, link text, intro
 paragraphs and FAQ. Placeholders such as `%{direct}`, `%{closest}` or
 `%{direct_max_m}` are filled from the database and `config/waterfront.yml`, so
-the figures stay true after re-measuring (the file lists them all). To add a
+the figures stay true after re-measuring (the file lists them all). An optional
+`kinds` list (values of `Property::KINDS`) restricts the guide to those kinds,
+both the ranked list and every figure in the copy; the current guides leave out
+campsites and hostels and say so in their copy. To add a
 guide, add an entry and restart (in production, deploy). A guide whose
-destination does not exist, is unpublished or lists nothing is not found, and
+destination does not exist, is unpublished or lists nothing of its kinds is not found, and
 it is not linked from the destination and country pages or listed in
 `sitemap.xml`. Keep the copy in line with the "How we verify" page: the
 distance is a straight line to the shoreline, not a walking route.

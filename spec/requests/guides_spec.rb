@@ -64,6 +64,20 @@ RSpec.describe "Guides" do
       expect(document.at_css(".guide-ranking__title").text).to eq("The 4 closest to the water")
     end
 
+    it "leaves campsites and hostels out of the list and the figures, and says so" do
+      create(:property, :direct, destination:, kind: "camp_site", name: "Kamp Dolac", distance_to_water_m: 1)
+      create(:property, :direct, destination:, kind: "hostel", name: "Hostel Riva", distance_to_water_m: 2)
+
+      get guide_path(guide_slug)
+
+      expect(document.css(".guide-ranking__list .property-card__name").map(&:text))
+        .to eq([ "Hotel Amfora", "Palace Hotel", "Villa Across", "Rooms Uphill" ])
+      expect(document.at_css(".guide-intro").text.squish)
+        .to include("Campsites and hostels are not included. We have measured 4 places to stay on Hvar that pass, 2 of them verified beachfront")
+      expect(document.at_css("meta[name=description]")["content"]).to include("2 verified beachfront", "The closest is 6 m from the water.")
+      expect(response.body).not_to include("Kamp Dolac", "Hostel Riva")
+    end
+
     it "shows at most the guide's limit" do
       stub_const("Guide::DEFAULT_LIMIT", 2)
 
@@ -92,7 +106,7 @@ RSpec.describe "Guides" do
 
       faq = document.at_css(".guide-faq")
       expect(faq.css("h3").size).to be_between(3, 5)
-      expect(faq.text.squish).to include("Verified beachfront: 2 of the 4 places to stay we list on Hvar",
+      expect(faq.text.squish).to include("Verified beachfront: 2 of the 4 places to stay in this guide",
                                          "Villa Across: 6 m from the water, measured in a straight line")
     end
 
@@ -196,6 +210,17 @@ RSpec.describe "Guides" do
       urls = Nokogiri::XML(response.body).remove_namespaces!.css("url")
       expect(urls.map { |url| url.at_css("loc").text }.first(3)).to eq([ root_url, guide_url(guide_slug), destination_url(destination) ])
       expect(urls[1].at_css("lastmod").text).to eq("2026-10-02T09:00:00Z")
+    end
+
+    it "dates a guide only by the kinds it ranks" do
+      [ amfora, palace, villa, rooms ].each { |property| property.update_columns(updated_at: Time.utc(2026, 8, 1)) }
+      Verification.update_all(updated_at: Time.utc(2026, 8, 1))
+      create(:property, :direct, destination:, kind: "camp_site").update_columns(updated_at: Time.utc(2026, 11, 1))
+
+      get sitemap_path
+
+      guide = Nokogiri::XML(response.body).remove_namespaces!.css("url").find { |url| url.at_css("loc").text == guide_url(guide_slug) }
+      expect(guide.at_css("lastmod").text).to eq("2026-08-01T00:00:00Z")
     end
   end
 end

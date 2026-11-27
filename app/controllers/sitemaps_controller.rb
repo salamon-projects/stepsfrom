@@ -5,7 +5,7 @@ class SitemapsController < ApplicationController
   def show
     @destinations = Destination.published.ordered.to_a
     properties = Property.published.where(destination: @destinations).by_waterfront
-                         .select(:id, :slug, :destination_id, "verifications.category AS waterfront_category",
+                         .select(:id, :slug, :destination_id, :kind, "verifications.category AS waterfront_category",
                                  "GREATEST(properties.updated_at, verifications.updated_at) AS content_updated_at").to_a
 
     # A destination page changes with the stays it lists; a country page and
@@ -16,8 +16,12 @@ class SitemapsController < ApplicationController
       [ country, @lastmods.filter_map { |destination, time| time if destination.country_code == country.code }.max ]
     end
     @site_lastmod = @lastmods.values.max
-    # A guide changes with the stays it ranks (its copy is filled from them).
-    @guides = Guide.published.to_h { |guide| [ guide, newest[guide.destination.id] ] }
+    # A guide changes with the stays it ranks and counts (its copy is filled
+    # from them): its destination's, of its kinds.
+    @guides = Guide.published.to_h do |guide|
+      counted = properties.select { |property| property.destination_id == guide.destination.id && (guide.kinds.nil? || guide.kinds.include?(property.kind)) }
+      [ guide, counted.map(&:content_updated_at).max ]
+    end
     @properties = exclude_walkable? ? properties.reject { |property| property.waterfront_category == "walkable" } : properties
   end
 

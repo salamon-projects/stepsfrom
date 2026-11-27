@@ -6,7 +6,7 @@ class Guide
   DEFAULT_LIMIT = 15
   CONFIG_PATH = Rails.root.join("config/guides.yml")
 
-  attr_reader :slug, :destination_slug, :title, :keyword, :heading, :link_text, :limit
+  attr_reader :slug, :destination_slug, :title, :keyword, :heading, :link_text, :limit, :kinds
 
   # Every configured guide, published or not. Fresh objects each call, since
   # a guide remembers its destination.
@@ -14,7 +14,8 @@ class Guide
     config.map { |slug, entry| new(slug, entry) }
   end
 
-  # Guides whose destination is published and lists at least one property.
+  # Guides whose destination is published and lists at least one property of
+  # the guide's kinds.
   def self.published
     all.select(&:published?)
   end
@@ -50,6 +51,9 @@ class Guide
     @heading = entry.fetch("heading")
     @link_text = entry.fetch("link_text", @heading)
     @limit = entry.fetch("limit", DEFAULT_LIMIT)
+    @kinds = entry["kinds"]&.map(&:to_s)&.freeze
+    unknown = Array(@kinds) - Property::KINDS
+    raise ArgumentError, "guide #{@slug}: unknown kinds #{unknown.join(', ')}" if unknown.any?
     @intro = Array(entry["intro"])
     @faq = Array(entry["faq"])
   end
@@ -110,8 +114,12 @@ class Guide
 
   private
 
+  # Everything the guide ranks and counts: the destination's published stays,
+  # limited to the guide's kinds when it names any, so the figures in the copy
+  # describe the same set as the list.
   def listed
-    Property.published.where(destination:)
+    scope = Property.published.where(destination:)
+    kinds ? scope.where(kind: kinds) : scope
   end
 
   def fill(text)
