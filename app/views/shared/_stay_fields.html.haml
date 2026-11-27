@@ -19,14 +19,16 @@
   = label_tag :children, t("search.children")
   = select_tag :children, options_for_select(0..Stay::MAX_CHILDREN, stay&.children || 0),
     data: { stepper: { fewer: t("search.fewer", what: "children"), more: t("search.more", what: "children") }.to_json }
--# One age field per possible child; CSS shows as many as are selected
--# above (see .child-ages in _forms.scss), so this works without JavaScript.
-.child-ages
-  - Stay::MAX_CHILDREN.times do |index|
-    .field.field--narrow.child-ages__field
-      = label_tag "child_age_#{index + 1}", t("search.child_age", number: index + 1)
-      = select_tag "child_ages[]",
-        options_for_select(Stay::CHILD_AGES.map { |age| [ t("search.age", count: age), age ] }, stay&.child_ages&.[](index)),
-        include_blank: t("search.choose_age"), id: "child_age_#{index + 1}"
+-# One age field per child in the current params; CSS shows the panel (and
+-# hides fields beyond a lowered count) without JavaScript, and the stay's
+-# validation asks for missing ages after a submit. stay_fields.js adds
+-# fields from the template as the children count goes up.
+- child_count = stay&.children.to_i.clamp(0, Stay::MAX_CHILDREN)
+- age_options = Stay::CHILD_AGES.map { |age| [ t("search.age", count: age), age ] }
+.child-ages{ data: { label: t("search.child_age", number: "%{number}") } }
+  - child_count.times do |index|
+    = render "shared/child_age_field", number: index + 1, options: options_for_select(age_options, stay.child_ages[index])
+%template.child-ages__template
+  = render "shared/child_age_field", number: "", options: options_for_select(age_options)
 - if stay && !stay.valid?
   %p.form-error{ role: "alert" }= stay.errors.full_messages.to_sentence

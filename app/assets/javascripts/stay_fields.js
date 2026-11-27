@@ -412,7 +412,42 @@
     refresh();
   }
 
+  // --- Child ages ----------------------------------------------------------
+
+  // The page only renders an age field per child already in the params; add
+  // one from the template for each child counted up here. Fields beyond a
+  // lowered count stay (keeping their age) and CSS hides them; the server
+  // only reads the first `children` ages.
+  function childAges(children) {
+    var form = children.form;
+    var ages = form && form.querySelector(".child-ages");
+    var template = form && form.querySelector("template.child-ages__template");
+    if (!ages || !template) return;
+    var label = ages.getAttribute("data-label");
+
+    function fill() {
+      var fields = ages.querySelectorAll(".child-ages__field");
+      var last = fields[fields.length - 1] || null;
+      var count = Math.min(parseInt(children.value, 10) || 0, children.options.length - 1);
+      for (var number = fields.length + 1; number <= count; number++) {
+        var field = template.content.firstElementChild.cloneNode(true);
+        var select = field.querySelector("select");
+        var fieldLabel = field.querySelector("label");
+        select.id = "child_age_" + number;
+        fieldLabel.htmlFor = select.id;
+        fieldLabel.textContent = label.replace("%{number}", number);
+        // Before any note search_form.js appended, so CSS counts fields right.
+        ages.insertBefore(field, last ? last.nextSibling : ages.firstChild);
+        last = field;
+      }
+    }
+
+    children.addEventListener("change", fill);
+    fill();
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    Array.prototype.forEach.call(document.querySelectorAll('select[name="children"]'), childAges);
     var calendars = [];
     Array.prototype.forEach.call(document.querySelectorAll("input[data-calendar]"), function (startInput) {
       var endInput = startInput.form && startInput.form.querySelector('input[name="check_out"]');

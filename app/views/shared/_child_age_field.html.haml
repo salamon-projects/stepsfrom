@@ -1,0 +1,5 @@
+-# locals: (number:, options:)
+-# One child's age in shared/_stay_fields; the template copy has no number.
+.field.field--narrow.child-ages__field
+  = label_tag "child_age_#{number}", t("search.child_age", number: number)
+  = select_tag "child_ages[]", options, include_blank: t("search.choose_age"), id: "child_age_#{number}"

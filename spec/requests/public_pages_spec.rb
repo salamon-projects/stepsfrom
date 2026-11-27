@@ -154,6 +154,26 @@ RSpec.describe "Public pages" do
       expect(page.at_css(".filters__current").text).to include("2 adults · 2 children")
       expect(page.at_css("#child_age_1 option[selected]")["value"]).to eq("4")
       expect(page.at_css("#child_age_2 option[selected]")["value"]).to eq("9")
+      expect(page.css(".child-ages select[name='child_ages[]']").size).to eq(2)
+    end
+
+    it "renders age fields only for the children asked for, plus one template" do
+      get destination_path(destination, stay_params)
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.css(".child-ages .child-ages__field")).to be_empty
+      expect(page.css("select[name='child_ages[]']").size).to eq(1)
+      template = page.at_css("template.child-ages__template")
+      expect(template.css("select[name='child_ages[]'] option").size).to eq(Stay::CHILD_AGES.count + 1)
+      expect(page.at_css(".child-ages")["data-label"]).to eq("Child %{number}")
+    end
+
+    it "asks for missing ages with a field per child, without JavaScript" do
+      get destination_path(destination, stay_params.merge(children: 2))
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(".form-error").text).to include("Child ages are needed for every child")
+      expect(page.css(".child-ages select").map { |select| select["id"] }).to eq(%w[child_age_1 child_age_2])
     end
 
     it "keeps the filters open when the dates need correcting" do
