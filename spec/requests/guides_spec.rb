@@ -177,6 +177,32 @@ RSpec.describe "Guides" do
     end
   end
 
+  describe "a Greek guide" do
+    let(:chania) { create(:destination, name: "Chania Coast", slug: "chania-coast", country_code: "GR", sea_name: "Sea of Crete") }
+
+    before do
+      create(:property, :direct, destination: chania, name: "Hotel Kymata", distance_to_water_m: 12)
+      create(:property, :near, destination: chania, name: "Studios Across", distance_to_water_m: 40, crosses_road: true)
+    end
+
+    it "ranks the destination's stays with its own copy and is linked from the Greece page and the sitemap" do
+      get guide_path("chania-beachfront-hotels")
+
+      expect(response).to have_http_status(:ok)
+      expect(document.at_css("title").text).to eq("Chania beachfront hotels: which are really on the beach · StepsFrom")
+      expect(document.css("h1").map(&:text)).to eq([ "Chania Coast hotels on the beach, measured" ])
+      expect(document.at_css(".guide-intro").text.squish)
+        .to include("shoreline of the Sea of Crete", "We have measured 2 places to stay on the Chania Coast that pass, 1 of them verified beachfront")
+      expect(document.css(".guide-ranking__list .property-card__name").map(&:text)).to eq([ "Hotel Kymata", "Studios Across" ])
+
+      get country_path(Country.new("GR"))
+      expect(document.css(".guide-links a").map { |a| a["href"] }).to eq([ guide_path("chania-beachfront-hotels") ])
+
+      get sitemap_path
+      expect(response.body).to include(guide_url("chania-beachfront-hotels"))
+    end
+  end
+
   describe "links and sitemap" do
     it "is linked from its destination and country pages" do
       [ destination_path(destination), country_path(Country.new("HR")) ].each do |path|

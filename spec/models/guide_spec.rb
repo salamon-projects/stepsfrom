@@ -7,7 +7,9 @@ RSpec.describe Guide do
     it "has the initial guides, each for its destination" do
       expect(described_class.all.to_h { |guide| [ guide.slug, guide.destination_slug ] }).to include(
         "hvar-beachfront-hotels" => "hvar", "makarska-hotels-on-the-beach" => "makarska-riviera",
-        "ibiza-beachfront-hotels" => "ibiza"
+        "ibiza-beachfront-hotels" => "ibiza", "kassandra-beachfront-hotels" => "kassandra",
+        "chania-beachfront-hotels" => "chania-coast", "zakynthos-beachfront-hotels" => "zakynthos-south",
+        "rhodes-beachfront-hotels" => "rhodes-east-coast"
       )
     end
 
