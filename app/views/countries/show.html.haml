@@ -25,6 +25,10 @@
         = "#{pluralize(number_with_delimiter(total), 'verified waterfront stay')} on #{pluralize(@destinations.size, 'coastline')}"
       - if direct.positive?
         %span.chip= "#{number_with_delimiter(direct)} right on the beach"
+    - if @guides.any?
+      %ul.guide-links
+        - @guides.each do |guide|
+          %li= link_to guide.link_text, guide_path(guide), class: "text-link"
 
 %section.section
   .container

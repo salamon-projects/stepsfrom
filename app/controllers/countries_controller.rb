@@ -5,6 +5,7 @@ class CountriesController < ApplicationController
   def show
     @country = Country.find_published(params[:id]) or raise ActiveRecord::RecordNotFound
     @destinations = @country.destinations.to_a
+    @guides = Guide.for_destinations(@destinations)
     published = Property.published.where(destination: @destinations)
     direct = published.joins(:waterfront).where(verifications: { category: "direct" })
     @listed_counts = published.group(:destination_id).count

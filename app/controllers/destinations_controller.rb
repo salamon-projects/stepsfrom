@@ -1,6 +1,7 @@
 class DestinationsController < ApplicationController
   def show
     @destination = Destination.published.find_by!(slug: params[:id])
+    @guides = Guide.for_destinations(@destination)
     @stay = Stay.from_params(params)
 
     if current_stay

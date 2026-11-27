@@ -42,3 +42,13 @@
     padding-top: 3rem;
   }
 }
+
+// Links to a destination's guides (destination and country pages).
+.guide-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

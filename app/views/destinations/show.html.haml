@@ -27,6 +27,10 @@
         = pluralize(@pagy.count, "verified waterfront stay")
       - if @destination.sea_name.present?
         %span.chip= @destination.sea_name
+    - if @guides.any?
+      %ul.guide-links
+        - @guides.each do |guide|
+          %li= link_to guide.link_text, guide_path(guide), class: "text-link"
 
 .container.listing-layout
   %aside.listing-layout__filters

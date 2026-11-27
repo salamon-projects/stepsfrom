@@ -150,11 +150,37 @@ RSpec.describe "Guides" do
       expect(response).to have_http_status(:not_found)
     end
 
-    it "is not found when its destination lists nothing" do
+    it "is not found or linked when its destination lists nothing" do
       Property.where(destination:).update_all(hidden_at: Time.current)
 
       get guide_path(guide_slug)
       expect(response).to have_http_status(:not_found)
+
+      get destination_path(destination)
+      expect(response.body).not_to include(guide_path(guide_slug))
+    end
+  end
+
+  describe "links" do
+    it "is linked from its destination and country pages" do
+      [ destination_path(destination), country_path(Country.new("HR")) ].each do |path|
+        get path
+
+        link = document.at_css(".guide-links a[href='#{guide_path(guide_slug)}']")
+        expect(link&.text).to eq("Guide: the best beachfront hotels in Hvar"), path
+      end
+    end
+
+    it "lists only the guides of the page's own destination" do
+      makarska = create(:destination, name: "Makarska Riviera")
+      create(:property, :direct, destination: makarska)
+
+      get destination_path(destination)
+      expect(document.css(".guide-links a").map { |a| a["href"] }).to eq([ guide_path(guide_slug) ])
+
+      get country_path(Country.new("HR"))
+      expect(document.css(".guide-links a").map { |a| a["href"] })
+        .to contain_exactly(guide_path(guide_slug), guide_path("makarska-hotels-on-the-beach"))
     end
   end
 end
