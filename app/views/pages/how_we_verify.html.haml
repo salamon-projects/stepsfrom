@@ -38,6 +38,10 @@
       %span.badge.badge--walkable= t("waterfront.categories.walkable")
     %dd The water is at most #{@config.fetch(:walkable_max_m)} m away.
   %p Anything further than #{@config.fetch(:walkable_max_m)} m is not listed, even if a booking site calls it beachfront.
+  - if Property.excluded_kinds.any?
+    %p
+      We do not list #{Property.excluded_kinds.map { |kind| t("properties.kinds.#{kind}").downcase.pluralize }.to_sentence},
+      however close they are to the water.
 
   %h2#ranking How results are ordered
   %ul

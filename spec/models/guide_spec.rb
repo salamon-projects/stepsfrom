@@ -57,13 +57,24 @@ RSpec.describe Guide do
       expect(guide.faq.flatten.join).not_to include("Kamp Dolac")
     end
 
-    it "ranks every kind when the guide names none" do
-      camp = create(:property, :direct, destination:, kind: "camp_site", distance_to_water_m: 2)
+    it "ranks every listed kind when the guide names none" do
+      hostel = create(:property, :direct, destination:, kind: "hostel", distance_to_water_m: 2)
 
       guide = guide_with(nil)
 
-      expect(guide.properties).to eq([ camp ])
+      expect(guide.properties).to eq([ hostel ])
       expect(guide.facts).to include(listed_count: 1, closest_m: 2)
+    end
+
+    it "never ranks or counts a kind kept off the site, even without a kinds filter" do
+      create(:property, :direct, destination:, kind: "camp_site", name: "Kamp Dolac", distance_to_water_m: 1)
+      hotel = create(:property, :direct, destination:, kind: "hotel", distance_to_water_m: 20)
+
+      guide = guide_with(nil)
+
+      expect(guide.properties).to eq([ hotel ])
+      expect(guide.facts).to include(listed_count: 1, direct: 1, closest_m: 20)
+      expect(guide.faq.flatten.join).not_to include("Kamp Dolac")
     end
 
     it "is unpublished when nothing of its kinds is listed" do

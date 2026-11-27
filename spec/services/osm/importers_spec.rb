@@ -109,6 +109,17 @@ RSpec.describe "OSM importers" do
       expect(apartments.lonlat.x).to be_within(1e-6).of(17.0280)
     end
 
+    it "still imports campsites, which stay in the database but off the site" do
+      element = Osm::Element.from_json("type" => "node", "id" => 601, "lat" => 43.3, "lon" => 17.0,
+                                       "tags" => { "tourism" => "camp_site", "name" => "Kamp Sample" })
+
+      2.times { described_class.new(destination, client: instance_double(Osm::OverpassClient, query: [ element ])).call }
+
+      camp = Property.sole
+      expect(camp).to have_attributes(name: "Kamp Sample", kind: "camp_site", osm_missing_since: nil, destination:)
+      expect(camp).to be_excluded_kind
+    end
+
     it "keeps the geometry and name of reviewed properties on re-import" do
       run(described_class)
       hotel = Property.find_by!(osm_id: 501)

@@ -13,7 +13,7 @@ class PropertySearch
     @stay = stay if stay&.valid?
     @category = params[:category].presence_in(Verifications::Waterfront::LISTED_CATEGORIES)
     @surface = params[:surface].presence_in(SURFACES)
-    @kind = params[:kind].presence_in(Property::KINDS)
+    @kind = params[:kind].presence_in(Property.public_kinds)
     @sort = params[:sort].presence_in(SORTS)
   end
 

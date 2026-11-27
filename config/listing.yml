@@ -1,0 +1,9 @@
+# Which properties the public site shows. See Property.excluded_kinds.
+shared:
+  # Property kinds (values of Property::KINDS) kept off the public site: not on
+  # destination, country or home pages, guides, search or the sitemap, and
+  # their property pages redirect (301) to the destination page. They are
+  # still imported from OSM, measured and shown in admin, so emptying the list
+  # (excluded_kinds: []) and restarting brings them back without a re-import.
+  excluded_kinds:
+    - camp_site

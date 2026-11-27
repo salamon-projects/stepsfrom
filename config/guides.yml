@@ -11,7 +11,8 @@
 #   link_text:    how the destination and country pages link to the guide
 #   limit:        how many stays to rank (default 15)
 #   kinds:        optional list of Property::KINDS to rank and count (default:
-#                 all). Every figure below is computed over the same set, so
+#                 all; kinds excluded in config/listing.yml are never ranked
+#                 or counted). Every figure below is computed over the same set, so
 #                 say in the copy which kinds are left out. A guide with no
 #                 published stays of these kinds is not shown.
 #   intro:        paragraphs

@@ -38,6 +38,10 @@
   %p
     Properties are listed automatically once they are measured on the waterfront.
     Hide one that is closed, misplaced or not a real accommodation.
+  - if @property.excluded_kind?
+    %p
+      = "#{t("properties.kinds.#{@property.kind}").pluralize} are kept off the public site (excluded_kinds in config/listing.yml),"
+      however close to the water; it is still imported and measured.
 
 .admin-card
   %h2 Location

@@ -215,7 +215,7 @@ RSpec.describe "Guides" do
     it "dates a guide only by the kinds it ranks" do
       [ amfora, palace, villa, rooms ].each { |property| property.update_columns(updated_at: Time.utc(2026, 8, 1)) }
       Verification.update_all(updated_at: Time.utc(2026, 8, 1))
-      create(:property, :direct, destination:, kind: "camp_site").update_columns(updated_at: Time.utc(2026, 11, 1))
+      create(:property, :direct, destination:, kind: "hostel").update_columns(updated_at: Time.utc(2026, 11, 1))
 
       get sitemap_path
 

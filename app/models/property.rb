@@ -28,10 +28,11 @@ class Property < ApplicationRecord
 
   after_commit :enqueue_classification, on: %i[create update], if: :geometry_changed?
 
-  # Shown on the site: measured on the waterfront, unless an admin hid it or
-  # OSM no longer has it.
+  # Shown on the site: measured on the waterfront, unless an admin hid it, OSM
+  # no longer has it or its kind is kept off the site (config/listing.yml).
   scope :published, -> {
     where(hidden_at: nil, osm_missing_since: nil)
+      .where.not(kind: excluded_kinds)
       .where(Verifications::Waterfront.listed.where("verifications.property_id = properties.id").arel.exists)
   }
   scope :hidden, -> { where.not(hidden_at: nil) }
@@ -56,6 +57,22 @@ class Property < ApplicationRecord
   scope :with_coordinate_mismatch, -> {
     where("properties.coord_mismatch_m > ?", Waterfront.config.fetch(:coordinate_mismatch_m))
   }
+
+  # Kinds kept off the public site (config/listing.yml, excluded_kinds).
+  # Such properties are still imported, measured and shown in admin.
+  def self.excluded_kinds
+    @excluded_kinds ||= begin
+      kinds = Array(Rails.application.config_for(:listing)[:excluded_kinds]).map(&:to_s)
+      unknown = kinds - KINDS
+      raise ArgumentError, "config/listing.yml: unknown excluded_kinds #{unknown.join(', ')}" if unknown.any?
+      kinds.freeze
+    end
+  end
+
+  # The kinds the public site shows, for its filters.
+  def self.public_kinds
+    KINDS - excluded_kinds
+  end
 
   # The by_waterfront order as SQL expressions without NULLs (so rows can be
   # compared), ending with the id so the order is total.
@@ -87,6 +104,10 @@ class Property < ApplicationRecord
 
   def listed?
     persisted? && self.class.published.exists?(id)
+  end
+
+  def excluded_kind?
+    self.class.excluded_kinds.include?(kind)
   end
 
   def hidden?

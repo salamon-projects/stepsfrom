@@ -55,7 +55,7 @@
         .field
           = label_tag :kind, t("search.kind")
           = select_tag :kind,
-            options_for_select(Property::KINDS.map { |k| [ t("properties.kinds.#{k}"), k ] }, @search.kind),
+            options_for_select(Property.public_kinds.map { |k| [ t("properties.kinds.#{k}"), k ] }, @search.kind),
             include_blank: t("search.any_kind")
         .field.field--wide
           = label_tag :sort, t("search.sort")

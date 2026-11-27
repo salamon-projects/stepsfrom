@@ -20,6 +20,15 @@ RSpec.describe "Public pages" do
       expect(response.body).not_to include("Hidden Coast")
     end
 
+    it "does not count campsites" do
+      create(:property, :direct, destination:, kind: "camp_site", name: "Kamp Dolac")
+
+      get root_path
+
+      expect(response.body).to include("1 verified stay", "1 right on the beach")
+      expect(Nokogiri::HTML(response.body).at_css("select#destination option[value='#{destination.slug}']")["data-count"]).to eq("1")
+    end
+
     it "gives the destination options what the searchable list shows" do
       get root_path
 
@@ -88,6 +97,21 @@ RSpec.describe "Public pages" do
         .to eq("Measured 18 m to the Adriatic Sea")
       expect(response.body).not_to include("Hidden Hotel", "Inland Hotel")
       expect(response.body).to include("data-map=")
+    end
+
+    it "leaves campsites out of the list, the count and the kind filter" do
+      create(:property, :direct, destination:, kind: "camp_site", name: "Kamp Dolac")
+
+      get destination_path(destination)
+
+      document = Nokogiri::HTML(response.body)
+      expect(response.body).not_to include("Kamp Dolac")
+      expect(document.at_css("meta[name=description]")["content"]).to start_with("1 hotel and apartment in")
+      expect(document.css("select#kind option").map { |option| option["value"] }).to include("hostel").and(satisfy { |values| values.exclude?("camp_site") })
+
+      get destination_path(destination, kind: "camp_site")
+
+      expect(Nokogiri::HTML(response.body).css(".property-card__name").map(&:text)).to eq([ "Hotel Riva" ])
     end
 
     it "links offers through the outbound redirect, marked sponsored" do
@@ -327,6 +351,15 @@ RSpec.describe "Public pages" do
       expect(response.body).to include(country_url(country))
     end
 
+    it "does not count or show campsites" do
+      create(:property, :direct, destination:, kind: "camp_site", name: "Kamp Dolac", distance_to_water_m: 1)
+
+      get country_path(Country.new(destination.country_code))
+
+      expect(response.body).not_to include("Kamp Dolac")
+      expect(Nokogiri::HTML(response.body).at_css("meta[name=description]")["content"]).to start_with("1 verified waterfront stay")
+    end
+
     it "is not found for a country without published destinations" do
       get country_path("narnia")
 
@@ -339,6 +372,7 @@ RSpec.describe "Public pages" do
       get how_we_verify_path
 
       expect(response.body).to include("How results are ordered", "at most #{Waterfront.config.fetch(:direct_max_m)} m away")
+      expect(response.body.squish).to include("We do not list campsites, however close they are to the water.")
     end
 
     it "renders the disclosure and privacy pages" do
@@ -351,12 +385,14 @@ RSpec.describe "Public pages" do
 
     it "lists published pages in the sitemap" do
       create(:property, :direct, :hidden, destination:, name: "Hidden Hotel")
+      camp = create(:property, :direct, destination:, kind: "camp_site", name: "Kamp Dolac")
 
       get sitemap_path
 
       expect(response.media_type).to eq("application/xml")
       expect(response.body).to include(destination_url(destination), property_url(hotel), guide_url("makarska-hotels-on-the-beach"))
       expect(response.body.scan("<url>").size).to eq(6)
+      expect(response.body).not_to include(property_url(camp))
     end
 
     describe "sitemap" do

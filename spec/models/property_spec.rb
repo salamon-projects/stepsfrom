@@ -28,6 +28,25 @@ RSpec.describe Property do
       expect(waterfront).to be_listed
       expect(create(:property, :direct, :hidden)).not_to be_listed
     end
+
+    it "leaves out the kinds kept off the site, but keeps hostels" do
+      camp = create(:property, :direct, kind: "camp_site")
+      hostel = create(:property, :direct, kind: "hostel")
+
+      expect(described_class.excluded_kinds).to eq(%w[camp_site])
+      expect(described_class.published).to contain_exactly(hostel)
+      expect(camp).not_to be_listed
+      expect(camp).to be_excluded_kind
+      expect(described_class.all).to include(camp)
+    end
+
+    it "lists every kind again when the exclusion list is emptied" do
+      camp = create(:property, :direct, kind: "camp_site")
+      allow(described_class).to receive(:excluded_kinds).and_return([])
+
+      expect(described_class.published).to contain_exactly(camp)
+      expect(described_class.public_kinds).to eq(described_class::KINDS)
+    end
   end
 
   describe ".by_waterfront" do
