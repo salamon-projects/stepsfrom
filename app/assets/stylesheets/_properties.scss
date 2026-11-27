@@ -256,6 +256,14 @@
     align-self: end;
     font-size: 0.9rem;
   }
+
+  // A factual line under the measurement (guides).
+  &__note {
+    margin: 0.85rem 0 0;
+    color: $body;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
 }
 
 .offers {
