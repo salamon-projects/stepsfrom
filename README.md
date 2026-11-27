@@ -139,6 +139,22 @@ To add an attribute, for example a verified sea view:
 3. Add the badge texts under `config/locales/en.yml` and show the result in the
    admin "Verifications" block and on the public pages.
 
+## Guides
+
+Guide pages (`/guides/:slug`, `Guide`, `GuidesController`) are written for a
+search phrase, such as "Hvar beachfront hotels", and rank one destination's
+published stays: verified beachfront first, then by measured distance, 15 by
+default. The copy lives in `config/guides.yml`, one entry per guide keyed by its
+slug: the destination slug, title, meta description, H1, link text, intro
+paragraphs and FAQ. Placeholders such as `%{direct}`, `%{closest}` or
+`%{direct_max_m}` are filled from the database and `config/waterfront.yml`, so
+the figures stay true after re-measuring (the file lists them all). To add a
+guide, add an entry and restart (in production, deploy). A guide whose
+destination does not exist, is unpublished or lists nothing is not found, and
+it is not linked from the destination and country pages or listed in
+`sitemap.xml`. Keep the copy in line with the "How we verify" page: the
+distance is a straight line to the shoreline, not a walking route.
+
 ## Affiliate links
 
 Buttons go through `/go/:listing_id`. That route logs the click (provider, dates and
