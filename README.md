@@ -217,6 +217,40 @@ In production these variables come from the repository's Actions **variables**
 `*_TRACKING_URL` templates. Set one, then deploy (Actions → Deploy → `deploy`)
 and run `auto-listings`.
 
+### Things to do (activity sites)
+
+Destination and guide pages can end with a small "Things to do" block linking to
+a search for the destination on GetYourGuide and/or Viator. It is a convenience,
+not a ranking: we don't pick, check or order the activities. Each button goes
+through `/go/activities/<provider>/<destination slug>` (`OutboundController#activities`),
+which logs an `OutboundClick` (provider `getyourguide` or `viator`, no listing or
+property, the page clicked on) and redirects. The sites, their parameters and
+optional per-destination search terms (e.g. `zakynthos-south` → "Zakynthos") are
+in `config/activities.yml`; `Affiliate::Activities` builds the links.
+
+A site is shown only when all of its ids are set; with none set the block (and
+its mention on the affiliate disclosure page) is not rendered at all, and the
+redirect returns 404:
+
+| Site | Variables | Link we build |
+|---|---|---|
+| GetYourGuide | `GETYOURGUIDE_PARTNER_ID` | `https://www.getyourguide.com/s/?q=<search term>&partner_id=<GETYOURGUIDE_PARTNER_ID>` |
+| Viator | `VIATOR_PID` **and** `VIATOR_MCID` (one alone shows nothing) | `https://www.viator.com/searchResults/all?text=<search term>&pid=<VIATOR_PID>&mcid=<VIATOR_MCID>&medium=link&campaign=<destination slug>` |
+
+- **GetYourGuide**: sign up in the [Partner Portal](https://partner.getyourguide.com/)
+  as a publisher/content creator ("I post on my website"). Appending
+  `partner_id` to any GetYourGuide URL attributes the visit (31-day cookie), see
+  [Deep links 101](https://partner.getyourguide.support/hc/en-us/articles/13981115676061-Deep-links-101).
+- **Viator**: sign up at [partners.viator.com](https://partners.viator.com/signup?program=affiliate)
+  ([partner resources](https://partnerresources.viator.com/)). Any live viator.com
+  URL may be linked, but `pid`, `mcid` and `medium` must be passed unaltered or
+  payouts and reporting break; `campaign` (letters, numbers, dashes) is optional
+  and we set it to the destination slug, see
+  [Create links](https://partnerresources.viator.com/travel-content/links/create-links/).
+
+Like the other affiliate ids these are repository Actions **variables**, passed
+through `config/deploy.yml`; set them and deploy.
+
 ## Prices
 
 Prices come from **providers** (`app/services/prices/provider.rb`). Each one wraps
@@ -296,6 +330,8 @@ inside Puma.
 | `PRICE_PROVIDERS` | Price providers to use, e.g. `stay22` |
 | `*_TRACKING_URL` | Affiliate tracking templates, see above |
 | `STAY22_AID` | Stay22 affiliate id for automatic listings, see above |
+| `GETYOURGUIDE_PARTNER_ID` | GetYourGuide partner id for the "Things to do" links (a repository *variable*; nothing rendered when unset), see above |
+| `VIATOR_PID`, `VIATOR_MCID` | Viator affiliate ids for the "Things to do" links; both are needed (repository *variables*), see above |
 | `STAY22_API_KEY` | Stay22 Direct Travel API key for prices (a repository *secret*), see Prices |
 | `GOOGLE_SITE_VERIFICATION` | Google Search Console token: the `content` of its HTML-tag method, rendered as `<meta name="google-site-verification">`. A repository *variable*; nothing rendered when unset |
 | `BING_SITE_VERIFICATION` | Bing Webmaster Tools token, rendered as `<meta name="msvalidate.01">`. A repository *variable*; nothing rendered when unset |

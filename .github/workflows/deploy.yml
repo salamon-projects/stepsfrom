@@ -59,6 +59,11 @@ jobs:
       VRBO_TRACKING_URL: ${{ vars.VRBO_TRACKING_URL }}
       AGODA_TRACKING_URL: ${{ vars.AGODA_TRACKING_URL }}
       TRIP_COM_TRACKING_URL: ${{ vars.TRIP_COM_TRACKING_URL }}
+      # Activity sites for "Things to do" (config/activities.yml); Viator
+      # needs both its ids.
+      GETYOURGUIDE_PARTNER_ID: ${{ vars.GETYOURGUIDE_PARTNER_ID }}
+      VIATOR_PID: ${{ vars.VIATOR_PID }}
+      VIATOR_MCID: ${{ vars.VIATOR_MCID }}
       # Search engine settings (repository variables, optional).
       SITEMAP_EXCLUDE_WALKABLE: ${{ vars.SITEMAP_EXCLUDE_WALKABLE }}
       GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
