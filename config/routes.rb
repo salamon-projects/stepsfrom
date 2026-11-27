@@ -15,6 +15,8 @@ Rails.application.routes.draw do
 
   # Outbound click to a booking site; logged, then redirected.
   get "go/:listing_id", to: "outbound#show", as: :outbound
+  # Outbound click to an activity site's search for a destination.
+  get "go/activities/:provider/:destination_id", to: "outbound#activities", as: :activities_outbound
 
   get "how-we-verify", to: "pages#how_we_verify", as: :how_we_verify
   get "affiliate-disclosure", to: "pages#affiliate_disclosure", as: :affiliate_disclosure

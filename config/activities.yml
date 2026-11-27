@@ -1,0 +1,55 @@
+# Activity sites linked from destination and guide pages ("Things to do"):
+# a search for the destination on each site, through /go/activities/... so the
+# click is logged. A site is shown only once all of its env variables are set
+# (repository variables in production); with none set, nothing is rendered.
+#
+# providers: in button order.
+#   name:         shown on the button
+#   search_url:   the site's search page
+#   query_param:  parameter holding the search text
+#   env:          query parameter => ENV variable holding its value. Every one
+#                 must be set, or the site is left out.
+#   params:       fixed query parameters
+#   campaign_param: optional parameter set to the destination's slug, for the
+#                 site's reports
+#
+# Official link formats (November 2026):
+#   GetYourGuide: any GYG URL plus partner_id=<id>
+#     https://partner.getyourguide.support/hc/en-us/articles/13981115676061-Deep-links-101
+#   Viator: any live viator.com URL plus pid, mcid and medium=link, unaltered,
+#     and an optional campaign (letters, numbers, dashes)
+#     https://partnerresources.viator.com/travel-content/links/create-links/
+#
+# search_terms: what to search for, by destination slug, where the
+#   destination's own name ("Zakynthos south") would make a poor search.
+#   Default: the destination's name.
+shared:
+  providers:
+    getyourguide:
+      name: GetYourGuide
+      search_url: https://www.getyourguide.com/s/
+      query_param: q
+      env:
+        partner_id: GETYOURGUIDE_PARTNER_ID
+    viator:
+      name: Viator
+      search_url: https://www.viator.com/searchResults/all
+      query_param: text
+      env:
+        pid: VIATOR_PID
+        mcid: VIATOR_MCID
+      params:
+        medium: link
+      campaign_param: campaign
+  search_terms:
+    makarska-riviera: Makarska
+    chania-coast: Chania
+    rhodes-east-coast: Rhodes
+    zakynthos-south: Zakynthos
+    naxos-west-coast: Naxos
+    hersonissos-malia: Hersonissos
+    crikvenica-riviera: Crikvenica
+    lloret-de-mar-tossa: Lloret de Mar
+    alcudia-bay: Alcúdia
+    rimini-riccione: Rimini
+    taormina-giardini-naxos: Taormina

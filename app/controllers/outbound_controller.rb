@@ -15,6 +15,18 @@ class OutboundController < ApplicationController
     redirect_to Affiliate::LinkBuilder.new(listing, stay).url, allow_other_host: true
   end
 
+  # An activity site's search for a destination (config/activities.yml). Not
+  # found unless the site's partner ids are set.
+  def activities
+    provider = Affiliate::Activities.find_configured(params[:provider]) or raise ActiveRecord::RecordNotFound
+    destination = Destination.published.find_by!(slug: params[:destination_id])
+
+    OutboundClick.create!(provider: provider.key, source_path:)
+
+    response.set_header("X-Robots-Tag", "noindex, nofollow")
+    redirect_to provider.url(destination), allow_other_host: true
+  end
+
   private
 
   # Path of the page the visitor clicked on, without host or query string.
