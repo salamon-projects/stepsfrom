@@ -37,7 +37,11 @@ module Websites
     # Checks the property's website and records the result on it.
     def record(property)
       result = check(property.website)
-      property.update_columns(**attributes_for(property, result), updated_at: Time.current)
+      attributes = attributes_for(property, result)
+      # Touched only when the website link is hidden or shown again, the
+      # change visitors see (and the sitemap's lastmod reflects).
+      attributes[:updated_at] = Time.current if attributes[:website_broken_at].nil? != property.website_broken_at.nil?
+      property.update_columns(**attributes)
       result
     end
 

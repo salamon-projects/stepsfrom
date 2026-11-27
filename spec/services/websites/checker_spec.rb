@@ -73,6 +73,17 @@ RSpec.describe Websites::Checker do
     checker.record(property)
 
     expect(property.reload).to be_website_link
+    expect(property.updated_at).to be_within(1.second).of(Time.current)
+  end
+
+  it "leaves updated_at alone when the link stays as it was" do
+    property.update_columns(updated_at: 1.week.ago)
+    stub_request(:get, "https://hotel.example/").to_return(status: 200, body: page)
+
+    checker.record(property)
+
+    expect(property.reload.updated_at).to be < 1.day.ago
+    expect(property.website_checked_at).to be_within(1.second).of(Time.current)
   end
 
   it "never connects to a private or local address" do

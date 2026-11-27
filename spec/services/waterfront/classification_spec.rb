@@ -76,6 +76,20 @@ RSpec.describe Waterfront::Classification do
     expect(Verification.where(property:).count).to eq(1)
   end
 
+  it "keeps updated_at when re-measuring finds nothing new, so lastmod stays honest" do
+    create(:water_feature, geom: east_west_line(north_m: 20))
+    first = classify
+    travel 1.week
+
+    second = classify
+    expect(second.measured_at).to be > first.measured_at
+    expect(second.updated_at).to eq(first.updated_at)
+    expect(property.reload.updated_at).to be < 1.day.ago
+
+    create(:road_segment, geom: east_west_line(north_m: 10))
+    expect(classify).to have_attributes(category: "near", updated_at: be_within(1.second).of(Time.current))
+  end
+
   it "measures from the footprint edge rather than the centre" do
     create(:water_feature, geom: east_west_line(north_m: 60))
     with_footprint = create(:property, destination:, footprint: box(south_m: -30, north_m: 30, west_m: -20, east_m: 20))

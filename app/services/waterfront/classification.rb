@@ -12,15 +12,28 @@ module Waterfront
       measurement = @measurer.measure(@property)
       category = @classifier.category_for(measurement)
       verification = @property.waterfront || @property.build_waterfront
-      verification.update!(
-        category:, distance_m: measurement.distance_to_water_m, evidence: evidence(measurement), measured_at: Time.current
-      )
+      verification.assign_attributes(category:, distance_m: measurement.distance_to_water_m, evidence: evidence(measurement))
+      save(verification)
 
-      @property.update_columns(coord_mismatch_m: measurement.coord_mismatch_m, updated_at: Time.current)
+      # updated_at moves only when something changed, so the sitemap's
+      # lastmod reflects real changes rather than the weekly re-measuring.
+      if @property.coord_mismatch_m != measurement.coord_mismatch_m
+        @property.update_columns(coord_mismatch_m: measurement.coord_mismatch_m, updated_at: Time.current)
+      end
       @property
     end
 
     private
+
+    # A changed result is saved (and touched); an unchanged one only records
+    # when it was measured.
+    def save(verification)
+      if verification.new_record? || verification.changed?
+        verification.update!(measured_at: Time.current)
+      else
+        verification.update_columns(measured_at: Time.current)
+      end
+    end
 
     def evidence(measurement)
       point = measurement.water_point
