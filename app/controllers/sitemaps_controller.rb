@@ -1,6 +1,6 @@
-# sitemap.xml: hubs first, then properties best waterfront first (verified
-# beachfront, then steps from the water, then a short walk), each with a
-# lastmod from when its content last changed.
+# sitemap.xml: home and the guides, then the other hubs, then properties best
+# waterfront first (verified beachfront, then steps from the water, then a
+# short walk), each with a lastmod from when its content last changed.
 class SitemapsController < ApplicationController
   def show
     @destinations = Destination.published.ordered.to_a
@@ -16,6 +16,8 @@ class SitemapsController < ApplicationController
       [ country, @lastmods.filter_map { |destination, time| time if destination.country_code == country.code }.max ]
     end
     @site_lastmod = @lastmods.values.max
+    # A guide changes with the stays it ranks (its copy is filled from them).
+    @guides = Guide.published.to_h { |guide| [ guide, newest[guide.destination.id] ] }
     @properties = exclude_walkable? ? properties.reject { |property| property.waterfront_category == "walkable" } : properties
   end
 

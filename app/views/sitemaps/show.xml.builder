@@ -8,6 +8,7 @@ xml.urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
   end
 
   url.(root_url, @site_lastmod)
+  @guides.each { |guide, lastmod| url.(guide_url(guide), lastmod) }
   @lastmods.each { |destination, lastmod| url.(destination_url(destination), lastmod) }
   @countries.each { |country, lastmod| url.(country_url(country), lastmod) }
   url.(how_we_verify_url)

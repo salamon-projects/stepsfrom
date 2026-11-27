@@ -355,8 +355,8 @@ RSpec.describe "Public pages" do
       get sitemap_path
 
       expect(response.media_type).to eq("application/xml")
-      expect(response.body).to include(destination_url(destination), property_url(hotel))
-      expect(response.body.scan("<url>").size).to eq(5)
+      expect(response.body).to include(destination_url(destination), property_url(hotel), guide_url("makarska-hotels-on-the-beach"))
+      expect(response.body.scan("<url>").size).to eq(6)
     end
 
     describe "sitemap" do
@@ -367,13 +367,13 @@ RSpec.describe "Public pages" do
         end
       end
 
-      it "lists hubs first, then stays best waterfront first" do
+      it "lists home and guides first, then the other hubs, then stays best waterfront first" do
         walkable = create(:property, :walkable, destination:, name: "Villa Uphill")
         near = create(:property, :near, destination:, name: "Hotel Across The Road")
         closest = create(:property, :direct, destination:, name: "Hotel Shore", distance_to_water_m: 5)
 
         expect(sitemap.keys).to eq([
-          root_url, destination_url(destination), country_url(Country.new(destination.country_code)), how_we_verify_url,
+          root_url, guide_url("makarska-hotels-on-the-beach"), destination_url(destination), country_url(Country.new(destination.country_code)), how_we_verify_url,
           property_url(closest), property_url(hotel), property_url(near), property_url(walkable)
         ])
       end

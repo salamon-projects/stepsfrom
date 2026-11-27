@@ -150,7 +150,7 @@ RSpec.describe "Guides" do
       expect(response).to have_http_status(:not_found)
     end
 
-    it "is not found or linked when its destination lists nothing" do
+    it "is not found, linked or in the sitemap when its destination lists nothing" do
       Property.where(destination:).update_all(hidden_at: Time.current)
 
       get guide_path(guide_slug)
@@ -158,10 +158,12 @@ RSpec.describe "Guides" do
 
       get destination_path(destination)
       expect(response.body).not_to include(guide_path(guide_slug))
+      get sitemap_path
+      expect(response.body).not_to include(guide_url(guide_slug))
     end
   end
 
-  describe "links" do
+  describe "links and sitemap" do
     it "is linked from its destination and country pages" do
       [ destination_path(destination), country_path(Country.new("HR")) ].each do |path|
         get path
@@ -181,6 +183,19 @@ RSpec.describe "Guides" do
       get country_path(Country.new("HR"))
       expect(document.css(".guide-links a").map { |a| a["href"] })
         .to contain_exactly(guide_path(guide_slug), guide_path("makarska-hotels-on-the-beach"))
+    end
+
+    it "is in the sitemap after the home page, dated by its newest listed change" do
+      amfora.update_columns(updated_at: Time.utc(2026, 9, 1, 8))
+      [ palace, villa, rooms ].each { |property| property.update_columns(updated_at: Time.utc(2026, 8, 1)) }
+      Verification.update_all(updated_at: Time.utc(2026, 8, 1))
+      palace.waterfront.update_columns(updated_at: Time.utc(2026, 10, 2, 9))
+
+      get sitemap_path
+
+      urls = Nokogiri::XML(response.body).remove_namespaces!.css("url")
+      expect(urls.map { |url| url.at_css("loc").text }.first(3)).to eq([ root_url, guide_url(guide_slug), destination_url(destination) ])
+      expect(urls[1].at_css("lastmod").text).to eq("2026-10-02T09:00:00Z")
     end
   end
 end
