@@ -49,6 +49,7 @@
 
   .property-layout__details
     = map_tag(property_map_data(@property), css_class: "map map--property", label: "Map of #{@property.name} and the nearest shoreline")
+    = render "shared/stay22_map", url: stay22_map_url(@property), place: @property.name
 
     %section.checks
       %h2.checks__title What we checked

@@ -66,6 +66,7 @@
   .listing-layout__results
     - if @map_points.any?
       = map_tag(destination_map_data(@destination, @map_points), css_class: "map map--overview", label: "Map of the listed properties")
+    = render "shared/stay22_map", url: stay22_map_url(@destination), place: @destination.name
     - if @properties.empty?
       %p.empty-state No verified properties match these filters yet.
     - else

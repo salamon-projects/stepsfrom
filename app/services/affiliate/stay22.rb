@@ -33,12 +33,32 @@ module Affiliate
       uri = URI.parse(url)
       query = URI.decode_www_form(uri.query.to_s).reject { |key, _| STAY_PARAMS.include?(key) }
       query << [ "aid", aid ] if aid
-      # Stay22 splits campaigns on "-", so keep them to word characters.
-      query << [ "campaign", campaign.to_s.gsub(/\W+/, "_") ] if campaign.present?
+      query << [ "campaign", campaign_param(campaign) ] if campaign.present?
       query.concat(stay_query(stay)) if stay
       uri.query = URI.encode_www_form(query)
       uri.to_s
     end
+
+    # Stay22's map of places to stay with live prices
+    # (https://dev.stay22.com/docs/maps/parameters), centred on a point. Nil
+    # without our affiliate id. Pages load it only when the visitor asks.
+    def self.map_url(lat:, lng:, zoom:, stay: nil, campaign: nil)
+      return unless configured?
+
+      query = [ [ "aid", aid ], [ "lat", lat.round(6) ], [ "lng", lng.round(6) ], [ "zoom", zoom ] ]
+      query << [ "campaign", campaign_param(campaign) ] if campaign.present?
+      if stay&.valid?
+        query.push([ "checkin", stay.check_in.iso8601 ], [ "checkout", stay.check_out.iso8601 ], [ "adults", stay.adults ])
+        query << [ "children", stay.children ] if stay.children.positive?
+      end
+      "https://#{HOST}/embed/gm?#{URI.encode_www_form(query)}"
+    end
+
+    # Stay22 splits campaigns on "-", so keep them to word characters.
+    def self.campaign_param(campaign)
+      campaign.to_s.gsub(/\W+/, "_")
+    end
+    private_class_method :campaign_param
 
     def self.stay_query(stay)
       query = [ [ "checkin", stay.check_in.iso8601 ], [ "checkout", stay.check_out.iso8601 ], [ "adults", stay.adults.to_s ] ]

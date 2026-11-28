@@ -1,0 +1,14 @@
+-# locals: (url:, place:)
+-# Stay22's map with live prices is third-party content that may set cookies,
+-# so nothing loads from stay22.com until the visitor clicks: the iframe's
+-# address waits in a data attribute and stay22_map.js adds the iframe on
+-# click. Without JavaScript the section stays hidden. Nothing without an
+-# affiliate id (url nil).
+- if url
+  - content_for :scripts do
+    = javascript_include_tag "stay22_map", defer: true
+  %section.stay22-map{ hidden: true, "aria-label": t("stay22_map.label"),
+    data: { stay22_map: url, stay22_map_title: t("stay22_map.title", place:) } }
+    %button.button.stay22-map__button{ type: "button" }= t("stay22_map.show")
+    %p.stay22-map__note= t("stay22_map.note")
+    .stay22-map__holder

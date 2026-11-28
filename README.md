@@ -267,6 +267,22 @@ In production these variables come from the repository's Actions **variables**
 `*_TRACKING_URL` templates. Set one, then deploy (Actions → Deploy → `deploy`)
 and run `auto-listings`.
 
+### Stay22 map with live prices
+
+With `STAY22_AID` set, property and destination pages show a "Show map with live
+prices" button under the map (`shared/_stay22_map`). Stay22's map is third-party
+content that may set cookies, and the site promises cookieless first-party
+measurement, so nothing loads from stay22.com until the visitor clicks: the page
+holds the address in a `data-stay22-map` attribute and `stay22_map.js` adds the
+iframe on click (without JavaScript the button stays hidden).
+`Affiliate::Stay22.map_url` builds `https://www.stay22.com/embed/gm` with the
+documented [parameters](https://dev.stay22.com/docs/maps/parameters) only: `aid`,
+`lat`, `lng`, `zoom` (15 for a property, 12 for a destination), `campaign` (the
+destination slug, word characters only) and, with a valid stay, `checkin`,
+`checkout`, `adults` and `children`. The CSP allows frames from
+`https://www.stay22.com` and nowhere else. The privacy page says the map loads
+only after a click; keep it accurate if this changes.
+
 ### Things to do (activity sites)
 
 Destination and guide pages can end with a small "Things to do" block linking to
@@ -426,7 +442,7 @@ inside Puma.
 | `MAP_TILE_URL` | Map tile template (default: OpenStreetMap's tile server) |
 | `PRICE_PROVIDERS` | Price providers to use, e.g. `stay22` |
 | `*_TRACKING_URL` | Affiliate tracking templates, see above |
-| `STAY22_AID` | Stay22 affiliate id for automatic listings, see above |
+| `STAY22_AID` | Stay22 affiliate id for automatic listings and the click-to-load map, see above |
 | `GETYOURGUIDE_PARTNER_ID` | GetYourGuide partner id for the "Things to do" links (a repository *variable*; nothing rendered when unset), see above |
 | `VIATOR_PID`, `VIATOR_MCID` | Viator affiliate ids for the "Things to do" links; both are needed (repository *variables*), see above |
 | `STAY22_API_KEY` | Stay22 Direct Travel API key for prices (a repository *secret*), see Prices |

@@ -116,6 +116,13 @@ module PropertiesHelper
     parts.join(" · ")
   end
 
+  # Stay22's live-price map around a property or a destination, with the
+  # visitor's stay; nil when no Stay22 affiliate id is set.
+  def stay22_map_url(place)
+    point, zoom, destination = place.is_a?(Destination) ? [ place.center, 12, place ] : [ place.lonlat, 15, place.destination ]
+    Affiliate::Stay22.map_url(lat: point.y, lng: point.x, zoom:, stay: current_stay, campaign: destination.slug)
+  end
+
   def destination_map_data(destination, points)
     { center: [ destination.center.y, destination.center.x ], zoom: destination.zoom, maxZoom: 16, properties: points }
   end
