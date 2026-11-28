@@ -9,15 +9,47 @@ RSpec.describe Guide do
         "hvar-beachfront-hotels" => "hvar", "makarska-hotels-on-the-beach" => "makarska-riviera",
         "ibiza-beachfront-hotels" => "ibiza", "kassandra-beachfront-hotels" => "kassandra",
         "chania-beachfront-hotels" => "chania-coast", "zakynthos-beachfront-hotels" => "zakynthos-south",
-        "rhodes-beachfront-hotels" => "rhodes-east-coast"
+        "rhodes-beachfront-hotels" => "rhodes-east-coast",
+        "naxos-beachfront-hotels" => "naxos-west-coast", "hersonissos-malia-beachfront-hotels" => "hersonissos-malia",
+        "porec-beachfront-hotels" => "porec", "brac-beachfront-hotels" => "brac",
+        "dubrovnik-beachfront-hotels" => "dubrovnik", "palma-bay-beachfront-hotels" => "palma-de-mallorca",
+        "alcudia-beachfront-hotels" => "alcudia-bay", "amalfi-coast-beachfront-hotels" => "amalfi-coast",
+        "taormina-beachfront-hotels" => "taormina-giardini-naxos", "rimini-riccione-beachfront-hotels" => "rimini-riccione"
       )
     end
 
-    it "gives every guide a unique title, heading and URL-safe slug" do
+    it "gives every guide a unique title, description, heading, link text, keyword and URL-safe slug" do
       guides = described_class.all
-      expect(guides.map(&:title).uniq.size).to eq(guides.size)
-      expect(guides.map(&:heading).uniq.size).to eq(guides.size)
+      %i[title heading link_text keyword].each do |attribute|
+        expect(guides.map(&attribute)).to all(be_present), attribute.to_s
+        expect(guides.map(&attribute).uniq.size).to eq(guides.size), attribute.to_s
+      end
+      descriptions = described_class.config.values.map { |entry| entry.fetch("description") }
+      expect(descriptions.uniq.size).to eq(guides.size)
       expect(guides.map(&:slug)).to all(match(/\A[a-z0-9]+(?:-[a-z0-9]+)*\z/))
+    end
+
+    it "names only destinations that db/seeds.rb creates" do
+      seeded = File.read(Rails.root.join("db/seeds.rb")).scan(/\{ name: "([^"]+)"/).flatten.map(&:parameterize)
+      expect(seeded).to include("kassandra", "brac", "rimini-riccione", "alcudia-bay")
+
+      described_class.all.each do |guide|
+        expect(seeded).to include(guide.destination_slug), guide.slug
+      end
+    end
+
+    it "leaves the dive centre mapped as a hotel out of the Hersonissos & Malia guide" do
+      place = create(:destination, name: "Hersonissos & Malia", slug: "hersonissos-malia", country_code: "GR")
+      diving = create(:property, :direct, destination: place, kind: "hotel", name: "Heraklion Diving Center",
+                                          slug: "heraklion-diving-center", distance_to_water_m: 1)
+      hotel = create(:property, :direct, destination: place, kind: "hotel", name: "Hotel Kastro", distance_to_water_m: 20)
+
+      guide = described_class.find_published("hersonissos-malia-beachfront-hotels")
+
+      expect(guide.exclude).to eq(%w[heraklion-diving-center])
+      expect(guide.properties).to eq([ hotel ])
+      expect(guide.facts).to include(listed_count: 1, closest_name: "Hotel Kastro")
+      expect(Property.published).to include(diving)
     end
 
     it "fills every placeholder in every guide's copy from the data" do

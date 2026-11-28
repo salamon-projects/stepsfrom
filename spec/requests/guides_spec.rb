@@ -238,6 +238,18 @@ RSpec.describe "Guides" do
       expect(urls[1].at_css("lastmod").text).to eq("2026-10-02T09:00:00Z")
     end
 
+    it "lists every published guide in the sitemap" do
+      Guide.all.map(&:destination_slug).uniq.excluding(destination.slug).each do |slug|
+        create(:property, :direct, destination: create(:destination, name: slug.titleize, slug:))
+      end
+
+      get sitemap_path
+
+      locs = Nokogiri::XML(response.body).remove_namespaces!.css("url loc").map(&:text)
+      expect(Guide.published.size).to eq(Guide.all.size)
+      expect(locs).to include(*Guide.all.map { |guide| guide_url(guide) })
+    end
+
     it "dates a guide only by the stays it does not exclude" do
       [ amfora, palace, villa, rooms ].each { |property| property.update_columns(updated_at: Time.utc(2026, 8, 1)) }
       Verification.update_all(updated_at: Time.utc(2026, 8, 1))

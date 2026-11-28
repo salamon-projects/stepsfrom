@@ -201,7 +201,9 @@ the figures stay true after re-measuring (the file lists them all). An optional
 `kinds` list (values of `Property::KINDS`) restricts the guide to those kinds,
 both the ranked list and every figure in the copy; the current guides leave out
 campsites and hostels and say so in their copy (campsites are also off the whole
-site, see Excluded kinds). An optional `exclude` list of property slugs leaves
+site, see Excluded kinds). Crikvenica Riviera, Benidorm, Barcelona, Lloret de Mar
+& Tossa, Villasimius and Marbella have no guide on purpose: they had too few
+verified beachfront stays to rank (the file's header lists the counts). An optional `exclude` list of property slugs leaves
 those properties out of the guide's list and figures in the same way, for a
 published property that is not what the guide is about (a dive centre mapped as
 a hotel, say); it stays on the destination page, so hide it in the admin to take

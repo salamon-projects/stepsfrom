@@ -35,6 +35,11 @@
 # Keep the copy true to the "How we verify" page: the distance is a straight
 # line to the shoreline, not a walking route, and booking sites' labels are
 # never used to list a stay.
+#
+# No guide on purpose (too few verified beachfront stays to rank when the
+# guides were written, 2026-11): crikvenica-riviera (3), benidorm (2),
+# barcelona (0), lloret-de-mar-tossa (0), villasimius (1), marbella (6 of 29).
+# Add one when a re-import gives such a destination enough to rank.
 
 hvar-beachfront-hotels:
   destination: hvar
@@ -188,6 +193,228 @@ rhodes-beachfront-hotels:
     - question: Does a promenade in front count against a hotel?
       answer: "No. A promenade or footpath between a stay and the beach is shown for information, but only a road or railway in between rules out verified beachfront."
     - question: Which hotel, apartment or villa on the Rhodes East Coast is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+naxos-beachfront-hotels:
+  destination: naxos-west-coast
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  title: "Naxos beachfront hotels and studios on the west coast, measured"
+  keyword: Naxos beachfront hotels
+  description: "Naxos beachfront hotels, studios and apartments from Agios Georgios to Plaka, ranked by measured distance to %{sea}. %{direct} verified beachfront; the closest is %{closest}."
+  heading: "Naxos west coast: beachfront hotels and studios, measured"
+  link_text: "Guide: Naxos west coast beachfront stays, measured"
+  intro:
+    - "This guide covers our Naxos West Coast destination: the beaches south of Naxos town, from Agios Georgios past Agios Prokopios and Agia Anna to Plaka. Plenty of stays along it are sold as beachfront; we check that with a measurement. For every hotel, apartment, guest house and villa we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here, however close it is."
+    - "A stay is marked Verified beachfront when nothing but beach or rocks lies between it and the water and the water is at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of it. Steps from the water means at most %{near_max_m} m; Short walk to the water means at most %{walkable_max_m} m. Anything further is left out."
+    - "Many stays on this coast are studios and apartments rather than hotels; each one below says what kind of stay it is, and all are measured the same way. Campsites and hostels are not included. We have measured %{listed} here that pass, %{direct} of them verified beachfront; below are the %{shown} closest to the water. No property pays to be listed or ranked."
+  faq:
+    - question: Which stays on the west coast of Naxos are really beachfront?
+      answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). They come first in the list above."
+    - question: Does this guide cover all of Naxos?
+      answer: "No. It covers our Naxos West Coast destination, from Agios Georgios to Plaka. Stays elsewhere on the island are not in this guide, so one missing here may simply be outside that area."
+    - question: Which hotel, studio or apartment on the Naxos west coast is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+hersonissos-malia-beachfront-hotels:
+  destination: hersonissos-malia
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  # Mapped in OpenStreetMap as a hotel, but a dive centre.
+  exclude: [heraklion-diving-center]
+  title: "Hersonissos and Malia beachfront hotels, Crete, measured"
+  keyword: Hersonissos beachfront hotels
+  description: "Beachfront hotels in Hersonissos and Malia, Crete, ranked by measured distance to %{sea}. %{direct} verified beachfront with no road in between; the closest is %{closest}."
+  heading: "Hersonissos & Malia: beachfront hotels, measured to the sea"
+  link_text: "Guide: Hersonissos & Malia beachfront hotels, measured"
+  intro:
+    - "The resort strip on Crete's north coast from Hersonissos to Malia is full of hotels described as beachfront. Some stand on the shore; others are a road or a few streets back. This guide uses measurements instead of labels. For every hotel, apartment, guest house and villa between Hersonissos and Malia we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here."
+    - "Verified beachfront means nothing but beach or rocks in between and the water at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of the building. Steps from the water means at most %{near_max_m} m, often across a road or promenade; Short walk to the water means at most %{walkable_max_m} m. Anything further is not listed."
+    - "Campsites and hostels are not included. We have measured %{listed} in Hersonissos and Malia that pass, %{direct} of them verified beachfront; below are the %{shown} closest to the water. The distance is a straight line, not a walking route, booking-site labels are never used to list a stay, and no property pays to be listed or ranked."
+  faq:
+    - question: Which hotels in Hersonissos and Malia are really beachfront?
+      answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). Verified beachfront stays come first in the list above."
+    - question: Is a hotel just across the road from the beach still beachfront?
+      answer: "Not in this guide. A road or railway between a stay and the shoreline rules out verified beachfront, however short the distance. Such a stay is shown as Steps from the water when the water is at most %{near_max_m} m away, or Short walk to the water up to %{walkable_max_m} m. A promenade or footpath in between does not count against it."
+    - question: Which hotel, apartment or villa in Hersonissos and Malia is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+porec-beachfront-hotels:
+  destination: porec
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  title: "Poreč beachfront hotels in Istria, measured to the sea"
+  keyword: Porec beachfront hotels
+  description: "Poreč beachfront hotels in Istria, ranked by measured distance to %{sea}. %{direct} verified beachfront with no road in between; the closest is %{closest}."
+  heading: "Beachfront hotels in Poreč, Istria"
+  link_text: "Guide: beachfront hotels in Poreč, measured"
+  intro:
+    - "Poreč, the Istrian resort town, has rocky shores, small coves and long seafront paths, and many hotels and apartments here are advertised as beachfront. This guide checks that claim with a measurement. For every hotel, apartment, guest house and villa in our Poreč destination we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here, however close it is."
+    - "A stay is marked Verified beachfront when nothing but beach or rocks lies between it and the water and the water is at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of it. A seafront path in between does not count against a stay; a road does. Steps from the water means at most %{near_max_m} m; Short walk to the water means at most %{walkable_max_m} m."
+    - "Campsites and hostels are not included. We have measured %{listed} in Poreč that pass, %{direct} of them verified beachfront. Below are the %{shown} closest to the water: verified beachfront first, then by measured distance. The distance is a straight line, not a walking route, and no property pays to be listed or ranked."
+  faq:
+    - question: Which hotels in Poreč are really beachfront?
+      answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). Verified beachfront stays come first in the list above."
+    - question: Does a seafront path in front count against a hotel?
+      answer: "No. A promenade or footpath between a stay and the water is shown for information, but only a road or railway in between rules out verified beachfront."
+    - question: Which hotel, apartment or villa in Poreč is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+brac-beachfront-hotels:
+  destination: brac
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  title: "Brač beachfront hotels, from Supetar to Bol, measured"
+  keyword: Brac beachfront hotels
+  description: "Beachfront hotels on the island of Brač, from Supetar and Milna to Bol, ranked by measured distance to %{sea}. %{direct} verified beachfront; the closest is %{closest}."
+  heading: "Beachfront hotels on Brač, measured not claimed"
+  link_text: "Guide: beachfront hotels on Brač, measured"
+  intro:
+    - "Brač is the island of Bol's Zlatni Rat beach, Supetar and quiet harbour villages such as Milna, and many of its hotels and apartments are sold as beachfront. This guide checks that with a measurement. For every hotel, apartment, guest house and villa on the island we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here, however close it is."
+    - "A stay is marked Verified beachfront when nothing but beach or rocks lies between it and the water and the water is at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of it. Steps from the water means at most %{near_max_m} m; Short walk to the water means at most %{walkable_max_m} m. Anything further is left out."
+    - "Only the island counts: stays on the mainland coast opposite are not included. Nor are campsites and hostels. We have measured %{listed} on Brač that pass, %{direct} of them verified beachfront; below are the %{shown} closest to the water. The distance is a straight line, not a walking route, and no property pays to be listed or ranked."
+  faq:
+    - question: Which hotels on Brač are really beachfront?
+      answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). Verified beachfront stays come first in the list above."
+    - question: Does this guide include the mainland coast across the channel?
+      answer: "No. It covers the island of Brač only. Stays on the mainland Omiš Riviera, such as in Mimice, Duće or Pisak, are not in this guide or on our Brač page."
+    - question: Which hotel, apartment or villa on Brač is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+dubrovnik-beachfront-hotels:
+  destination: dubrovnik
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  title: "Dubrovnik beachfront hotels, Lapad to Ploče, measured"
+  keyword: Dubrovnik beachfront hotels
+  description: "Dubrovnik beachfront hotels in Lapad, Babin Kuk, the Old Town and Ploče, ranked by measured distance to %{sea}. %{direct} verified beachfront; the closest is %{closest}."
+  heading: "Dubrovnik hotels on the water, measured"
+  link_text: "Guide: Dubrovnik hotels on the water, measured"
+  intro:
+    - "Dubrovnik's coast has rocky shores and small beaches, so “beachfront” here can mean rocks below a terrace rather than a strip of sand. This guide covers our Dubrovnik destination: the Old Town, Ploče, Lapad and Babin Kuk. For every hotel, apartment, guest house and villa we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here, however close it is."
+    - "A stay is marked Verified beachfront when nothing but beach or rocks lies between it and the water and the water is at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of it. Steps from the water means at most %{near_max_m} m; Short walk to the water means at most %{walkable_max_m} m. Anything further is left out."
+    - "Campsites and hostels are not included. We have measured %{listed} in Dubrovnik that pass, %{direct} of them verified beachfront; below are the %{shown} closest to the water. The distance is a straight line, not a walking route or a flight of steps, and no property pays to be listed or ranked."
+  faq:
+    - question: Which hotels in Dubrovnik are really on the water?
+      answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). They come first in the list above."
+    - question: Are Dubrovnik's beachfront hotels on a sandy beach?
+      answer: "Not necessarily. Verified beachfront counts beach or rocks between the stay and the water, so a stay can be verified beachfront on rocks. Each stay shows the surface of the nearest mapped beach when OpenStreetMap records one."
+    - question: Which hotel, apartment or villa in Dubrovnik is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+palma-bay-beachfront-hotels:
+  destination: palma-de-mallorca
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  title: "Bay of Palma beachfront hotels, Mallorca, measured"
+  keyword: Palma bay beachfront hotels
+  description: "Beachfront hotels around the Bay of Palma, from Palmanova and Magaluf to Platja de Palma, ranked by measured distance to %{sea}. %{direct} verified beachfront; the closest is %{closest}."
+  heading: "Beachfront hotels around the Bay of Palma"
+  link_text: "Guide: beachfront hotels around the Bay of Palma"
+  intro:
+    - "This guide covers the whole Bay of Palma, not just Palma city: from the Calvià coast west of the city, with Palmanova, Magaluf, Illetes and Portals, round past the city beaches to Platja de Palma and S'Arenal. Stays are ranked wherever they are on the bay, so this is not a list of city-centre hotels. For every hotel, apartment, guest house and villa we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here."
+    - "Verified beachfront means nothing but beach or rocks in between and the water at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of the building. Steps from the water means at most %{near_max_m} m; Short walk to the water means at most %{walkable_max_m} m. Anything further is not listed."
+    - "Campsites and hostels are not included. We have measured %{listed} around the bay that pass, %{direct} of them verified beachfront; below are the %{shown} closest to the water, wherever on the bay they are. The distance is a straight line, not a walking route, and no property pays to be listed or ranked."
+  faq:
+    - question: Which hotels on the Bay of Palma are really beachfront?
+      answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). Verified beachfront stays come first in the list above."
+    - question: Are these hotels in Palma city?
+      answer: "Not necessarily. This guide covers the whole bay, from Palmanova and Magaluf west of the city to Platja de Palma and S'Arenal east of it. Each stay in the list shows where it is."
+    - question: Which hotel, apartment or villa on the Bay of Palma is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+alcudia-beachfront-hotels:
+  destination: alcudia-bay
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  title: "Alcúdia beachfront hotels, Port d'Alcúdia to Can Picafort"
+  keyword: Alcudia beachfront hotels
+  description: "Beachfront hotels on Alcúdia Bay, Mallorca, from Port d'Alcúdia and Playa de Muro to Can Picafort, ranked by measured distance to %{sea}. %{direct} verified beachfront; the closest is %{closest}."
+  heading: "Alcúdia Bay beachfront hotels, measured"
+  link_text: "Guide: Alcúdia Bay beachfront hotels, measured"
+  intro:
+    - "Alcúdia Bay in the north of Mallorca runs from Port d'Alcúdia past Playa de Muro to Can Picafort, and many hotels and apartments along it are sold as beachfront. Some stand on the beach; others are behind a road. This guide uses measurements instead of labels. For every hotel, apartment, guest house and villa we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here."
+    - "Verified beachfront means nothing but beach or rocks in between and the water at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of the building. Steps from the water means at most %{near_max_m} m, usually across a road or promenade; Short walk to the water means at most %{walkable_max_m} m. Anything further is not listed."
+    - "Campsites and hostels are not included. We have measured %{listed} on Alcúdia Bay that pass, %{direct} of them verified beachfront; below are the %{shown} closest to the water. The distance is a straight line, not a walking route, booking-site labels are never used to list a stay, and no property pays to be listed or ranked."
+  faq:
+    - question: Which hotels on Alcúdia Bay are really beachfront?
+      answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). Verified beachfront stays come first in the list above."
+    - question: Does a promenade in front count against a hotel?
+      answer: "No. A promenade or footpath between a stay and the beach is shown for information, but only a road or railway in between rules out verified beachfront."
+    - question: Which hotel, apartment or villa on Alcúdia Bay is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+amalfi-coast-beachfront-hotels:
+  destination: amalfi-coast
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  title: "Amalfi Coast beachfront hotels, Positano to Amalfi, measured"
+  keyword: Amalfi Coast beachfront hotels
+  description: "Amalfi Coast hotels by the sea, from Positano to Amalfi and Atrani, ranked by measured distance to %{sea}. %{direct} verified beachfront; the closest is %{closest}."
+  heading: "Amalfi Coast hotels by the sea, measured"
+  link_text: "Guide: Amalfi Coast hotels by the sea, measured"
+  intro:
+    - "The Amalfi Coast is a line of cliffside villages from Positano to Amalfi and Atrani, where being close to the sea and being level with it are not the same thing. This guide uses measurements instead of labels. For every hotel, apartment, guest house and villa we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here, however close it is."
+    - "A stay is marked Verified beachfront when nothing but beach or rocks lies between it and the water and the water is at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of it. Steps from the water means at most %{near_max_m} m; Short walk to the water means at most %{walkable_max_m} m. Anything further is left out."
+    - "The distance is measured on the map, not down the cliff: a stay a short straight line from the water can still be many steps above it. Campsites and hostels are not included. We have measured %{listed} on the Amalfi Coast that pass, %{direct} of them verified beachfront; below are the %{shown} closest. No property pays to be listed or ranked."
+  faq:
+    - question: Which Amalfi Coast hotels are really beachfront?
+      answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). Verified beachfront stays come first in the list above."
+    - question: Does the distance include the height above the sea?
+      answer: "No. It is the shortest straight line on the map from the building to the shoreline. A stay high on the cliff can be close in that line and still a long climb from the water."
+    - question: Which hotel, apartment or villa on the Amalfi Coast is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+taormina-beachfront-hotels:
+  destination: taormina-giardini-naxos
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  title: "Taormina beachfront hotels, Mazzarò to Giardini Naxos"
+  keyword: Taormina beachfront hotels
+  description: "Beachfront hotels below Taormina, from Isola Bella and Mazzarò to Giardini Naxos, ranked by measured distance to %{sea}. %{direct} verified beachfront; the closest is %{closest}."
+  heading: "Taormina & Giardini Naxos: beachfront hotels, measured"
+  link_text: "Guide: Taormina & Giardini Naxos beachfront hotels"
+  intro:
+    - "Taormina itself sits on a hill above the sea; the shore below it runs from Isola Bella and Mazzarò to the bay of Giardini Naxos. This guide covers that stretch of Sicilian coast, where many hotels are sold as beachfront, and uses measurements instead of labels. For every hotel, apartment, guest house and villa we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here."
+    - "A stay is marked Verified beachfront when nothing but beach or rocks lies between it and the water and the water is at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of it. Steps from the water means at most %{near_max_m} m; Short walk to the water means at most %{walkable_max_m} m. Anything further is left out."
+    - "Campsites and hostels are not included. We have measured %{listed} between Taormina and Giardini Naxos that pass, %{direct} of them verified beachfront; below are the %{shown} closest to the water. The distance is a straight line, not a walking route, and no property pays to be listed or ranked."
+  faq:
+    - question: Which hotels near Taormina are really beachfront?
+      answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). Verified beachfront stays come first in the list above."
+    - question: Are hotels in Taormina town included?
+      answer: "Only if they pass the same measurement as every other stay: the shortest straight line on the map to the shoreline, whatever the height above the sea. A stay further than %{walkable_max_m} m from the water is left out. Each stay in the list shows where it is."
+    - question: Which hotel, apartment or villa between Taormina and Giardini Naxos is closest to the water?
+      answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
+    - question: How do you measure the distance to the water?
+      answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
+
+rimini-riccione-beachfront-hotels:
+  destination: rimini-riccione
+  kinds: [hotel, resort, apartment, guest_house, motel, villa, chalet]
+  title: "Rimini and Riccione beachfront hotels: the few really on the beach"
+  keyword: Rimini beachfront hotels
+  description: "Rimini and Riccione hotels ranked by measured distance to %{sea}. Only %{direct} verified beachfront with no road in between; the closest is %{closest}."
+  heading: "Rimini & Riccione: which hotels are really beachfront"
+  link_text: "Guide: which Rimini & Riccione hotels are really beachfront"
+  intro:
+    - "Rimini and Riccione have hundreds of hotels near the sea, and very few of them pass our beachfront test: along this coast the measurement usually finds a road between the hotel and the beach. This guide uses measurements, not labels. For every hotel, apartment, guest house and villa we take its building outline from OpenStreetMap (or its position, where no outline is mapped) and measure the shortest straight line to the shoreline of %{sea}. If a road or railway crosses that line, the stay is not beachfront here, however close it is."
+    - "A stay is marked Verified beachfront when nothing but beach or rocks lies between it and the water and the water is at most %{direct_max_m} m away, or up to %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m of it. Steps from the water means at most %{near_max_m} m, usually across a road; Short walk to the water means at most %{walkable_max_m} m."
+    - "Campsites and hostels are not included. We list %{listed} in Rimini and Riccione, but only %{direct} of them are verified beachfront; those come first below, then the rest of the %{shown} closest by distance. The distance is a straight line, not a walking route, and no property pays to be listed or ranked."
+  faq:
+    - question: Which hotels in Rimini and Riccione are really beachfront?
+      answer: "Only %{direct} of the %{listed} in this guide are verified beachfront: no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). They come first in the list above."
+    - question: Why are so few hotels here verified beachfront?
+      answer: "Because our measurement usually finds a road between the hotel and the beach, and a road or railway in between rules out verified beachfront, however short the distance. Such a stay is shown as Steps from the water when the water is at most %{near_max_m} m away, or Short walk to the water up to %{walkable_max_m} m."
+    - question: Which hotel, apartment or villa in Rimini and Riccione is closest to the water?
       answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
     - question: How do you measure the distance to the water?
       answer: "From OpenStreetMap data: the shortest straight line from the building outline (or its position) to the shoreline. It is not a walking route. Every stay is measured again whenever the map data is refreshed."
