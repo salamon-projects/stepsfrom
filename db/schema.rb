@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_28_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_28_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -91,6 +91,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_28_120000) do
     t.index ["created_at"], name: "index_outbound_clicks_on_created_at"
     t.index ["listing_id"], name: "index_outbound_clicks_on_listing_id"
     t.index ["property_id"], name: "index_outbound_clicks_on_property_id"
+  end
+
+  create_table "page_views", force: :cascade do |t|
+    t.datetime "occurred_at", null: false
+    t.string "path", null: false
+    t.string "referrer_host"
+    t.string "utm_source"
+    t.string "utm_medium"
+    t.string "utm_campaign"
+    t.string "country", limit: 2
+    t.string "device"
+    t.string "visitor_hash", null: false
+    t.index ["occurred_at"], name: "index_page_views_on_occurred_at"
+    t.index ["path", "occurred_at"], name: "index_page_views_on_path_and_occurred_at"
   end
 
   create_table "price_quotes", force: :cascade do |t|

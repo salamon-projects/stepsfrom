@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Pagy::Method
+  include PageViewTracking
 
   helper_method :current_stay, :prices_loading?
 

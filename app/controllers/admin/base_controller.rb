@@ -9,6 +9,7 @@ module Admin
     layout "admin"
 
     before_action :require_admin
+    skip_after_action :record_page_view
     helper_method :admin_signed_in?
 
     private

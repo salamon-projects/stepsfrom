@@ -1,0 +1,104 @@
+# First-party page view counting (PageView, /admin/analytics).
+shared:
+  # Days a page view is kept before the daily purge deletes it.
+  # PAGE_VIEW_RETENTION_DAYS overrides it.
+  retention_days: 180
+  # User agents matching any of these (case-insensitive regular expressions)
+  # are not counted. A request without a user agent is never counted either.
+  bot_user_agents:
+    # Generic words most crawlers, monitors and link checkers use
+    - bot
+    - crawl
+    - spider
+    - slurp
+    - scrap
+    - fetch
+    - monitor
+    - preview
+    - archiver
+    - validator
+    - checker
+    - lighthouse
+    - pagespeed
+    - headless
+    - phantomjs
+    - selenium
+    - puppeteer
+    - playwright
+    # Search engines and SEO tools whose names lack the words above
+    - mediapartners-google
+    - adsbot
+    - google-inspectiontool
+    - googleother
+    - google-extended
+    - storebot
+    - bingpreview
+    - yandex
+    - baiduspider
+    - duckduckgo
+    - qwantify
+    - petalsearch
+    - seznam
+    - ahrefs
+    - semrush
+    - mj12
+    - dotbot
+    - screaming frog
+    - sistrix
+    - serpstat
+    - dataforseo
+    # Social and chat link previews
+    - facebookexternalhit
+    - facebookcatalog
+    - meta-externalagent
+    - twitterbot
+    - linkedinbot
+    - pinterest
+    - slackbot
+    - discordbot
+    - telegrambot
+    - whatsapp
+    - skypeuripreview
+    - embedly
+    - quora link preview
+    - redditbot
+    - vkshare
+    # AI crawlers
+    - gptbot
+    - chatgpt-user
+    - oai-searchbot
+    - claudebot
+    - claude-web
+    - anthropic-ai
+    - perplexity
+    - ccbot
+    - bytespider
+    - amazonbot
+    - applebot
+    - cohere-ai
+    - diffbot
+    # HTTP libraries and command-line tools
+    - curl
+    - wget
+    - python-requests
+    - python-urllib
+    - aiohttp
+    - httpx
+    - go-http-client
+    - java/
+    - okhttp
+    - apache-httpclient
+    - libwww-perl
+    - ruby
+    - faraday
+    - axios
+    - node-fetch
+    - undici
+    - postmanruntime
+    - insomnia
+    - httpie
+    - uptimerobot
+    - pingdom
+    - statuscake
+    - site24x7
+    - kamal-proxy

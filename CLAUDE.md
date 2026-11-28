@@ -19,7 +19,7 @@ bin/rails waterfront:classify[makarska-riviera]   # re-measure without re-import
 bin/rails websites:check                  # check listed properties' websites now, report broken ones
 ```
 
-CI runs `bin/rails dartsass:build` before the specs; do the same if a request spec fails on a missing stylesheet. DB connection comes from `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD` or a `postgis://` `DATABASE_URL`. Any PostGIS 3 image works; production and CI run `pgrouting/pgrouting:16-3.5-3.8.0` (PostGIS plus an unused pgRouting), and changing the image in `config/deploy.yml` needs the Deploy workflow's `db-upgrade` command (`kamal accessory reboot db`). `bin/bundler-audit` in CI uses the latest advisory database, so it can fail on an unchanged commit when a gem (e.g. Rails) gets a security release — update the gem.
+CI runs `bin/rails dartsass:build` before the specs; do the same if a request spec fails on a missing stylesheet. DB connection comes from `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD` or a `postgis://` `DATABASE_URL`. Any PostGIS 3 image works for `db:setup`/`db:schema:load`, but running all migrations from scratch needs pgRouting (`20261103120000_create_walk_network` enables it); production and CI run `pgrouting/pgrouting:16-3.5-3.8.0` (PostGIS plus an unused pgRouting), and changing the image in `config/deploy.yml` needs the Deploy workflow's `db-upgrade` command (`kamal accessory reboot db`). `bin/bundler-audit` in CI uses the latest advisory database, so it can fail on an unchanged commit when a gem (e.g. Rails) gets a security release — update the gem.
 
 Every push to `main` deploys to production (Kamal) once CI passes — a green commit on main is a release.
 
@@ -48,4 +48,4 @@ Project principles (from README): no scraping — property/map data only from OS
 
 ## Tests
 
-RSpec + FactoryBot + Capybara (rack_test) + WebMock (no outbound network). OSM import specs use `FakeOverpassClient` (`spec/support/`) serving `spec/fixtures/files/overpass/sample_bay.json`, grouped by layer — pass it as `client:`. Geometry factories are in `spec/factories/geo_features.rb`; `spec/support/geo_helpers.rb` and `admin_helpers.rb` provide shared helpers.
+RSpec + FactoryBot + Capybara (rack_test) + WebMock (no outbound network). OSM import specs use `FakeOverpassClient` (`spec/support/`) serving `spec/fixtures/files/overpass/sample_bay.json`, grouped by layer — pass it as `client:`. Geometry factories are in `spec/factories/geo_features.rb`; `spec/support/geo_helpers.rb` and `admin_helpers.rb` provide shared helpers; `kassandra_helpers.rb` names points on and off Kassandra's polygon area (for `create(:destination, :kassandra)`).

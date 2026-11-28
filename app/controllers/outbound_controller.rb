@@ -1,6 +1,9 @@
 # Logs a click-out and redirects to the booking site (through the affiliate
 # tracking URL when configured).
 class OutboundController < ApplicationController
+  # Logged as an OutboundClick instead.
+  skip_after_action :record_page_view
+
   def show
     listing = Listing.active.includes(:property).find(params[:listing_id])
     stay = current_stay
