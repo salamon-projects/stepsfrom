@@ -17,10 +17,9 @@ class SitemapsController < ApplicationController
     end
     @site_lastmod = @lastmods.values.max
     # A guide changes with the stays it ranks and counts (its copy is filled
-    # from them): its destination's, of its kinds.
+    # from them): its destination's, of its kinds, without those it excludes.
     @guides = Guide.published.to_h do |guide|
-      counted = properties.select { |property| property.destination_id == guide.destination.id && (guide.kinds.nil? || guide.kinds.include?(property.kind)) }
-      [ guide, counted.map(&:content_updated_at).max ]
+      [ guide, properties.select { |property| guide.counts?(property) }.map(&:content_updated_at).max ]
     end
     @properties = exclude_walkable? ? properties.reject { |property| property.waterfront_category == "walkable" } : properties
   end

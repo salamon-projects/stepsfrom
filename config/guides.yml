@@ -15,6 +15,11 @@
 #                 or counted). Every figure below is computed over the same set, so
 #                 say in the copy which kinds are left out. A guide with no
 #                 published stays of these kinds is not shown.
+#   exclude:      optional list of property slugs the guide leaves out of its
+#                 list and every figure (like kinds), for a published property
+#                 that is not what the guide is about, e.g. a dive centre
+#                 mapped as a hotel. It stays on the destination page; to take
+#                 it off the site, hide it in the admin instead.
 #   intro:        paragraphs
 #   faq:          question/answer pairs (also FAQPage JSON-LD)
 #

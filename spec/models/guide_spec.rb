@@ -94,6 +94,39 @@ RSpec.describe Guide do
     end
   end
 
+  describe "exclude" do
+    def guide_excluding(slugs)
+      described_class.new("hvar-beachfront-hotels", described_class.config.fetch("hvar-beachfront-hotels").merge("exclude" => slugs))
+    end
+
+    it "leaves the excluded properties out of the list and every figure, but not off the site" do
+      diving = create(:property, :direct, destination:, name: "Diving Center", slug: "diving-center", distance_to_water_m: 1)
+      hotel = create(:property, :direct, destination:, name: "Hotel Amfora", distance_to_water_m: 30)
+      villa = create(:property, :near, destination:, name: "Villa Mare", distance_to_water_m: 12)
+      guide = guide_excluding(%w[diving-center])
+
+      expect(guide.properties).to eq([ hotel, villa ])
+      expect(guide.facts).to include(listed: "2 places to stay", listed_count: 2, direct: 1, near: 1,
+                                     shown: 2, closest_name: "Villa Mare", closest_m: 12)
+      expect([ guide.description, *guide.faq.flatten ].join).not_to include("Diving Center")
+      expect(guide.counts?(diving)).to be(false)
+      expect(guide.counts?(hotel)).to be(true)
+      expect(Property.published).to include(diving)
+    end
+
+    it "is unpublished when it excludes everything listed" do
+      create(:property, :direct, destination:, slug: "diving-center")
+
+      expect(guide_excluding(%w[diving-center])).not_to be_published
+      expect(guide_excluding([])).to be_published
+    end
+
+    it "excludes nothing by default" do
+      expect(described_class.all.find { |guide| guide.slug == "hvar-beachfront-hotels" }.exclude).to eq([])
+      expect(guide_excluding(nil).exclude).to eq([])
+    end
+  end
+
   describe ".find_published" do
     it "finds a guide whose destination lists properties" do
       create(:property, :direct, destination:)

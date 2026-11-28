@@ -238,6 +238,19 @@ RSpec.describe "Guides" do
       expect(urls[1].at_css("lastmod").text).to eq("2026-10-02T09:00:00Z")
     end
 
+    it "dates a guide only by the stays it does not exclude" do
+      [ amfora, palace, villa, rooms ].each { |property| property.update_columns(updated_at: Time.utc(2026, 8, 1)) }
+      Verification.update_all(updated_at: Time.utc(2026, 8, 1))
+      create(:property, :direct, destination:, slug: "diving-center").update_columns(updated_at: Time.utc(2026, 11, 1))
+      config = Guide.config.merge(guide_slug => Guide.config.fetch(guide_slug).merge("exclude" => %w[diving-center]))
+      allow(Guide).to receive(:config).and_return(config)
+
+      get sitemap_path
+
+      guide = Nokogiri::XML(response.body).remove_namespaces!.css("url").find { |url| url.at_css("loc").text == guide_url(guide_slug) }
+      expect(guide.at_css("lastmod").text).to eq("2026-08-01T00:00:00Z")
+    end
+
     it "dates a guide only by the kinds it ranks" do
       [ amfora, palace, villa, rooms ].each { |property| property.update_columns(updated_at: Time.utc(2026, 8, 1)) }
       Verification.update_all(updated_at: Time.utc(2026, 8, 1))

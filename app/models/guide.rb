@@ -6,7 +6,7 @@ class Guide
   DEFAULT_LIMIT = 15
   CONFIG_PATH = Rails.root.join("config/guides.yml")
 
-  attr_reader :slug, :destination_slug, :title, :keyword, :heading, :link_text, :limit, :kinds
+  attr_reader :slug, :destination_slug, :title, :keyword, :heading, :link_text, :limit, :kinds, :exclude
 
   # Every configured guide, published or not. Fresh objects each call, since
   # a guide remembers its destination.
@@ -54,6 +54,7 @@ class Guide
     @kinds = entry["kinds"]&.map(&:to_s)&.freeze
     unknown = Array(@kinds) - Property::KINDS
     raise ArgumentError, "guide #{@slug}: unknown kinds #{unknown.join(', ')}" if unknown.any?
+    @exclude = Array(entry["exclude"]).map(&:to_s).freeze
     @intro = Array(entry["intro"])
     @faq = Array(entry["faq"])
   end
@@ -74,6 +75,13 @@ class Guide
 
   def country
     Country.new(destination.country_code)
+  end
+
+  # Whether the guide ranks and counts this property (of its destination, of
+  # its kinds, not excluded), for a property already known to be published.
+  def counts?(property)
+    property.destination_id == destination&.id && (kinds.nil? || kinds.include?(property.kind)) &&
+      !exclude.include?(property.slug)
   end
 
   # The ranked stays: verified beachfront first, then by measured distance.
@@ -115,11 +123,13 @@ class Guide
   private
 
   # Everything the guide ranks and counts: the destination's published stays,
-  # limited to the guide's kinds when it names any, so the figures in the copy
-  # describe the same set as the list.
+  # limited to the guide's kinds when it names any and without the properties
+  # it excludes, so the figures in the copy describe the same set as the list.
+  # Keep #counts? in step.
   def listed
     scope = Property.published.where(destination:)
-    kinds ? scope.where(kind: kinds) : scope
+    scope = scope.where(kind: kinds) if kinds
+    exclude.any? ? scope.where.not(slug: exclude) : scope
   end
 
   def fill(text)
