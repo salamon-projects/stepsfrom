@@ -49,6 +49,29 @@ RSpec.describe Property do
     end
   end
 
+  describe "outside its destination's area" do
+    let(:kassandra) { create(:destination, :kassandra) }
+
+    it "lists only properties inside the area, even when assigned to the destination" do
+      inside = %i[kallithea istion_club].map { |place| kassandra_property(place, destination: kassandra) }
+      outside = %i[porto_carras vourvourou anthemus_sea].map { |place| kassandra_property(place, destination: kassandra) }
+
+      expect(described_class.published).to match_array(inside)
+      expect(kassandra.properties.published).to match_array(inside)
+      expect(described_class.outside_destination_area).to match_array(outside)
+      expect(outside).to all(be_outside_destination_area)
+      expect(outside.map(&:listed?)).to all(be(false))
+    end
+
+    it "lists properties anywhere in a rectangular destination's box, edges included" do
+      destination = create(:destination, south: 43.25, west: 16.95, north: 43.35, east: 17.10)
+      corner = create(:property, :direct, destination:, latitude: 43.25, longitude: 17.10)
+      south_edge = create(:property, :direct, destination:, latitude: 43.2501, longitude: 17.025)
+
+      expect(described_class.published).to contain_exactly(corner, south_edge)
+    end
+  end
+
   describe ".by_waterfront" do
     it "orders by category, then distance" do
       walkable = create(:property, :walkable)

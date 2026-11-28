@@ -27,6 +27,12 @@
     = link_to("delete it", edit_admin_property_path(@property)) + "."
     If it reappears in OSM, the next import clears this note.
 
+- if @property.outside_destination_area?
+  .flash.flash--alert{ role: "status" }
+    %strong= "Outside #{@property.destination.name}'s area."
+    Only properties inside their destination's area are listed on the site.
+    Move it to the destination it belongs to, or correct its position, to list it.
+
 - waterfront = @property.waterfront
 .admin-card
   .admin-page__header

@@ -28,13 +28,19 @@ class Property < ApplicationRecord
 
   after_commit :enqueue_classification, on: %i[create update], if: :geometry_changed?
 
-  # Shown on the site: measured on the waterfront, unless an admin hid it, OSM
-  # no longer has it or its kind is kept off the site (config/listing.yml).
+  # Shown on the site: measured on the waterfront and inside its destination's
+  # area, unless an admin hid it, OSM no longer has it or its kind is kept off
+  # the site (config/listing.yml).
   scope :published, -> {
     where(hidden_at: nil, osm_missing_since: nil)
       .where.not(kind: excluded_kinds)
+      .in_destination_area
       .where(Verifications::Waterfront.listed.where("verifications.property_id = properties.id").arel.exists)
   }
+  # Inside its destination's area. One outside it (assigned before the area
+  # was narrowed, or moved by an admin) stays in admin but is not listed.
+  scope :in_destination_area, -> { where(destination_area_condition.exists) }
+  scope :outside_destination_area, -> { where.not(destination_area_condition.exists) }
   scope :hidden, -> { where.not(hidden_at: nil) }
 
   # Best waterfront first, then the shortest measured distance. Unmeasured
@@ -67,6 +73,11 @@ class Property < ApplicationRecord
       raise ArgumentError, "config/listing.yml: unknown excluded_kinds #{unknown.join(', ')}" if unknown.any?
       kinds.freeze
     end
+  end
+
+  def self.destination_area_condition
+    Destination.where("destinations.id = properties.destination_id")
+               .where(Destination.covers_sql("properties.lonlat")).arel
   end
 
   # The kinds the public site shows, for its filters.
@@ -104,6 +115,10 @@ class Property < ApplicationRecord
 
   def listed?
     persisted? && self.class.published.exists?(id)
+  end
+
+  def outside_destination_area?
+    persisted? && self.class.outside_destination_area.exists?(id)
   end
 
   def excluded_kind?
