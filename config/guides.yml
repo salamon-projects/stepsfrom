@@ -101,7 +101,7 @@ ibiza-beachfront-hotels:
     - question: Which Ibiza hotels are really beachfront?
       answer: "Verified beachfront: %{direct} of the %{listed} in this guide, with no road or railway between them and the water, and the water at most %{direct_max_m} m away (or %{direct_beach_max_m} m across a mapped beach that starts within %{beach_adjacent_m} m). Verified beachfront stays come first in the list above."
     - question: Are all of them on a sandy beach?
-      answer: "Not necessarily. Each stay shows the surface of the nearest mapped beach when OpenStreetMap records one; some of Ibiza's coast is rocky, and a stay can be verified beachfront on rocks."
+      answer: "Not necessarily. Each stay shows the surface of the nearest mapped beach when OpenStreetMap records one. Verified beachfront counts beach or rocks between the stay and the water, so a verified beachfront stay can be on rocks rather than sand."
     - question: Which hotel, apartment or villa in Ibiza is closest to the water?
       answer: "%{closest_name}: %{closest}, measured in a straight line from its building to the shoreline. Campsites and hostels are not counted here."
     - question: How do you measure the distance to the water?
