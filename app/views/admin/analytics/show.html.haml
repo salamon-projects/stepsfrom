@@ -1,0 +1,151 @@
+- content_for :title, "Analytics"
+- report = @report
+
+.admin-page__header
+  %h1 Analytics
+  %nav.admin-tabs{ "aria-label": "Period" }
+    - Analytics::Report::RANGES.each do |days|
+      = link_to (days == 1 ? "Last 24 hours" : "Last #{days} days"), admin_analytics_path(days:),
+                class: ("is-active" if days == report.days), "aria-current": ("page" if days == report.days)
+
+%p.admin-hint
+  Counted on the server without cookies: public HTML pages only, not bots, admin pages or visitors who send
+  Do Not Track / Global Privacy Control. A visitor is an anonymous hash that changes every UTC day, so the same
+  person on two days counts twice. Page views are kept #{pluralize(PageView.retention_days, "day")}.
+  Days are UTC; the period runs from #{report.from.utc.strftime("%-d %b %H:%M")} to #{report.to.utc.strftime("%-d %b %H:%M")} UTC.
+
+%dl.analytics-summary
+  %div
+    %dt Page views
+    %dd= number_with_delimiter(report.total_views)
+  %div
+    %dt Visitors (unique per day)
+    %dd= number_with_delimiter(report.visitors)
+  %div
+    %dt Click-outs
+    %dd= number_with_delimiter(report.total_clicks)
+  %div
+    %dt Click-outs per page view
+    %dd= analytics_rate(report.click_rate)
+
+%section.admin-card
+  %h2 By day
+  .table-wrap
+    %table.admin-table.analytics-table
+      %thead
+        %tr
+          %th{ scope: "col" } Day (UTC)
+          %th.num{ scope: "col" } Page views
+          %th.num{ scope: "col" } Visitors
+          %th.num{ scope: "col" } Click-outs
+          %th{ scope: "col" }
+            %span.visually-hidden Page views bar
+      %tbody
+        - days = report.daily
+        - max = days.map(&:views).max
+        - days.each do |day|
+          %tr
+            %td= l(day.date, format: "%a %-d %b")
+            %td.num= number_with_delimiter(day.views)
+            %td.num= number_with_delimiter(day.visitors)
+            %td.num= number_with_delimiter(day.clicks)
+            %td.analytics-table__bar= analytics_bar(day.views, max)
+
+= render "tally", title: "Top pages", rows: report.top_pages, columns: [ "Page" ], empty: "No page views in this period."
+= render "tally", title: "Top referrers", rows: report.top_referrers, columns: [ "Site" ],
+                  empty: "No visits from other sites in this period (direct visits and many apps send no referrer)."
+= render "tally", title: "Campaigns (UTM)", rows: report.utm_campaigns, columns: %w[Source Medium Campaign],
+                  empty: "No visits with utm_source, utm_medium or utm_campaign in this period."
+= render "tally", title: "Countries", rows: report.countries, columns: [ "Country" ],
+                  empty: "No country known: it is only recorded when a CDN sends a CF-IPCountry header."
+= render "tally", title: "Devices", rows: report.devices, columns: [ "Device" ], empty: "No page views in this period."
+
+%section.admin-card
+  %h2 Click-outs by site
+  - by_provider = report.clicks_by_provider
+  - if by_provider.empty?
+    %p.admin-hint No click-outs in this period.
+  - else
+    .table-wrap
+      %table.admin-table.analytics-table
+        %thead
+          %tr
+            %th{ scope: "col" } Site
+            %th.num{ scope: "col" } Click-outs
+        %tbody
+          - by_provider.each do |provider, count|
+            %tr
+              %td= report.provider_name(provider)
+              %td.num= number_with_delimiter(count)
+
+%section.admin-card
+  %h2 Most clicked properties
+  - properties = report.top_properties
+  - if properties.empty?
+    %p.admin-hint No clicks to booking sites in this period.
+  - else
+    .table-wrap
+      %table.admin-table.analytics-table
+        %thead
+          %tr
+            %th{ scope: "col" } Property
+            %th{ scope: "col" } Site
+            %th.num{ scope: "col" } Click-outs
+        %tbody
+          - properties.each do |row|
+            %tr
+              %td= link_to row.property.name, admin_property_path(row.property)
+              %td= report.provider_name(row.provider)
+              %td.num= number_with_delimiter(row.clicks)
+
+%section.admin-card
+  %h2 Things to do (activity sites)
+  - activity_totals = report.activity_clicks_by_provider
+  - if activity_totals.empty?
+    %p.admin-hint No clicks to activity sites in this period.
+  - else
+    .table-wrap
+      %table.admin-table.analytics-table
+        %thead
+          %tr
+            %th{ scope: "col" } Site
+            %th{ scope: "col" } Destination
+            %th{ scope: "col" } Clicked on
+            %th.num{ scope: "col" } Click-outs
+        %tbody
+          - report.activity_clicks.each do |row|
+            %tr
+              %td= report.provider_name(row.provider)
+              %td= row.destination&.name || "–"
+              %td= row.source_path.presence || "unknown page"
+              %td.num= number_with_delimiter(row.clicks)
+        %tfoot
+          - activity_totals.each do |provider, count|
+            %tr
+              %th{ scope: "row", colspan: 3 } All #{report.provider_name(provider)}
+              %td.num= number_with_delimiter(count)
+
+%section.admin-card
+  %h2 Guide click-through
+  %p.admin-hint Page views of each guide, click-outs made from it (booking and activity sites) and their ratio.
+  - guides = report.guide_rates
+  - if guides.empty?
+    %p.admin-hint No published guides and no guide visits in this period.
+  - else
+    .table-wrap
+      %table.admin-table.analytics-table
+        %thead
+          %tr
+            %th{ scope: "col" } Guide
+            %th.num{ scope: "col" } Page views
+            %th.num{ scope: "col" } Click-outs
+            %th.num{ scope: "col" } Click-through
+        %tbody
+          - guides.each do |row|
+            %tr
+              %td
+                = row.guide&.title || row.path
+                %small.analytics-table__path= row.path
+              %td.num= number_with_delimiter(row.views)
+              %td.num= number_with_delimiter(row.clicks)
+              %td.num= analytics_rate(row.rate)

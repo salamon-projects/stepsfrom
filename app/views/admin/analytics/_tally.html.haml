@@ -1,0 +1,25 @@
+-# A ranked Analytics::Report::Row table. columns: headings for the label(s).
+%section.admin-card
+  %h2= title
+  - if rows.empty?
+    %p.admin-hint= empty
+  - else
+    - max = rows.map(&:views).max
+    .table-wrap
+      %table.admin-table.analytics-table
+        %thead
+          %tr
+            - columns.each do |column|
+              %th{ scope: "col" }= column
+            %th.num{ scope: "col" } Page views
+            %th.num{ scope: "col" } Visitors
+            %th{ scope: "col" }
+              %span.visually-hidden Share
+        %tbody
+          - rows.each do |row|
+            %tr
+              - Array(row.label).each do |value|
+                %td= value.presence || "–"
+              %td.num= number_with_delimiter(row.views)
+              %td.num= number_with_delimiter(row.visitors)
+              %td.analytics-table__bar= analytics_bar(row.views, max)

@@ -69,4 +69,15 @@ module AdminHelper
     seconds = run.duration.to_i
     seconds < 90 ? "#{seconds} s" : "#{(seconds / 60.0).round} min"
   end
+
+  # "12.5%", or "–" when there is nothing to divide by.
+  def analytics_rate(rate)
+    rate ? number_to_percentage(rate * 100, precision: 1) : "–"
+  end
+
+  # A bar for a count relative to the largest in its table (a <meter>, so
+  # no inline style is needed).
+  def analytics_bar(value, max)
+    tag.meter(value, value:, min: 0, max: [ max, 1 ].max, class: "analytics-bar", "aria-hidden": "true")
+  end
 end

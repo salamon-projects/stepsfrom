@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       post :import, on: :member
     end
     resources :imports, only: :index
+    get "analytics", to: "analytics#show", as: :analytics
     resources :properties do
       member do
         post :hide
