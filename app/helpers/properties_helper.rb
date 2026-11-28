@@ -69,9 +69,14 @@ module PropertiesHelper
     property.stars ? "#{label} · #{'★' * property.stars}" : label
   end
 
+  # The nearest mapped beach (within 300 m): its surface, or just "Beach"
+  # when OSM does not record one, so a beach at the door is never left out.
   def beach_surface_label(property)
-    surface = property.waterfront&.beach_surface
-    t("waterfront.beach_surfaces.#{surface}") if surface.present?
+    waterfront = property.waterfront
+    return if waterfront.nil? || waterfront.distance_to_beach_m.nil?
+
+    surface = waterfront.beach_surface
+    surface.present? ? t("waterfront.beach_surfaces.#{surface}") : t("waterfront.beach_surface_unknown")
   end
 
   # Notes shown under the badge: what lies between the property and the water.
@@ -82,7 +87,7 @@ module PropertiesHelper
     notes = []
     notes << [ :warning, t("waterfront.road_between") ] if waterfront.crosses_road?
     notes << [ :info, t("waterfront.promenade_between") ] if waterfront.crosses_promenade?
-    notes << [ :info, beach_surface_label(property) ] if waterfront.beach_surface.present?
+    notes << [ :info, beach_surface_label(property) ] if beach_surface_label(property)
     notes
   end
 

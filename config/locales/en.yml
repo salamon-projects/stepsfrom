@@ -53,6 +53,7 @@ en:
       sand: Sandy beach
       pebble: Pebble beach
       rock: Rocky shore
+    beach_surface_unknown: Beach (surface not mapped)
 
   guides:
     fact:

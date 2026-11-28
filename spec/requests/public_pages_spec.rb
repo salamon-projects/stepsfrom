@@ -313,6 +313,14 @@ RSpec.describe "Public pages" do
       expect(response.body).not_to include("&amp;amp;")
     end
 
+    it "shows a beach at the door even when its surface is not mapped" do
+      cove = create(:property, :direct, destination:, name: "Laguna Lozna", distance_to_beach_m: 6, beach_surface: nil)
+
+      get property_path(cove)
+
+      expect(response.body).to include("Beach (surface not mapped)", "6 m away")
+    end
+
     it "moves the page of a place mapped twice to the one listed" do
       repeat = create(:property, :direct, destination:, name: "Dalmacija", duplicate_of: hotel)
 
