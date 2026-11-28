@@ -10,6 +10,20 @@
     %li
       When you click through to a booking or activity site we record which property and site, the dates you searched
       and the page you clicked on. We do not store your IP address or any identifier that could tell us who you are.
+    %li
+      We count page views on our own server, without cookies, local storage or tracking scripts, and send nothing to
+      any analytics company. For each page view we keep the time, the page address without its query string, the
+      name of the site you came from (only its host, such as www.google.com), any utm_source, utm_medium and
+      utm_campaign values in the link, whether you used a phone or a computer, and an anonymous visitor code. The code
+      is a one-way hash of your IP address and browser identification mixed with a secret that changes every day, so
+      we can count visitors per day but cannot recognise you on another day or work back to your IP address. Your IP
+      address and browser identification are not stored. If the site is served through a content delivery network
+      that tells us the visitor's country, we keep that country too; we do not look it up ourselves.
+    %li
+      Requests from search engines and other automated tools are not counted, and neither are visits from browsers
+      that send Do Not Track or Global Privacy Control. Page view records are deleted after
+      = succeed "." do
+        = pluralize(PageView.retention_days, "day")
     %li The site sets only the technically necessary session cookie. We do not use advertising or analytics cookies.
     %li
       Booking and activity sites set their own cookies once you arrive there, including to attribute your booking to us; their

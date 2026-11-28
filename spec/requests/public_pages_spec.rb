@@ -406,7 +406,8 @@ RSpec.describe "Public pages" do
       expect(response).to have_http_status(:ok)
 
       get privacy_path
-      expect(response.body).to include("IP address")
+      expect(response.body.squish).to include("IP address", "without cookies", "Global Privacy Control",
+                                              "Page view records are deleted after 180 days.")
     end
 
     it "lists published pages in the sitemap" do

@@ -304,6 +304,52 @@ in `app/services/prices/providers/` and list it in `PRICE_PROVIDERS`
 uses the `fake` provider, which returns made-up prices and refuses to run in
 production.
 
+## Analytics
+
+Page views are counted on our own server, without cookies, local storage,
+scripts or any outside service (`PageView`, `PageViewTracking` in
+`ApplicationController`). Each successful HTML `GET` of a public page adds one
+`page_views` row: the time, the path without its query string, the referring
+site's host (none when the visitor came from this site), `utm_source`,
+`utm_medium` and `utm_campaign` (cut to 100 characters), a coarse device class
+(mobile/desktop), a country only when a `CF-IPCountry` header is present (it is
+not today: the site is not behind a CDN, and no GeoIP lookup is done), and
+`visitor_hash`: a truncated SHA-256 of the IP address and user agent with a salt
+derived from `secret_key_base` and the UTC date. The salt is never stored and
+changes every day, so a visitor cannot be followed from one day to the next. The
+IP address and user agent themselves are not stored.
+
+Not counted: other methods and statuses, non-HTML responses, `/admin`, `/go`
+(click-outs are logged in `outbound_clicks`), `/up`, `sitemap.xml`,
+`robots.txt`, prefetches, the automatic reload that shows fresh prices
+(`?priced=1`), requests sending `DNT: 1` or `Sec-GPC: 1`, and user agents that
+are empty or match the bot list in `config/analytics.yml` (search engines, SEO
+tools, link previews, AI crawlers, monitors, HTTP libraries, headless
+browsers; add a word there to exclude another). Recording is a single
+`INSERT`; if it fails the error is logged and the page is served anyway.
+
+Page views are deleted after 180 days by a daily job (`PurgePageViewsJob`,
+`config/recurring.yml`). `PAGE_VIEW_RETENTION_DAYS` (a repository *variable*)
+or `retention_days` in `config/analytics.yml` changes the period; the privacy
+page states it.
+
+**Reading the dashboard** (admin → Analytics, `/admin/analytics`): pick the last
+24 hours, 7 or 30 days (days are UTC).
+
+- *Visitors (unique per day)* counts distinct visitor hashes. Because the hash
+  changes daily, someone who comes back on three days counts three times, and
+  two people sharing an IP address and browser on the same day count once.
+- *Click-outs per page view* divides all logged click-outs (booking and activity
+  sites) by page views. Bots that follow `/go` links despite `robots.txt` are
+  not filtered out of `outbound_clicks`, so this can read a little high.
+- *Top referrers* shows only hosts; many apps and private browsing send none,
+  so direct visits are undercounted there.
+- *Things to do* lists clicks on the activity sites (`/go/activities/...`),
+  which record no listing, by site and by the page clicked on, with that page's
+  destination.
+- *Guide click-through* gives each guide's page views, the click-outs whose
+  source page is the guide, and their ratio.
+
 ## Deploying (Kamal, Hetzner)
 
 Production runs on one server with [Kamal](https://kamal-deploy.org): the app
@@ -345,7 +391,8 @@ variable `KAMAL_SERVER` overrides it.
 ## Jobs
 
 Production uses Solid Queue for imports, classification after edits, price refreshes
-and the recurring tasks. Run `bin/jobs`, or set `SOLID_QUEUE_IN_PUMA=1` to run it
+and the recurring tasks (weekly OSM refresh and website check, daily automatic
+listings and page view purge, hourly price quote purge). Run `bin/jobs`, or set `SOLID_QUEUE_IN_PUMA=1` to run it
 inside Puma.
 
 ## Configuration
@@ -364,6 +411,7 @@ inside Puma.
 | `GOOGLE_SITE_VERIFICATION` | Google Search Console token: the `content` of its HTML-tag method, rendered as `<meta name="google-site-verification">`. A repository *variable*; nothing rendered when unset |
 | `BING_SITE_VERIFICATION` | Bing Webmaster Tools token, rendered as `<meta name="msvalidate.01">`. A repository *variable*; nothing rendered when unset |
 | `SITEMAP_EXCLUDE_WALKABLE` | `1` leaves "Short walk to the water" stays out of `sitemap.xml` (default: all published stays). A repository *variable* |
+| `PAGE_VIEW_RETENTION_DAYS` | Days page views are kept before the daily purge (default 180, from `config/analytics.yml`). A repository *variable*, see Analytics |
 
 The OpenStreetMap tile server is fine at low traffic, but read its
 [usage policy](https://operations.osmfoundation.org/policies/tiles/) and switch to a
