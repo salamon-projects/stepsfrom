@@ -14,7 +14,7 @@
     %meta{ name: "theme-color", content: "#0a3550" }
     %meta{ property: "og:site_name", content: t("site_name") }
     %meta{ property: "og:type", content: "website" }
-    %meta{ property: "og:title", content: content_for(:title).presence || t("site_name") }
+    %meta{ property: "og:title", content: page_heading }
     %meta{ property: "og:description", content: page_description }
     %meta{ property: "og:url", content: canonical_url }
     %meta{ property: "og:image", content: og_image_url }

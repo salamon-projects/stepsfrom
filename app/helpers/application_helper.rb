@@ -1,10 +1,23 @@
 module ApplicationHelper
   def page_title
-    [ content_for(:title).presence, t("site_name") ].compact.join(" · ")
+    [ plain_content(:title), t("site_name") ].compact.join(" · ")
+  end
+
+  # The page's own title without the site name (og:title).
+  def page_heading
+    plain_content(:title) || t("site_name")
   end
 
   def page_description
-    content_for(:description).presence || t("tagline")
+    plain_content(:description) || t("tagline")
+  end
+
+  # content_for keeps text HTML-escaped ("Lloret de Mar &amp; Tossa"), and
+  # HAML escapes again when it writes a tag or an attribute, which showed
+  # "&amp;amp;" in titles and descriptions. This gives the plain text back,
+  # to be escaped once.
+  def plain_content(name)
+    CGI.unescapeHTML(content_for(name).to_s).presence
   end
 
   def canonical_url

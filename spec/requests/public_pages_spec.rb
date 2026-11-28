@@ -297,6 +297,22 @@ RSpec.describe "Public pages" do
       expect(response).to redirect_to(destination_path(destination))
     end
 
+    it "escapes an ampersand in titles and descriptions once" do
+      lloret = create(:destination, name: "Lloret de Mar & Tossa", country_code: "ES", sea_name: "Mediterranean Sea")
+      create(:property, :direct, destination: lloret, name: "Hotel Rigat & Spa")
+
+      get destination_path(lloret)
+
+      expect(response.body).not_to include("&amp;amp;")
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css("title").text).to start_with("Beachfront stays in Lloret de Mar & Tossa")
+      expect(document.at_css('meta[property="og:title"]')["content"]).to include("Lloret de Mar & Tossa")
+      expect(document.at_css('meta[name="description"]')["content"]).to include("Lloret de Mar & Tossa")
+
+      get property_path(Property.find_by!(name: "Hotel Rigat & Spa"))
+      expect(response.body).not_to include("&amp;amp;")
+    end
+
     it "moves the page of a place mapped twice to the one listed" do
       repeat = create(:property, :direct, destination:, name: "Dalmacija", duplicate_of: hotel)
 
