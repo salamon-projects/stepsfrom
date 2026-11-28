@@ -64,6 +64,8 @@ jobs:
       GETYOURGUIDE_PARTNER_ID: ${{ vars.GETYOURGUIDE_PARTNER_ID }}
       VIATOR_PID: ${{ vars.VIATOR_PID }}
       VIATOR_MCID: ${{ vars.VIATOR_MCID }}
+      # Days page views are kept (repository variable, optional; default 180).
+      PAGE_VIEW_RETENTION_DAYS: ${{ vars.PAGE_VIEW_RETENTION_DAYS }}
       # Search engine settings (repository variables, optional).
       SITEMAP_EXCLUDE_WALKABLE: ${{ vars.SITEMAP_EXCLUDE_WALKABLE }}
       GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}

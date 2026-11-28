@@ -20,3 +20,7 @@ production:
   purge_expired_price_quotes:
     command: "PriceQuote.where(expires_at: ...Time.current).delete_all"
     schedule: every hour at minute 20
+  # Page views are kept PAGE_VIEW_RETENTION_DAYS days (default 180).
+  purge_old_page_views:
+    class: PurgePageViewsJob
+    schedule: every day at 2:40am

@@ -60,8 +60,11 @@ class PageView < ApplicationRecord
       user_agent.blank? || bot_pattern.match?(user_agent)
     end
 
+    # PAGE_VIEW_RETENTION_DAYS when it is a positive whole number, else
+    # config/analytics.yml.
     def retention_days
-      Integer(ENV["PAGE_VIEW_RETENTION_DAYS"].to_s.strip.presence || config.fetch(:retention_days, 180))
+      days = Integer(ENV["PAGE_VIEW_RETENTION_DAYS"].to_s.strip, exception: false)
+      days&.positive? ? days : Integer(config.fetch(:retention_days, 180))
     end
 
     # Deletes page views older than retention_days, a batch at a time.

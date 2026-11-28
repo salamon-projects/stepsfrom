@@ -41,6 +41,8 @@ env:
 <% %w[STAY22_AID BOOKING_TRACKING_URL EXPEDIA_TRACKING_URL HOTELS_COM_TRACKING_URL VRBO_TRACKING_URL AGODA_TRACKING_URL TRIP_COM_TRACKING_URL GETYOURGUIDE_PARTNER_ID VIATOR_PID VIATOR_MCID].each do |name| %>
     <%= name %>: <%= ENV[name].to_s.inspect %>
 <% end %>
+    # Days page views are kept (repository variable; empty = 180).
+    PAGE_VIEW_RETENTION_DAYS: <%= ENV["PAGE_VIEW_RETENTION_DAYS"].to_s.inspect %>
     # Search engine settings, also repository variables (empty = off).
 <% %w[SITEMAP_EXCLUDE_WALKABLE GOOGLE_SITE_VERIFICATION BING_SITE_VERIFICATION].each do |name| %>
     <%= name %>: <%= ENV[name].to_s.inspect %>
