@@ -39,9 +39,14 @@ Rails.application.routes.draw do
         post :hide
         post :unhide
         post :reclassify
+        post :approve
+        post :not_duplicate
       end
-      resources :listings, except: %i[index show]
+      resources :listings, except: %i[index show] do
+        patch :confirm, on: :member
+      end
     end
+    resources :booking_links, only: :index
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

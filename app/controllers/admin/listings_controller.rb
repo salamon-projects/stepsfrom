@@ -1,7 +1,7 @@
 module Admin
   class ListingsController < BaseController
     before_action :set_property
-    before_action :set_listing, only: %i[edit update destroy]
+    before_action :set_listing, only: %i[edit update destroy confirm]
 
     def new
       @listing = @property.listings.build(provider: (Affiliate::Provider.keys - @property.listings.map(&:provider)).first)
@@ -19,15 +19,22 @@ module Admin
     def edit; end
 
     # Editing the URL of an automatic listing makes it the admin's, so it is
-    # no longer regenerated.
+    # no longer regenerated, and confirmed (Listing#confirm_entered_listing).
     def update
       @listing.assign_attributes(listing_params)
       @listing.generator = nil if @listing.url_changed?
       if @listing.save
-        redirect_to admin_property_path(@property), notice: "#{@listing.provider_name} listing updated."
+        redirect_to params[:return_to].presence_in([ admin_booking_links_path ]) || admin_property_path(@property),
+                    notice: "#{@listing.provider_name} listing for #{@property.name} updated."
       else
         render :edit, status: :unprocessable_content
       end
+    end
+
+    # The admin opened the automatic link and it landed on this property.
+    def confirm
+      @listing.confirm!
+      redirect_back_or_to admin_property_path(@property), notice: "#{@listing.provider_name} link for #{@property.name} confirmed."
     end
 
     def destroy

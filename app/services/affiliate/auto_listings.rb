@@ -7,7 +7,9 @@ module Affiliate
   #
   # What an admin decided always wins: listings an admin entered are never
   # touched, an automatic listing an admin switched off stays off, and an
-  # automatic listing whose URL an admin edited becomes the admin's.
+  # automatic listing whose URL an admin edited becomes the admin's. An
+  # automatic listing is unconfirmed (Listing#confirmed?) until an admin checks
+  # that it opens the property's own page.
   class AutoListings
     def initialize(properties = Property.all)
       @properties = properties
@@ -45,7 +47,8 @@ module Affiliate
         url = url_for(property, provider, generator)
         return if listing.url == url && listing.generator == generator
 
-        listing.update!(url:, generator:)
+        # A new link (the name or position changed) has to be checked again.
+        listing.update!(url:, generator:, confirmed_at: nil)
         :updated
       end
     end

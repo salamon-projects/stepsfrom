@@ -113,10 +113,10 @@ class Guide
       { destination: destination.name, country: country.name,
         sea: destination.sea_name.present? ? "the #{destination.sea_name}" : I18n.t("properties.water_kinds.sea"),
         listed: "#{total} #{total == 1 ? 'place' : 'places'} to stay", listed_count: total,
-        direct: counts.fetch("direct", 0), near: counts.fetch("near", 0), walkable: counts.fetch("walkable", 0),
+        direct: counts.fetch("direct", 0), seafront: counts.fetch("seafront", 0), near: counts.fetch("near", 0), walkable: counts.fetch("walkable", 0),
         shown: properties.size, closest_name: closest&.first, closest_m: closest&.last,
         closest: closest&.last&.zero? ? "right on the water" : "#{closest&.last} m from the water",
-        **config.slice(:direct_max_m, :direct_beach_max_m, :beach_adjacent_m, :near_max_m, :walkable_max_m) }
+        **config.slice(:direct_max_m, :direct_beach_max_m, :beach_adjacent_m, :beach_front_max_m, :near_max_m, :walkable_max_m) }
     end
   end
 

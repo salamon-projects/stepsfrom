@@ -29,12 +29,14 @@ en:
   waterfront:
     categories:
       direct: Verified beachfront
+      seafront: Right on the water, no beach
       near: Steps from the water
       walkable: Short walk to the water
       not_waterfront: Not waterfront
       unknown: Not measured yet
     category_hints:
-      direct: Nothing but beach or rocks between the property and the water.
+      direct: Nothing but the beach between the property and the water.
+      seafront: On the water, but the map shows a quay, harbour or rocks in front rather than a beach.
       near: The water is at most %{near} m away.
       walkable: The water is at most %{walkable} m away.
     measured: "Measured: %{distance} m to %{water}"
@@ -61,7 +63,7 @@ en:
       beach: "Nearest mapped beach: %{where}."
       beach_metres: "%{distance} m away"
       beach_touching: touching the property
-    ranking_note: Verified beachfront first, then by measured distance to the water. No property pays to be listed or ranked.
+    ranking_note: Verified beachfront first, then right on the water without a beach, then by measured distance to the water. No property pays to be listed or ranked.
     faq_title: Questions about %{destination}
     list_title:
       one: The closest to the water
@@ -95,6 +97,11 @@ en:
     compare:
       one: Available on 1 booking site
       other: Compare %{count} booking sites
+    look_up:
+      one: Look it up on 1 booking site
+      other: Look it up on %{count} booking sites
+    search_site: Search for it
+    search_note: "“Search for it” opens the booking site's search for this stay by name and location. If it shows a list, pick the stay from it."
     view_deal: View deal
     check_price: Check price
     check_availability: Check availability

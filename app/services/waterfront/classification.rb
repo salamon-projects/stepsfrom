@@ -44,6 +44,7 @@ module Waterfront
         water_point: point && [ point.x, point.y ],
         distance_to_beach_m: measurement.distance_to_beach_m,
         beach_surface: measurement.beach_surface,
+        beach_at_water_m: measurement.beach_at_water_m,
         crosses_road: measurement.crosses_road,
         crosses_promenade: measurement.crosses_promenade
       }

@@ -4,6 +4,7 @@ RSpec.describe ClassifyPropertyJob do
   it "classifies the property" do
     property = create(:property)
     create(:water_feature, geom: east_west_line(north_m: 20))
+    create(:beach, geom: box(south_m: 5, north_m: 20))
 
     described_class.perform_now(property.id)
 

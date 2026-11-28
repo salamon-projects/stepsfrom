@@ -9,8 +9,9 @@ RSpec.describe Waterfront::Classification do
     described_class.new(record.reload).call.reload.waterfront
   end
 
-  it "classifies a property 20 m from the sea as direct" do
+  it "classifies a property 20 m from the sea across a beach as direct" do
     create(:water_feature, geom: east_west_line(north_m: 20))
+    create(:beach, geom: box(south_m: 5, north_m: 20))
 
     result = classify
     expect(result).to have_attributes(category: "direct", water_kind: "sea", crosses_road: false)
@@ -28,6 +29,7 @@ RSpec.describe Waterfront::Classification do
 
   it "ignores a road behind the property" do
     create(:water_feature, geom: east_west_line(north_m: 40))
+    create(:beach, geom: box(south_m: 5, north_m: 40))
     create(:road_segment, geom: east_west_line(north_m: -20))
 
     expect(classify).to have_attributes(category: "direct", crosses_road: false)
@@ -35,6 +37,7 @@ RSpec.describe Waterfront::Classification do
 
   it "notes a promenade without downgrading" do
     create(:water_feature, geom: east_west_line(north_m: 40))
+    create(:beach, geom: box(south_m: 25, north_m: 40))
     create(:road_segment, category: "promenade", highway: "footway", geom: east_west_line(north_m: 20))
 
     expect(classify).to have_attributes(category: "direct", crosses_promenade: true)
@@ -47,6 +50,27 @@ RSpec.describe Waterfront::Classification do
     result = classify
     expect(result).to have_attributes(category: "direct", beach_surface: "sand")
     expect(result.distance_to_beach_m).to be_within(1).of(10)
+  end
+
+  it "is seafront, not beachfront, on a harbour quay with the nearest beach further along the coast" do
+    create(:water_feature, geom: east_west_line(north_m: 15))
+    create(:beach, surface: "pebble", geom: box(south_m: 0, north_m: 15, west_m: 225, east_m: 320))
+
+    result = classify
+    expect(result).to have_attributes(category: "seafront", beach_surface: "pebble", beach_at_water_m: nil)
+    expect(result.distance_to_beach_m).to be_within(1).of(225)
+    expect(Property.published).to include(property)
+  end
+
+  it "is seafront when a beach next to the property does not reach the water where it is measured" do
+    create(:water_feature, geom: east_west_line(north_m: 30))
+    # Sand beside the house that stops well short of the water (a lawn or
+    # terrace beach behind a quay).
+    create(:beach, geom: box(south_m: -10, north_m: 0, west_m: 20, east_m: 300))
+
+    result = classify
+    expect(result.category).to eq("seafront")
+    expect(result.beach_at_water_m).to be_within(1).of(36)
   end
 
   it "classifies 250 m as walkable" do
@@ -92,6 +116,7 @@ RSpec.describe Waterfront::Classification do
 
   it "measures from the footprint edge rather than the centre" do
     create(:water_feature, geom: east_west_line(north_m: 60))
+    create(:beach, geom: box(south_m: 35, north_m: 60))
     with_footprint = create(:property, destination:, footprint: box(south_m: -30, north_m: 30, west_m: -20, east_m: 20))
 
     result = classify(with_footprint)

@@ -125,6 +125,18 @@ RSpec.describe "Public pages" do
       expect(link["rel"]).to include("sponsored")
     end
 
+    it "says an unchecked automatic link searches for the stay rather than opening it" do
+      create(:listing, property: hotel, generator: "stay22", url: Affiliate::Stay22.listing_url(hotel, "booking"))
+
+      get property_path(hotel)
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css(".offers__heading").text).to eq("Look it up on 1 booking site")
+      expect(document.at_css("a.offer__link").text).to include("Search for it")
+      expect(document.css(".offers__note").map(&:text)).to include(a_string_including("opens the booking site's search"))
+      expect(response.body).not_to include("Check availability")
+    end
+
     it "orders by price when dates are given and prices are known" do
       cheap = create(:property, :walkable, destination:, name: "Budget Rooms")
       create(:listing, property: hotel)
@@ -283,6 +295,25 @@ RSpec.describe "Public pages" do
 
       expect(response).to have_http_status(:moved_permanently)
       expect(response).to redirect_to(destination_path(destination))
+    end
+
+    it "moves the page of a place mapped twice to the one listed" do
+      repeat = create(:property, :direct, destination:, name: "Dalmacija", duplicate_of: hotel)
+
+      get property_path(repeat)
+
+      expect(response).to have_http_status(:moved_permanently)
+      expect(response).to redirect_to(property_path(hotel))
+    end
+
+    it "shows the name in its own script under a transliterated one" do
+      villa = create(:property, :direct, destination:, name: "Vila Rodon", local_name: "Βίλα Ρόδων")
+
+      get property_path(villa)
+
+      local = Nokogiri::HTML(response.body).at_css(".masthead__local-name")
+      expect(local.text).to eq("Βίλα Ρόδων")
+      expect(local["lang"]).to eq("el")
     end
 
     it "returns 404 for a campsite whose destination is not published" do

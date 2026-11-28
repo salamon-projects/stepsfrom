@@ -60,6 +60,10 @@
               %span.flag OTA says beachfront
             - if property.osm_missing_since
               %span.flag not in OSM
+            - if property.non_lodging?
+              %span.flag= property.non_lodging_tag
+            - if property.duplicate_of_id
+              %span.flag duplicate
             - if property.website.present? && !property.website_link?
               %span.flag website broken
           %td= property.listings.map(&:provider_name).join(", ").presence || "–"

@@ -30,6 +30,7 @@ module Waterfront
         crosses_beach: line ? crosses_beach?(line) : false,
         distance_to_beach_m: beach && beach.fetch("distance").round,
         beach_surface: beach&.fetch("surface"),
+        beach_at_water_m: water && beach_at_water(property, water.fetch("water_point")),
         coord_mismatch_m: coordinate_mismatch(property)
       )
     end
@@ -68,6 +69,18 @@ module Waterfront
         ORDER BY ST_Distance(src.g, b.geom), b.id
         LIMIT 1
       SQL
+    end
+
+    # How far the water point is from the nearest beach that lies right next
+    # to the property: whether the beach in front actually reaches the water
+    # there, rather than being a strip of sand behind a quay or further along.
+    def beach_at_water(property, water_point)
+      distance = select_values(<<~SQL, water_point, property.id, @config.fetch(:beach_front_max_m)).first
+        SELECT MIN(ST_Distance(ST_GeogFromText(?), b.geom))
+        FROM beaches b, #{source_sql} src
+        WHERE ST_DWithin(src.g, b.geom, ?)
+      SQL
+      distance&.round
     end
 
     def water_data_available?(property)

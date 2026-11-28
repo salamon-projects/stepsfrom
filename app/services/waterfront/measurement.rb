@@ -10,6 +10,7 @@ module Waterfront
     :crosses_promenade,    # promenade, pedestrian street or service road on it
     :crosses_beach,        # the line passes over a mapped beach
     :distance_to_beach_m, :beach_surface,
+    :beach_at_water_m,     # from the water point to the nearest beach next to the property (nil: none)
     :coord_mismatch_m      # largest distance to a booking site's reported position
   )
 end

@@ -10,6 +10,12 @@ shared:
   # beach (within beach_adjacent_m).
   direct_beach_max_m: 150
   beach_adjacent_m: 20
+  # "Beachfront" also needs a beach at the door: the line to the water crosses
+  # a mapped beach, or a beach within beach_front_max_m of the property reaches
+  # the water within beach_at_water_max_m of where we measured it. Otherwise a
+  # direct property is "seafront" (a quay, pier, harbour or rocks).
+  beach_front_max_m: 30
+  beach_at_water_max_m: 30
   near_max_m: 100
   walkable_max_m: 300
   # Coordinates reported by a booking site further than this from ours flag

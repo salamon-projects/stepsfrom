@@ -11,7 +11,7 @@ module Waterfront
 
       distance = measurement.distance_to_water_m
       return "not_waterfront" if distance.nil? || distance > @config.fetch(:walkable_max_m)
-      return "direct" if direct?(measurement)
+      return beach_at_door?(measurement) ? "direct" : "seafront" if direct?(measurement)
       return "near" if distance <= @config.fetch(:near_max_m)
 
       "walkable"
@@ -25,6 +25,15 @@ module Waterfront
 
       distance = measurement.distance_to_water_m
       distance <= @config.fetch(:direct_max_m) || on_wide_beach?(measurement, distance)
+    end
+
+    # A beach between the property and the water, or one right next to it
+    # that reaches the water where we measured. A harbour quay, a pier or
+    # rocks with a beach further along are not "beachfront".
+    def beach_at_door?(measurement)
+      return true if measurement.crosses_beach
+
+      measurement.beach_at_water_m.present? && measurement.beach_at_water_m <= @config.fetch(:beach_at_water_max_m)
     end
 
     def on_wide_beach?(measurement, distance)

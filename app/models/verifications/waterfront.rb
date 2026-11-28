@@ -2,13 +2,15 @@ module Verifications
   # Whether the property is on the water, measured by Waterfront::Classification
   # against OpenStreetMap data. distance_m is the distance to the water.
   class Waterfront < Verification
-    CATEGORIES = %w[direct near walkable not_waterfront unknown].freeze
-    LISTED_CATEGORIES = %w[direct near walkable].freeze
+    # "direct" is beachfront: on the water with a beach at the door;
+    # "seafront" is on the water without one (a quay, harbour or rocks).
+    CATEGORIES = %w[direct seafront near walkable not_waterfront unknown].freeze
+    LISTED_CATEGORIES = %w[direct seafront near walkable].freeze
 
     enum :category, CATEGORIES.index_by(&:itself), validate: true
 
     store_accessor :evidence, :water_feature_id, :water_kind, :water_name, :water_point,
-                   :distance_to_beach_m, :beach_surface, :crosses_road, :crosses_promenade
+                   :distance_to_beach_m, :beach_surface, :beach_at_water_m, :crosses_road, :crosses_promenade
 
     alias_attribute :distance_to_water_m, :distance_m
 

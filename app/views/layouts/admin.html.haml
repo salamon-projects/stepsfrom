@@ -23,6 +23,10 @@
             = link_to "Properties", admin_properties_path
             = link_to "Destinations", admin_destinations_path
             = link_to "Imports", admin_imports_path
+            = link_to admin_booking_links_path do
+              Booking links
+              - if (unchecked = Listing.active.unconfirmed.joins(:property).merge(Property.published).count).positive?
+                %span.flag= unchecked
             = link_to "Analytics", admin_analytics_path
           = link_to "View site", root_path
           - if admin_signed_in?

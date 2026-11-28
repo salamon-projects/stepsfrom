@@ -1,5 +1,5 @@
 -# locals: (config:)
--# The three listed categories on one scale: an illustration of the method,
+-# The listed categories on one scale: an illustration of the method,
 -# with the thresholds from config/waterfront.yml.
 .shoreline-test{ "aria-labelledby": "shoreline_title" }
   .shoreline-test__head
@@ -28,7 +28,10 @@
   %dl.shoreline-test__legend
     %div
       %dt.shoreline-test__key.shoreline-test__key--direct= t("waterfront.categories.direct")
-      %dd= "Up to #{config.fetch(:direct_max_m)} m, no road or railway in between"
+      %dd= "Up to #{config.fetch(:direct_max_m)} m, no road or railway in between, a beach at the door"
+    %div
+      %dt.shoreline-test__key.shoreline-test__key--seafront= t("waterfront.categories.seafront")
+      %dd= "Just as close, but a quay, harbour or rocks in front"
     %div
       %dt.shoreline-test__key.shoreline-test__key--near= t("waterfront.categories.near")
       %dd= "Up to #{config.fetch(:near_max_m)} m, or a road in between"

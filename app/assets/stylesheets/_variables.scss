@@ -1,7 +1,7 @@
 // Palette from the 2026-11 redesign: a deep-sea night blue for heroes and
 // panels, cool grey-green paper, sand for the method band. Coral is the call
 // to action (buttons, focus). The waterfront categories have their own
-// colours: mint = verified beachfront, amber = steps from the water,
+// colours: mint = verified beachfront, sky/sea = on the water without a beach, amber = steps from the water,
 // slate = short walk (on dark grounds the light shades, on paper the dark).
 $paper: #f3f6f6;
 $paper-deep: #e8eeef;
@@ -37,6 +37,8 @@ $blue: #9a5b00;
 $blue-light: #fff1d6;
 $slate: #4b5d68;
 $slate-light: #e8eeef;
+// Right on the water without a beach (seafront): sea blue.
+$sky: #8fd0f5;
 $gray: #5f707a;
 
 // The measured distance: figures and lines drawn from our measurement.

@@ -1,6 +1,7 @@
 module Osm
-  # One element of an Overpass `out geom` response.
-  Element = Data.define(:type, :id, :tags, :lat, :lon, :coords, :members) do
+  # One element of an Overpass `out geom` response. timestamp and version
+  # come only with `out geom meta` (who edited it is never kept).
+  Element = Data.define(:type, :id, :tags, :lat, :lon, :coords, :members, :timestamp, :version) do
     def self.from_json(json)
       new(
         type: json.fetch("type"),
@@ -9,7 +10,9 @@ module Osm
         lat: json["lat"],
         lon: json["lon"],
         coords: coords_from(json["geometry"]),
-        members: Array(json["members"]).map { |m| { role: m["role"], coords: coords_from(m["geometry"]) } }
+        members: Array(json["members"]).map { |m| { role: m["role"], coords: coords_from(m["geometry"]) } },
+        timestamp: json["timestamp"].presence && Time.iso8601(json["timestamp"]),
+        version: json["version"]
       )
     end
 

@@ -30,7 +30,14 @@
     %dd
       No road or railway in between, and the water is at most #{@config.fetch(:direct_max_m)} m away — or up to
       #{@config.fetch(:direct_beach_max_m)} m across a mapped beach that starts within
-      #{@config.fetch(:beach_adjacent_m)} m of the property.
+      #{@config.fetch(:beach_adjacent_m)} m of the property. There must also be a beach at the door: the line to the
+      water crosses a mapped beach, or a mapped beach within #{@config.fetch(:beach_front_max_m)} m of the property
+      reaches the water within #{@config.fetch(:beach_at_water_max_m)} m of where we measured.
+    %dt
+      %span.badge.badge--seafront= t("waterfront.categories.seafront")
+    %dd
+      Just as close to the water as beachfront, with no road or railway in between, but without a beach at the door:
+      in front is a harbour quay, a pier, a promenade wall or rocks. We list these, but never call them beachfront.
     %dt
       %span.badge.badge--near= t("waterfront.categories.near")
     %dd The water is at most #{@config.fetch(:near_max_m)} m away, but something (usually a road) lies in between, or it is just beyond the beachfront limits.
@@ -46,7 +53,7 @@
 
   %h2#ranking How results are ordered
   %ul
-    %li Without dates: by badge (beachfront first), then by measured distance to the water.
+    %li Without dates: by badge (beachfront first, then right on the water without a beach), then by measured distance to the water.
     %li With dates: by the lowest price we have for your dates, then by badge and distance. Properties without a known price come last.
     %li You can switch between the two with “Sort by”.
   %p

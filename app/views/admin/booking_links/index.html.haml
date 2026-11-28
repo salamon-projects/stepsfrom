@@ -1,0 +1,44 @@
+- content_for :title, "Booking links to check"
+
+.admin-page__header
+  %h1 Booking links to check
+
+%p.admin-hint
+  Automatic links find a property by name and position, and often land on a search of the area instead of its page.
+  Until a link is confirmed, the site says it searches for the stay. Open each link: if it lands on this property,
+  confirm it; if not, paste the property’s own page on that site. Listed stays only, the most clicked first.
+  Opening a link here is not logged as a click.
+
+- if @listings.empty?
+  %p Every listed stay’s booking links are confirmed.
+- else
+  %p= "#{@total} to check#{" (showing the first #{@listings.size})" if @total > @listings.size}."
+  .table-wrap
+    %table.admin-table
+      %thead
+        %tr
+          %th Property
+          %th Site
+          %th Clicks
+          %th Link
+          %th Its own page on the site
+          %th
+            %span.visually-hidden Confirm
+      %tbody
+        - @listings.each do |listing|
+          - property = listing.property
+          %tr
+            %td
+              = link_to property.name, admin_property_path(property)
+              %br
+              %small= property.destination.name
+            %td= listing.provider_name
+            %td= listing.clicks_count
+            %td= link_to "Open link", Affiliate::LinkBuilder.new(listing).url, target: "_blank", rel: "noopener noreferrer", class: "button button--small"
+            %td
+              = form_with model: listing, url: admin_property_listing_path(property, listing), method: :patch do |f|
+                = hidden_field_tag :return_to, admin_booking_links_path
+                = f.label :url, "#{listing.provider_name} page for #{property.name}", class: "visually-hidden"
+                = f.url_field :url, value: "", placeholder: "https://…", required: true
+                = f.submit "Save", class: "button button--small"
+            %td= button_to "It opens this property", confirm_admin_property_listing_path(property, listing), method: :patch, class: "button button--small"

@@ -256,6 +256,7 @@
     }
 
     &--direct::before { background: $mint; }
+    &--seafront::before { background: $sky; }
     &--near::before { background: $amber; }
     &--walkable::before { background: rgba($white, 0.45); }
   }

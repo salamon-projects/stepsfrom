@@ -221,7 +221,87 @@ RSpec.describe "OSM importers" do
 
       described_class.new(destination, client: instance_double(Osm::OverpassClient, query: elements)).call
 
-      expect(Property.order(:osm_id).pluck(:name)).to eq([ "Camping Marmara", "Hotel Ilios", "Βίλα Ρόδων", "Hôtel Les Pins" ])
+      expect(Property.order(:osm_id).pluck(:name, :local_name)).to eq([
+        [ "Camping Marmara", "Κάμπινγκ Μαρμαρά" ], [ "Hotel Ilios", "Ξενοδοχείο Ήλιος" ],
+        [ "Vila Rodon", "Βίλα Ρόδων" ], [ "Hôtel Les Pins", nil ]
+      ])
+    end
+
+    it "keeps OSM's tags and last edit without moving updated_at when only they change" do
+      json = { "type" => "node", "id" => 701, "lat" => 43.3, "lon" => 17.0, "timestamp" => "2026-03-04T05:06:07Z",
+               "version" => 7, "tags" => { "tourism" => "hotel", "name" => "Hotel Mare", "rooms" => "12" } }
+      import = ->(attrs) { described_class.new(destination, client: instance_double(Osm::OverpassClient, query: [ Osm::Element.from_json(json.merge(attrs)) ])).call }
+
+      import.call({})
+      hotel = Property.sole
+      expect(hotel).to have_attributes(osm_version: 7, osm_tags: include("rooms" => "12"),
+                                       osm_timestamp: Time.utc(2026, 3, 4, 5, 6, 7))
+
+      hotel.update_columns(updated_at: 2.days.ago)
+      import.call("version" => 8, "tags" => json["tags"].merge("rooms" => "14"))
+      expect(hotel.reload).to have_attributes(osm_version: 8, osm_tags: include("rooms" => "14"))
+      expect(hotel.updated_at).to be < 1.day.ago
+    end
+
+    it "asks Overpass for each element's last edit" do
+      described_class.new(destination, client:).call
+
+      expect(client.queries.last).to end_with("out geom meta;")
+    end
+
+    it "keeps a place that is mainly something else off the site until an admin approves it" do
+      element = Osm::Element.from_json("type" => "node", "id" => 801, "lat" => 43.3, "lon" => 17.02,
+                                       "tags" => { "tourism" => "guest_house", "amenity" => "dive_centre", "name" => "Diving Hvar" })
+      create(:water_feature, geom: east_west_line(north_m: 10))
+      create(:beach, geom: box(south_m: 0, north_m: 10))
+
+      described_class.new(destination, client: instance_double(Osm::OverpassClient, query: [ element ])).call
+      diving = Property.sole
+      Waterfront::Classification.new(diving).call
+
+      expect(diving.reload.non_lodging_tag).to eq("amenity=dive_centre")
+      expect(Property.published).to be_empty
+      expect(Property.needing_review).to eq([ diving ])
+
+      diving.update!(reviewed_at: Time.current)
+      expect(Property.published).to eq([ diving ])
+    end
+
+    it "does not count a hotel's own restaurant as something else" do
+      element = Osm::Element.from_json("type" => "node", "id" => 802, "lat" => 43.3, "lon" => 17.02,
+                                       "tags" => { "tourism" => "hotel", "amenity" => "restaurant", "name" => "Hotel Konoba" })
+
+      described_class.new(destination, client: instance_double(Osm::OverpassClient, query: [ element ])).call
+
+      expect(Property.sole.non_lodging_tag).to be_nil
+    end
+
+    it "lists a place mapped twice once, keeping the one with a building outline" do
+      lon, lat = offset
+      node = Osm::Element.from_json("type" => "node", "id" => 901, "lat" => lat, "lon" => lon,
+                                    "tags" => { "tourism" => "hotel", "name" => "Hotel Dalmacija" })
+      ring = [ offset(north_m: -10, east_m: -10), offset(north_m: -10, east_m: 10), offset(north_m: 10, east_m: 10),
+               offset(north_m: 10, east_m: -10), offset(north_m: -10, east_m: -10) ]
+      way = Osm::Element.from_json("type" => "way", "id" => 902, "tags" => { "tourism" => "hotel", "name" => "Dalmacija" },
+                                   "geometry" => ring.map { |x, y| { "lon" => x, "lat" => y } })
+      same_name = Osm::Element.from_json("type" => "node", "id" => 903, "lat" => lat, "lon" => lon,
+                                         "tags" => { "tourism" => "hotel", "name" => "Hotel Dalmacija" })
+      far_lon, far_lat = offset(north_m: 500)
+      far = Osm::Element.from_json("type" => "node", "id" => 904, "lat" => far_lat, "lon" => far_lon,
+                                   "tags" => { "tourism" => "hotel", "name" => "Hotel Dalmacija" })
+      import = ->(elements) { described_class.new(destination, client: instance_double(Osm::OverpassClient, query: elements)).call }
+
+      import.call([ node, same_name, far ])
+      first, second, distant = Property.order(:osm_id).to_a
+      expect([ first, second, distant ].map { |p| p.reload.duplicate_of_id }).to eq([ nil, first.id, nil ])
+
+      import.call([ node, way, same_name, far ])
+      outlined = Property.find_by!(osm_id: 902)
+      expect([ first, second, outlined, distant ].map { |p| p.reload.duplicate_of_id }).to eq([ outlined.id, outlined.id, nil, nil ])
+
+      second.update!(reviewed_at: Time.current, duplicate_of: nil)
+      import.call([ node, way, same_name, far ])
+      expect(second.reload.duplicate_of_id).to be_nil
     end
 
     it "updates the geometry of properties still pending review" do

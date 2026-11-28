@@ -27,6 +27,20 @@
     = link_to("delete it", edit_admin_property_path(@property)) + "."
     If it reappears in OSM, the next import clears this note.
 
+- if @property.non_lodging?
+  .flash.flash--alert{ role: "status" }
+    %strong= "OpenStreetMap also tags it #{@property.non_lodging_tag}."
+    It may be mainly something other than a place to stay (a dive centre, a shop), so it is not listed until you
+    approve it. Hide it if it does not rent rooms.
+    = button_to "It is a place to stay: list it", approve_admin_property_path(@property), class: "button button--small"
+
+- if (original = @property.duplicate_of)
+  .flash.flash--alert{ role: "status" }
+    %strong Mapped twice.
+    = "It has the same name as #{original.name}, within #{Osm::Importers::Accommodations::DUPLICATE_DISTANCE_M} m, so only that one is listed."
+    = link_to "See #{original.name}", admin_property_path(original)
+    = button_to "They are different places", not_duplicate_admin_property_path(@property), class: "button button--small"
+
 - if @property.outside_destination_area?
   .flash.flash--alert{ role: "status" }
     %strong= "Outside #{@property.destination.name}'s area."
@@ -122,7 +136,8 @@
     - if @property.listings.any?(&:automatic?)
       %p.admin-hint
         Automatic listings find the property by name (a Stay22 link or a search on the site) and can land on the wrong
-        place. Edit one and paste the property's own page to make it exact; switched-off ones stay off.
+        place. Open one: if it lands on this property, confirm it; otherwise edit it and paste the property's own page.
+        Until then the site says it searches for the stay. Switched-off ones stay off.
     .table-wrap
       %table.admin-table
         %thead
@@ -133,6 +148,7 @@
             %th Says beachfront
             %th Reported position
             %th Active
+            %th Confirmed
             %th
               %span.visually-hidden Actions
         %tbody
@@ -144,9 +160,12 @@
               %td= { true => "Yes", false => "No", nil => "?" }.fetch(listing.claims_beachfront)
               %td= listing.reported_lonlat ? "#{listing.reported_latitude.round(5)}, #{listing.reported_longitude.round(5)}" : "–"
               %td= listing.active? ? "Yes" : "No"
+              %td= listing.confirmed? ? "Yes" : "No"
               %td
                 .actions
                   = link_to "Edit", edit_admin_property_listing_path(@property, listing), class: "button button--small"
+                  - unless listing.confirmed?
+                    = button_to "It opens this property", confirm_admin_property_listing_path(@property, listing), method: :patch, class: "button button--small"
                   - if listing.automatic?
                     - if listing.active?
                       = button_to "Switch off", admin_property_listing_path(@property, listing), method: :delete, class: "button button--small button--danger"

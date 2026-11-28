@@ -1,6 +1,8 @@
 -# locals: (offers:)
 -# With prices: the cheapest site as a deal block, then the others by price.
 -# Without: every site as a tile, and a prompt to add dates for prices.
+-# A link nobody has confirmed opens this property's page (Listing#confirmed?)
+-# says it searches the site, never that the stay is there.
 - link_options = { rel: "sponsored nofollow noopener", target: "_blank" }
 - if offers.empty?
   %p.offers__note= t("offers.none")
@@ -8,7 +10,8 @@
   - best = offers.find(&:best)
   - others = offers - [ best ]
   .offers{ class: (best ? "offers--priced" : "offers--unpriced") }
-    %p.offers__heading= t("offers.compare", count: offers.size)
+    - unconfirmed = offers.reject { |offer| offer.listing.confirmed? }
+    %p.offers__heading= t(unconfirmed.empty? ? "offers.compare" : "offers.look_up", count: offers.size)
     - if best
       - nights = current_stay.nights
       = link_to outbound_path(best.listing, stay_params), class: "offer__link offer-deal", **link_options do
@@ -18,7 +21,7 @@
         %span.offer-deal__meta
           = "#{nights} #{'night'.pluralize(nights)} ·"
           = t("offers.per_night", price: format_price(best.quote.total_cents / nights, best.quote.currency))
-        %span.offer-deal__cta= t("offers.view_deal")
+        %span.offer-deal__cta= t(best.listing.confirmed? ? "offers.view_deal" : "offers.search_site")
       - if (saving = offers_saving(offers))
         %p.offers__saving= t("offers.saving", amount: format_price(saving, best.quote.currency))
     - elsif current_stay.nil?
@@ -32,11 +35,13 @@
               - if offer.quote
                 %span.offer__price= format_price(offer.quote.total_cents, offer.quote.currency)
               - else
-                %span.offer__cta= t(current_stay ? "offers.check_price" : "offers.check_availability")
+                %span.offer__cta= t(!offer.listing.confirmed? ? "offers.search_site" : current_stay ? "offers.check_price" : "offers.check_availability")
     - if current_stay && offers.none?(&:quote) && prices_loading?
       %p.offers__note= t("offers.prices_loading")
     - elsif current_stay && offers.none?(&:quote)
       %p.offers__note= t("offers.no_prices_yet")
     - elsif best
       %p.offers__note= t("offers.checked_ago", time: time_ago_in_words(offers.filter_map { |o| o.quote&.fetched_at }.min))
+    - if unconfirmed.any?
+      %p.offers__note= t("offers.search_note")
     %p.offers__trust= t("offers.direct_booking")

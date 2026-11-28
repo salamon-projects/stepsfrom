@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_28_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_28_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "postgis"
@@ -20,7 +20,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_28_140000) do
     t.bigint "osm_id", null: false
     t.string "name"
     t.string "surface"
-    t.geography "geom", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
+    t.geography "geom", limit: {srid: 4326, type: "st_polygon", geographic: true}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "seen_at"
@@ -34,8 +34,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_28_140000) do
     t.string "country_code", limit: 2, null: false
     t.string "sea_name"
     t.text "summary"
-    t.geography "area", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}, null: false
-    t.geography "center", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}, null: false
+    t.geography "area", limit: {srid: 4326, type: "st_polygon", geographic: true}, null: false
+    t.geography "center", limit: {srid: 4326, type: "st_point", geographic: true}, null: false
     t.integer "zoom", default: 12, null: false
     t.integer "position", default: 0, null: false
     t.boolean "published", default: false, null: false
@@ -68,12 +68,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_28_140000) do
     t.string "provider", null: false
     t.string "url", null: false
     t.string "external_id"
-    t.geography "reported_lonlat", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.geography "reported_lonlat", limit: {srid: 4326, type: "st_point", geographic: true}
     t.boolean "claims_beachfront"
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "generator"
+    t.datetime "confirmed_at"
     t.index ["property_id", "provider"], name: "index_listings_on_property_id_and_provider", unique: true
     t.index ["property_id"], name: "index_listings_on_property_id"
   end
@@ -134,8 +135,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_28_140000) do
     t.string "website"
     t.string "osm_type"
     t.bigint "osm_id"
-    t.geography "lonlat", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}, null: false
-    t.geography "footprint", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}
+    t.geography "lonlat", limit: {srid: 4326, type: "st_point", geographic: true}, null: false
+    t.geography "footprint", limit: {srid: 4326, type: "st_polygon", geographic: true}
     t.integer "coord_mismatch_m"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -146,7 +147,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_28_140000) do
     t.string "website_status"
     t.integer "website_failures", default: 0, null: false
     t.datetime "website_broken_at"
+    t.jsonb "osm_tags"
+    t.datetime "osm_timestamp"
+    t.integer "osm_version"
+    t.string "non_lodging_tag"
+    t.bigint "duplicate_of_id"
+    t.string "local_name"
     t.index ["destination_id"], name: "index_properties_on_destination_id"
+    t.index ["duplicate_of_id"], name: "index_properties_on_duplicate_of_id", where: "(duplicate_of_id IS NOT NULL)"
     t.index ["footprint"], name: "index_properties_on_footprint", using: :gist
     t.index ["lonlat"], name: "index_properties_on_lonlat", using: :gist
     t.index ["osm_type", "osm_id"], name: "index_properties_on_osm_type_and_osm_id", unique: true, where: "(osm_id IS NOT NULL)"
@@ -158,7 +166,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_28_140000) do
     t.string "category", null: false
     t.string "highway"
     t.string "name"
-    t.geography "geom", limit: {:srid=>4326, :type=>"line_string", :geographic=>true}, null: false
+    t.geography "geom", limit: {srid: 4326, type: "line_string", geographic: true}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "seen_at"
@@ -185,7 +193,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_28_140000) do
     t.bigint "osm_id", null: false
     t.string "kind", null: false
     t.string "name"
-    t.geography "geom", limit: {:srid=>4326, :type=>"geometry", :geographic=>true}, null: false
+    t.geography "geom", limit: {srid: 4326, type: "geometry", geographic: true}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "seen_at"
@@ -199,5 +207,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_28_140000) do
   add_foreign_key "outbound_clicks", "properties", on_delete: :nullify
   add_foreign_key "price_quotes", "listings", on_delete: :cascade
   add_foreign_key "properties", "destinations"
+  add_foreign_key "properties", "properties", column: "duplicate_of_id", on_delete: :nullify
   add_foreign_key "verifications", "properties", on_delete: :cascade
 end

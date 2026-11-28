@@ -7,11 +7,12 @@ module Admin
       "conflicts" => "OTA claim conflicts",
       "mismatch" => "Position mismatch",
       "missing" => "Not in OSM",
+      "review" => "Needs review",
       "broken_website" => "Broken website",
       "all" => "All"
     }.freeze
 
-    before_action :set_property, only: %i[show edit update destroy hide unhide reclassify]
+    before_action :set_property, only: %i[show edit update destroy hide unhide reclassify approve not_duplicate]
 
     def index
       @view = params[:view].presence_in(VIEWS.keys) || "listed"
@@ -71,6 +72,19 @@ module Admin
       redirect_back_or_to admin_property_path(@property), notice: "#{@property.name} is no longer hidden."
     end
 
+    # OSM also tags it as something else (non_lodging_tag), but it does rent rooms.
+    def approve
+      @property.update!(reviewed_at: Time.current)
+      redirect_back_or_to admin_property_path(@property), notice: "#{@property.name} is approved as a place to stay."
+    end
+
+    # Same name nearby, but not the same place. Editing it marks it reviewed,
+    # so the next import leaves it alone.
+    def not_duplicate
+      @property.update!(duplicate_of: nil, reviewed_at: Time.current)
+      redirect_back_or_to admin_property_path(@property), notice: "#{@property.name} is no longer treated as a duplicate."
+    end
+
     def reclassify
       measure
       redirect_to admin_property_path(@property),
@@ -108,6 +122,7 @@ module Admin
       when "conflicts" then scope.beachfront_claim_conflicts
       when "mismatch" then scope.with_coordinate_mismatch
       when "missing" then scope.missing_from_osm
+      when "review" then scope.needing_review
       when "broken_website" then scope.with_broken_website
       else scope
       end

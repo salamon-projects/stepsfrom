@@ -48,6 +48,20 @@ RSpec.describe Affiliate::AutoListings do
       expect(property.listings.find_by(provider: "agoda").url).to include("hotelname=Hotel+Riva+Makarska")
     end
 
+    it "creates unconfirmed links, and a confirmed one needs checking again once its link changes" do
+      described_class.new.call
+      expect(property.listings).to all(have_attributes(confirmed_at: nil))
+
+      booking = property.listings.find_by(provider: "booking")
+      booking.confirm!
+      described_class.new.call
+      expect(booking.reload).to be_confirmed
+
+      property.update!(name: "Hotel Riva Makarska")
+      described_class.new.call
+      expect(booking.reload).not_to be_confirmed
+    end
+
     it "searches Booking.com itself once its own programme is set up" do
       described_class.new.call
 

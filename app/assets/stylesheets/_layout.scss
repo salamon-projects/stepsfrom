@@ -57,6 +57,13 @@
     }
   }
 
+  // The name in its own script, under a transliterated title.
+  &__local-name {
+    margin: 0;
+    color: rgba($white, 0.7);
+    font-size: 1.125rem;
+  }
+
   &__lead {
     max-width: 40rem;
     margin: 0;

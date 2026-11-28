@@ -18,6 +18,8 @@
       %span{ "aria-hidden": "true" } ›
       = link_to destination.name, destination_path(destination, stay_params)
     %h1.masthead__title= @property.name
+    - if @property.local_name.present?
+      %p.masthead__local-name{ lang: (Transliteration.greek?(@property.local_name) ? "el" : nil) }= @property.local_name
     .masthead__meta
       %span.chip
         %span.chip__dot

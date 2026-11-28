@@ -68,6 +68,19 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
    flagged, leaves the site and is listed under "Not in OSM" in the admin. Until an
    admin edits or hides a property, its name, position and details follow OSM.
 
+   The import also keeps each property's OSM tags (`osm_tags`), last edit and
+   version (`out geom meta`; who edited it is not kept), without touching
+   `updated_at`. Two things keep an imported property off the site until an admin
+   looks (admin view "Needs review"): a tag saying it is mainly something else
+   (`non_lodging_tag`, e.g. `amenity=dive_centre` or any `shop`; a hotel's
+   restaurant or bar does not count), approved with "It is a place to stay"; and
+   the same name within 60 m of another property, ignoring words such as "Hotel"
+   or "Apartments" (`duplicate_of_id`: the one with a building outline, else the
+   older, is kept, and the repeat's page redirects to it), undone with "They are
+   different places". A Greek name without an English or international form in
+   OSM is transliterated (ELOT 743, `Transliteration`); the original is kept in
+   `local_name` and shown under the title.
+
    Every Monday the websites of listed properties are checked
    (`Websites::Checker`, or `bin/rails websites:check` by hand). A page that is
    empty, missing (404/410), on a parked or vanished domain, or failing twice in a
@@ -75,8 +88,9 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
    it. The admin lists them under "Broken website"; entering a new address there
    checks it afresh. Whether a property still operates is a different question,
    left for when booking-site APIs can confirm it is bookable.
-3. **Check.** Properties measured in a listed category (beachfront, steps from the
-   water, short walk) are on the site automatically; nobody approves them. In the
+3. **Check.** Properties measured in a listed category (beachfront, right on the
+   water without a beach, steps from the water, short walk) are on the site
+   automatically; nobody approves them. In the
    admin, "On the site" lists them. Correct a position if needed (which measures the
    property again), or hide one that is closed, misplaced or not a real
    accommodation. Edited and hidden properties keep their name, position and details
@@ -86,7 +100,8 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
 4. **Listings.** Once `STAY22_AID` is set, every property gets automatic listings
    (see [Automatic listings](#automatic-listings)). For the properties that matter
    most, add or correct the property's own page on Booking.com, Expedia,
-   Hotels.com, Vrbo, Agoda or Trip.com. Optionally enter the position the site
+   Hotels.com, Vrbo, Agoda or Trip.com: "Booking links" in the admin lists the
+   unchecked automatic links of listed stays, most clicked first. Optionally enter the position the site
    shows. If it is more than 150 m from ours, the property is flagged.
 5. **Publish** the destination.
 
@@ -104,7 +119,8 @@ from the building outline when OSM has one, otherwise from the point:
 - the geodesic distance to the nearest sea coastline or lake (rivers are left out: a riverbank is not a beach);
 - whether the straight line to the water crosses a road or railway (tunnels excluded)
   or a promenade/path, and whether it runs over a mapped beach;
-- the nearest beach and its surface (sand, pebble or rock);
+- the nearest beach and its surface (sand, pebble or rock), and whether a beach
+  right next to the property reaches the water where it was measured;
 - how far the positions reported by booking sites are from ours.
 
 `Waterfront::Classifier` turns this into a category, using the thresholds in
@@ -112,7 +128,8 @@ from the building outline when OSM has one, otherwise from the point:
 
 | Category | Rule (defaults) |
 |---|---|
-| Verified beachfront (`direct`) | No road or railway in between, and water ≤ 50 m; or ≤ 150 m across a beach that starts within 20 m |
+| Verified beachfront (`direct`) | No road or railway in between, and water ≤ 50 m; or ≤ 150 m across a beach that starts within 20 m. And a beach at the door: the line to the water crosses a mapped beach, or a beach within 30 m of the property reaches the water within 30 m of the measured point |
+| Right on the water, no beach (`seafront`) | As close as beachfront with no road in between, but no beach at the door: a harbour quay, pier or rocks |
 | Steps from the water (`near`) | Water ≤ 100 m |
 | Short walk to the water (`walkable`) | Water ≤ 300 m |
 | `not_waterfront` | Further: never listed |
@@ -253,9 +270,16 @@ way to find it (`stay22` / `search_url` in `config/affiliates.yml`):
   links search the site for the property's name instead.
 
 Stay22 matches names approximately and a search shows a list, so automatic
-listings can land on the wrong place. The admin marks them "Automatic": editing
-one's URL to the property's own page makes it a normal listing that is never
-regenerated, and "Switch off" hides it for good. Listings an admin entered are
+listings often land on a search of the area instead of the property (11 of 24 in
+a November 2026 check reached the right hotel). An automatic listing is therefore
+**unconfirmed** (`listings.confirmed_at` empty) until an admin checks it: the
+site then says "Search for it" and "Look it up on N booking sites" instead of
+"Check availability", and explains that the link opens a search. In the admin,
+"Booking links" lists the unconfirmed links of listed stays, most clicked first:
+open one, then press "It opens this property", or paste the property's own page
+(which makes it a normal listing that is never regenerated). A link that changes
+(the property's name or position did) needs confirming again. "Switch off" hides
+an automatic listing for good. Listings an admin entered are
 never touched. Automatic listings are refreshed after every OSM import and daily
 (`config/recurring.yml`); run `bin/rails affiliate:auto_listings[slug]` (or the
 Deploy workflow's `auto-listings` command) to do it now. Without `STAY22_AID` or

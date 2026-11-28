@@ -15,6 +15,8 @@ module AdminHelper
     if property.hidden? then "hidden"
     elsif property.osm_missing_since then "not in OSM"
     elsif property.excluded_kind? then "kind not shown"
+    elsif property.duplicate_of_id then "repeats #{property.duplicate_of&.name}"
+    elsif property.non_lodging? then "waiting for approval (#{property.non_lodging_tag})"
     elsif property.outside_destination_area? then "outside the destination's area"
     elsif property.listed? then "listed"
     else "nothing nearby"

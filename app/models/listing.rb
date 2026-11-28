@@ -14,6 +14,7 @@ class Listing < ApplicationRecord
   attribute :reported_longitude, :float
 
   before_validation :build_reported_lonlat
+  before_save :confirm_entered_listing
   after_initialize :load_reported_coordinates, if: -> { has_attribute?(:reported_lonlat) && reported_lonlat.present? && reported_latitude.nil? }
 
   validates :url, presence: true
@@ -24,6 +25,7 @@ class Listing < ApplicationRecord
   after_commit :reclassify_property, if: :saved_change_to_reported_lonlat?
 
   scope :active, -> { where(active: true) }
+  scope :unconfirmed, -> { where(confirmed_at: nil) }
 
   def provider_config
     Affiliate::Provider.find(provider)
@@ -37,7 +39,22 @@ class Listing < ApplicationRecord
     generator.present?
   end
 
+  # Whether the link is known to open this property's own page. Automatic
+  # links find it by name and position and may land on a search instead.
+  def confirmed?
+    confirmed_at.present?
+  end
+
+  def confirm!
+    update!(confirmed_at: Time.current)
+  end
+
   private
+
+  # An admin entered (or rewrote) the URL, so it is the property's page.
+  def confirm_entered_listing
+    self.confirmed_at ||= Time.current unless automatic?
+  end
 
   def build_reported_lonlat
     return unless attribute_changed?(:reported_latitude) || attribute_changed?(:reported_longitude)

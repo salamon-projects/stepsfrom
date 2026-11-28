@@ -3,7 +3,7 @@
 (function () {
   "use strict";
 
-  var COLOURS = { direct: "#12a594", near: "#e0a030", walkable: "#5f707a" };
+  var COLOURS = { direct: "#12a594", seafront: "#0369a1", near: "#e0a030", walkable: "#5f707a" };
   var ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
   function popupFor(point) {

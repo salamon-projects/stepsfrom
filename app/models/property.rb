@@ -5,6 +5,7 @@ class Property < ApplicationRecord
   WEBSITE_FORMAT = %r{\Ahttps?://[^\s]+\z}i
 
   belongs_to :destination
+  belongs_to :duplicate_of, class_name: "Property", optional: true
   has_many :verifications, dependent: :destroy
   has_one :waterfront, class_name: "Verifications::Waterfront", inverse_of: :property
   has_many :listings, dependent: :destroy
@@ -29,10 +30,13 @@ class Property < ApplicationRecord
   after_commit :enqueue_classification, on: %i[create update], if: :geometry_changed?
 
   # Shown on the site: measured on the waterfront and inside its destination's
-  # area, unless an admin hid it, OSM no longer has it or its kind is kept off
-  # the site (config/listing.yml).
+  # area, unless an admin hid it, OSM no longer has it, its kind is kept off
+  # the site (config/listing.yml), it repeats another property
+  # (duplicate_of_id), or OSM says it is mainly something else
+  # (non_lodging_tag) and no admin has approved it.
   scope :published, -> {
-    where(hidden_at: nil, osm_missing_since: nil)
+    where(hidden_at: nil, osm_missing_since: nil, duplicate_of_id: nil)
+      .where("properties.non_lodging_tag IS NULL OR properties.reviewed_at IS NOT NULL")
       .where.not(kind: excluded_kinds)
       .in_destination_area
       .where(Verifications::Waterfront.listed.where("verifications.property_id = properties.id").arel.exists)
@@ -57,6 +61,12 @@ class Property < ApplicationRecord
 
   # The last OSM import no longer found it (see Osm::Importers::Accommodations).
   scope :missing_from_osm, -> { where.not(osm_missing_since: nil) }
+  # Kept off the site until an admin looks: mainly something else, or the
+  # same place mapped twice.
+  scope :needing_review, -> {
+    where(osm_missing_since: nil, hidden_at: nil)
+      .where("(properties.non_lodging_tag IS NOT NULL AND properties.reviewed_at IS NULL) OR properties.duplicate_of_id IS NOT NULL")
+  }
   scope :with_website, -> { where.not(website: [ nil, "" ]) }
   scope :with_broken_website, -> { with_website.where.not(website_broken_at: nil) }
 
@@ -123,6 +133,11 @@ class Property < ApplicationRecord
 
   def excluded_kind?
     self.class.excluded_kinds.include?(kind)
+  end
+
+  # OSM says it is mainly something else, and no admin has approved it.
+  def non_lodging?
+    non_lodging_tag.present? && !reviewed?
   end
 
   def hidden?

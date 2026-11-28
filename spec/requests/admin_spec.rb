@@ -154,6 +154,7 @@ RSpec.describe "Admin" do
 
     it "creates a property and measures it straight away" do
       create(:water_feature, geom: east_west_line(north_m: 30))
+      create(:beach, geom: box(south_m: 5, north_m: 30))
       lon, lat = offset
 
       post admin_properties_path, params: {
@@ -198,6 +199,34 @@ RSpec.describe "Admin" do
     end
   end
 
+  describe "properties needing review" do
+    before { sign_in_admin }
+
+    it "lists a place that is mainly something else once approved" do
+      diving = create(:property, :direct, destination:, name: "Diving Hvar", non_lodging_tag: "amenity=dive_centre")
+
+      get admin_properties_path(view: "review")
+      expect(response.body).to include("Diving Hvar", "amenity=dive_centre")
+      get admin_property_path(diving)
+      expect(response.body).to include("also tags it amenity=dive_centre")
+
+      post approve_admin_property_path(diving)
+      expect(diving.reload).to be_listed
+    end
+
+    it "lists a property marked as a duplicate once an admin says it is a different place" do
+      original = create(:property, :direct, destination:, name: "Hotel Dalmacija")
+      repeat = create(:property, :direct, destination:, name: "Dalmacija", duplicate_of: original)
+      expect(repeat).not_to be_listed
+
+      get admin_property_path(repeat)
+      expect(response.body).to include("Mapped twice.")
+
+      post not_duplicate_admin_property_path(repeat)
+      expect(repeat.reload).to have_attributes(duplicate_of_id: nil, listed?: true, reviewed?: true)
+    end
+  end
+
   describe "listings" do
     before { sign_in_admin }
 
@@ -225,6 +254,30 @@ RSpec.describe "Admin" do
       patch admin_property_listing_path(property, listing), params: { listing: { url: "https://www.booking.com/hotel/hr/riva.html" } }
 
       expect(listing.reload).to have_attributes(generator: nil, url: "https://www.booking.com/hotel/hr/riva.html")
+      expect(listing).to be_confirmed
+    end
+
+    it "lists unchecked automatic links of listed stays, most clicked first, to confirm or replace" do
+      quiet = create(:property, :direct, destination:, name: "Quiet Rooms")
+      clicked = create(:listing, property:, generator: "stay22", url: Affiliate::Stay22.listing_url(property, "booking"))
+      other = create(:listing, property: quiet, generator: "stay22", url: Affiliate::Stay22.listing_url(quiet, "booking"))
+      create(:listing, property:, provider: "agoda", url: "https://www.agoda.com/x/hotel/y.html")
+      OutboundClick.create!(listing: clicked, property:, provider: "booking")
+
+      get admin_booking_links_path
+      rows = Nokogiri::HTML(response.body).css("tbody tr")
+      expect(rows.map { |row| row.at_css("td a").text }).to eq([ property.name, "Quiet Rooms" ])
+
+      patch confirm_admin_property_listing_path(property, clicked)
+      expect(clicked.reload).to be_confirmed
+
+      patch admin_property_listing_path(quiet, other),
+            params: { return_to: admin_booking_links_path, listing: { url: "https://www.booking.com/hotel/hr/quiet.html" } }
+      expect(response).to redirect_to(admin_booking_links_path)
+      expect(other.reload).to have_attributes(generator: nil, confirmed?: true)
+
+      get admin_booking_links_path
+      expect(response.body).to include("Every listed stay’s booking links are confirmed.")
     end
 
     it "switches an automatic listing off instead of deleting it, so it is not made again" do

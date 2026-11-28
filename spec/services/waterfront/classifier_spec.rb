@@ -19,9 +19,20 @@ RSpec.describe Waterfront::Classifier do
     expect(classifier.category_for(measurement(distance_to_water_m: 301))).to eq("not_waterfront")
   end
 
-  it "is direct close to the water with no road between" do
-    expect(classifier.category_for(measurement(distance_to_water_m: 50))).to eq("direct")
-    expect(classifier.category_for(measurement(distance_to_water_m: 50, crosses_promenade: true))).to eq("direct")
+  it "is direct close to the water with no road between and a beach at the door" do
+    expect(classifier.category_for(measurement(distance_to_water_m: 50, crosses_beach: true))).to eq("direct")
+    expect(classifier.category_for(measurement(distance_to_water_m: 50, beach_at_water_m: 30))).to eq("direct")
+    expect(classifier.category_for(measurement(distance_to_water_m: 50, crosses_beach: true, crosses_promenade: true))).to eq("direct")
+  end
+
+  it "is seafront when it is just as close but there is no beach at the door" do
+    expect(classifier.category_for(measurement(distance_to_water_m: 10))).to eq("seafront")
+    expect(classifier.category_for(measurement(distance_to_water_m: 10, distance_to_beach_m: 231))).to eq("seafront")
+    expect(classifier.category_for(measurement(distance_to_water_m: 10, beach_at_water_m: 31))).to eq("seafront")
+  end
+
+  it "never makes a property with a road in between seafront" do
+    expect(classifier.category_for(measurement(distance_to_water_m: 10, crosses_road: true))).to eq("near")
   end
 
   it "is only near when a road or railway lies between" do
