@@ -1,6 +1,9 @@
 module Osm
   module Importers
-    # Named tourism=* accommodation. Properties an admin edited or hid keep
+    # Named tourism=* accommodation. Overpass is queried by the destination's
+    # bounding box, but a new property is only added when it lies in the
+    # destination's area, which need not be a rectangle (Kassandra's box also
+    # covers part of Sithonia). Properties an admin edited or hid keep
     # their name, geometry and any details already set, so a re-import never
     # overrides a manual correction. Properties are never deleted: one that
     # OSM no longer returns is flagged (osm_missing_since) and leaves the site.
@@ -18,9 +21,10 @@ module Osm
 
       private
 
-      # Flags this destination's OSM properties inside the box that the query
-      # did not return (deleted from OSM, or no longer a named accommodation),
-      # and clears the flag on those that are back.
+      # Flags this destination's OSM properties inside the box (what Overpass
+      # was asked for, so also any outside the area) that the query did not
+      # return (deleted from OSM, or no longer a named accommodation), and
+      # clears the flag on those that are back.
       def flag_missing
         Property.where(id: @seen_ids.to_a).where.not(osm_missing_since: nil).update_all(osm_missing_since: nil)
         destination.properties.where.not(osm_id: nil).where(osm_missing_since: nil).where.not(id: @seen_ids.to_a)
@@ -37,6 +41,8 @@ module Osm
 
         property = Property.find_or_initialize_by(osm_type: element.type, osm_id: element.id)
         @seen_ids << property.id if property.persisted?
+        return false if property.new_record? && !destination.covers?(point)
+
         if property.new_record?
           property.assign_attributes(destination:, kind: KINDS.fetch(element.tags["tourism"], "hotel"))
         end

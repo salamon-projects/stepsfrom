@@ -173,6 +173,35 @@ RSpec.describe "OSM importers" do
       expect(hotel.reload.osm_missing_since).to be_nil
     end
 
+    context "for a destination whose area is not a rectangle" do
+      let(:kassandra) { create(:destination, :kassandra) }
+
+      def hotel_at(id, place)
+        lat, lon = KassandraHelpers::PLACES.fetch(place)
+        Osm::Element.from_json("type" => "node", "id" => id, "lat" => lat, "lon" => lon,
+                               "tags" => { "tourism" => "hotel", "name" => "Hotel #{id}" })
+      end
+
+      it "adds only the properties inside the area, though Overpass returns the whole box" do
+        elements = [ hotel_at(1, :kallithea), hotel_at(2, :istion_club), hotel_at(3, :anthemus_sea) ]
+
+        count = described_class.new(kassandra, client: instance_double(Osm::OverpassClient, query: elements)).call
+
+        expect(count).to eq(2)
+        expect(Property.pluck(:osm_id)).to contain_exactly(1, 2)
+        expect(Property.all.map(&:destination)).to all(eq(kassandra))
+      end
+
+      it "keeps updating a property assigned before the area was narrowed, without listing it" do
+        old = kassandra_property(:anthemus_sea, destination: kassandra, osm_type: "node", osm_id: 3)
+
+        described_class.new(kassandra, client: instance_double(Osm::OverpassClient, query: [ hotel_at(3, :anthemus_sea) ])).call
+
+        expect(old.reload).to have_attributes(name: "Hotel 3", osm_missing_since: nil, destination: kassandra)
+        expect(old).not_to be_listed
+      end
+    end
+
     it "flags nothing when the query comes back empty" do
       run(described_class)
 

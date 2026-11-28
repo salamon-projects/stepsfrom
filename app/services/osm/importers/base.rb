@@ -57,7 +57,9 @@ module Osm
       end
 
       # SQL condition: the column's geometry lies at least partly inside the
-      # bounding box, shrunk by EDGE_MARGIN. Compared in plain lon/lat as
+      # bounding box, shrunk by EDGE_MARGIN. The box, not the destination's
+      # area, as it is what Overpass was queried with: map features are shared
+      # by every destination, and only Accommodations checks the area. Compared in plain lon/lat as
       # Overpass does; the && pre-filter lets the spatial index help.
       def inside_bbox(column)
         south, west, north, east = destination.bbox
