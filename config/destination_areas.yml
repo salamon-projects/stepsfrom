@@ -1,0 +1,25 @@
+# Destination areas that are not rectangles, as one outer ring of
+# [longitude, latitude] pairs (WGS84), keyed by destination slug. Used by
+# db/seeds.rb for fresh installs and by the data migration that set them in
+# production; changing a ring here does not change an existing database (write
+# a migration that calls Destination.configured_area, as
+# db/migrate/20261128120000_give_kassandra_its_peninsula_area.rb does).
+#
+# Only properties inside their destination's area are listed, and an OSM
+# import only adds new properties that lie inside it. Saving changed bounding
+# box numbers in the admin replaces the area with a rectangle again.
+shared:
+  # The Kassandra peninsula only. Its bounding box also covers the west coast
+  # of Sithonia (Nikiti, Neos Marmaras/Porto Carras, Elia, Vourvourou), and no
+  # rectangle can avoid it: Cape Kanistro, the SE tip (23.75, 39.92), lies
+  # further east than Sithonia's west coast at 40.15 N (about 23.73).
+  kassandra:
+    - [23.28, 40.22] # NW: west of Sani, just north of the Potidea canal (Istion Club, Portes Beach stay in)
+    - [23.40, 40.22] # north of the isthmus, short of Nikiti
+    - [23.46, 40.16]
+    - [23.52, 40.08]
+    - [23.60, 40.01]
+    - [23.68, 39.96]
+    - [23.78, 39.90] # SE, past Cape Kanistro
+    - [23.28, 39.90] # SW
+    - [23.28, 40.22]

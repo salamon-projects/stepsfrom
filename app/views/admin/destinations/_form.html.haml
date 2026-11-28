@@ -17,6 +17,11 @@
   .field
     = f.label :summary
     = f.text_area :summary, rows: 2
+  - unless destination.rectangular?
+    %p.admin-hint
+      This destination's area is not a rectangle (config/destination_areas.yml): the numbers below are its
+      bounding box. Saving without changing them keeps the area. Changing any of them replaces the area with
+      that rectangle, and properties inside the rectangle but outside the old area are listed again.
   %fieldset.admin-form__row
     %legend Bounding box (decimal degrees)
     .field
