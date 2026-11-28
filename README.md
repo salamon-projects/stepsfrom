@@ -45,7 +45,8 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
 
 1. **Destination.** Six launch destinations are seeded: Makarska Riviera, Poreč,
    Hvar, Kassandra, Chania coast and Rhodes east coast. They start unpublished. Add
-   or adjust destinations in the admin by bounding box.
+   or adjust destinations in the admin by bounding box. A destination can instead
+   have an area of another shape (see [Destination areas](#destination-areas)).
 2. **Import.** Fetch coastline, lakes, beaches, roads and accommodation from
    the Overpass API, then measure every property. Run it with "Import from OSM" in
    the admin, or with:
@@ -127,8 +128,35 @@ row in `verifications` (single-table inheritance): `Verifications::Waterfront`
 holds the category, the headline distance (`distance_m`), the measurement
 details in `evidence`. Properties keep only location data, plus `hidden_at`
 and `reviewed_at` for an admin's decisions. A property is listed once its
-waterfront result is in a listed category, unless it is hidden, missing from OSM
-or of an excluded kind (below).
+waterfront result is in a listed category and it lies inside its destination's
+area, unless it is hidden, missing from OSM or of an excluded kind (below).
+
+### Destination areas
+
+A destination's area (`destinations.area`) is normally the rectangle of the
+bounding box entered in the admin. Where no rectangle fits the coast, the area is
+a polygon from `config/destination_areas.yml`, keyed by slug: Kassandra's box also
+covers the west coast of Sithonia (Nikiti, Porto Carras, Elia, Vourvourou), and
+Cape Kanistro, Kassandra's south-east tip, lies further east than Sithonia's west
+coast, so the area is the peninsula only. Seeds use the polygon on a fresh
+install; an existing database gets it from a migration
+(`20261128120000_give_kassandra_its_peninsula_area`); changing the file alone
+changes nothing.
+
+- **Listing.** `Property.published` requires the property to lie inside its
+  destination's area (`Property.in_destination_area`, compared in plain lon/lat
+  like the Overpass boxes). Properties outside it stay in the database and in
+  admin, which says "outside the destination's area"; their public pages are not
+  found, and they leave every count, guide and the sitemap.
+- **Import.** Overpass is still queried by the bounding box (the area's
+  envelope), and map features are removed by that box. A new property is only
+  added when it lies inside the area; a property assigned earlier keeps its
+  destination and is updated from OSM, but is not listed while outside the area.
+- **Admin.** The four bounding box numbers show the polygon's envelope. Saving
+  the destination without changing them keeps the polygon. **Changing any of
+  them replaces the area with that rectangle** (the edit form warns about it), and
+  for Kassandra that lists Sithonia's properties under Kassandra again. To change a
+  polygon, edit the file and add a migration that sets it.
 
 ### Excluded kinds
 

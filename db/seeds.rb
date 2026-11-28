@@ -1,6 +1,8 @@
 # Launch destinations. Bounding boxes are approximate and can be adjusted in
-# the admin; they only decide which OSM data `bin/rails osm:import[slug]`
-# fetches. Properties come from that import, never from seeds. Destinations
+# the admin; they decide which OSM data `bin/rails osm:import[slug]` fetches
+# and which properties are listed. A destination can instead have an area of
+# another shape from config/destination_areas.yml (its box is that area's
+# envelope). Properties come from that import, never from seeds. Destinations
 # start unpublished: publish them in the admin once imported and measured.
 #
 # In development, `bin/rails db:seed` also loads a small fictional demo bay
@@ -16,8 +18,10 @@ DESTINATIONS = [
   { name: "Hvar", country_code: "HR", sea_name: "Adriatic Sea", zoom: 11,
     south: 43.10, west: 16.38, north: 43.22, east: 16.72,
     summary: "Sunny island of lavender fields, a busy harbour town and quiet bays." },
+  # Not a rectangle: the peninsula only, without Sithonia's west coast
+  # (config/destination_areas.yml).
   { name: "Kassandra", country_code: "GR", sea_name: "Aegean Sea", zoom: 10,
-    south: 39.90, west: 23.30, north: 40.25, east: 23.80,
+    area: Destination.configured_area("kassandra"),
     summary: "The westernmost peninsula of Halkidiki, known for long sandy beaches." },
   { name: "Chania coast", country_code: "GR", sea_name: "Sea of Crete", zoom: 11,
     south: 35.47, west: 23.70, north: 35.54, east: 24.10,
