@@ -102,13 +102,17 @@ module PropertiesHelper
 
   # One line describing the current search, shown when the filters are folded.
   def filters_summary(search, stay)
-    parts = []
-    parts << (stay ? "#{l(stay.check_in, format: '%-d %b')} – #{l(stay.check_out, format: '%-d %b')}" : t("search.any_dates"))
-    parts << pluralize(stay.adults, "adult") if stay
-    parts << pluralize(stay.children, "child") if stay&.children&.positive?
+    parts = [ stay ? stay_summary(stay) : t("search.any_dates") ]
     active = [ search.category, search.surface, search.kind ].compact.size
     parts << pluralize(active, "filter") if active.positive?
     parts << t("search.sorts.#{search.sort}")
+    parts.join(" · ")
+  end
+
+  # The visitor's dates and party: "3 Jul – 8 Jul · 2 adults · 1 child".
+  def stay_summary(stay)
+    parts = [ "#{l(stay.check_in, format: '%-d %b')} – #{l(stay.check_out, format: '%-d %b')}", pluralize(stay.adults, "adult") ]
+    parts << pluralize(stay.children, "child") if stay.children.positive?
     parts.join(" · ")
   end
 

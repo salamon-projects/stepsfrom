@@ -97,7 +97,7 @@ RSpec.describe "Guides" do
       expect(links.map { |link| link["href"] }).to eq([ outbound_path(listing) ])
       expect(links.first["rel"]).to eq("sponsored nofollow noopener")
       expect(links.first["target"]).to eq("_blank")
-      expect(document.at_css("a.offers__dates")["href"]).to eq(property_path(amfora, anchor: "check_in"))
+      expect(document.at_css("a.offers__dates")["href"]).to eq("#check_in")
       expect(response.body).to include("We may earn a commission")
     end
 
@@ -115,6 +115,94 @@ RSpec.describe "Guides" do
 
       links = document.css("nav.breadcrumbs a").map { |link| link["href"] }
       expect(links).to eq([ root_path(anchor: "destinations"), country_path(Country.new("HR")), destination_path(destination) ])
+    end
+  end
+
+  describe "dates and guests" do
+    let(:check_in) { Date.current + 30 }
+    let(:stay_params) { { check_in: check_in.iso8601, check_out: (check_in + 3).iso8601, adults: 2 } }
+    let(:family_params) { stay_params.merge(children: 2, child_ages: [ 4, 9 ]) }
+
+    it "has the stay form, a plain GET back to the guide" do
+      get guide_path(guide_slug)
+
+      form = document.at_css(".guide-stay form")
+      expect(form["action"]).to eq(guide_path(guide_slug))
+      expect(form["method"]).to eq("get")
+      expect(form.css("input, select").map { |field| field["name"] }.compact)
+        .to include("check_in", "check_out", "adults", "children")
+      expect(form.at_css("template.child-ages__template select[name='child_ages[]']")).to be_present
+      expect(form.at_css("input[type=submit]")["value"]).to eq("See prices")
+      expect(document.css("script[src]").map { |script| script["src"] }).to include(a_string_including("stay_fields"))
+    end
+
+    it "keeps the stay, guests and children's ages in the booking links, ranked by distance as before" do
+      listing = create(:listing, property: amfora)
+      create(:listing, property: rooms)
+
+      get guide_path(guide_slug, family_params)
+
+      expect(document.css(".guide-ranking__list .property-card__name").map(&:text))
+        .to eq([ "Hotel Amfora", "Palace Hotel", "Villa Across", "Rooms Uphill" ])
+      link = document.at_css(".guide-ranking__list a.offer__link")
+      expect(link["href"]).to eq(outbound_path(listing, family_params))
+      expect(link.text.squish).to include("Check price")
+      expect(document.at_css(".guide-ranking__list .property-card__name a")["href"]).to eq(property_path(amfora, family_params))
+      expect(document.at_css("a.offers__dates")).to be_nil
+      expect(document.at_css(".guide-stay__current").text).to eq(
+        "#{check_in.strftime('%-d %b')} – #{(check_in + 3).strftime('%-d %b')} · 2 adults · 2 children"
+      )
+      expect(document.css(".guide-stay .child-ages select[name='child_ages[]']").map { |select| select.at_css("option[selected]")["value"] })
+        .to eq(%w[4 9])
+      expect(response.body).not_to include("€")
+    end
+
+    it "sends the stay on to Stay22 the way destination pages do" do
+      stub_const("ENV", ENV.to_h.merge("STAY22_AID" => "stepsfrom"))
+      create(:listing, property: amfora, generator: "stay22", url: Affiliate::Stay22.listing_url(amfora, "booking"))
+
+      get guide_path(guide_slug, family_params)
+      get document.at_css(".guide-ranking__list a.offer__link")["href"]
+
+      query = Rack::Utils.parse_query(URI.parse(response.location).query)
+      expect(query).to include("aid" => "stepsfrom", "campaign" => destination.slug.tr("-", "_"),
+                               "checkin" => check_in.iso8601, "checkout" => (check_in + 3).iso8601,
+                               "adults" => "2", "children" => "2", "childrenAges" => "4,9")
+    end
+
+    it "shows prices for the stay when a provider has them, without re-sorting" do
+      create(:listing, property: amfora)
+      create(:listing, property: rooms)
+      Rails.configuration.x.price_providers = %w[fake]
+      allow_any_instance_of(Prices::Providers::Fake).to receive(:quotes_for) do |_, listings, _|
+        listings.map { |l| Prices::Quote.new(listing_id: l.id, total_cents: l.property_id == rooms.id ? 20_000 : 50_000, currency: "EUR") }
+      end
+
+      get guide_path(guide_slug, stay_params)
+
+      expect(document.css(".guide-ranking__list .property-card__name").map(&:text).first).to eq("Hotel Amfora")
+      expect(response.body).to include("€500", "€200", "Best price")
+    ensure
+      Rails.configuration.x.price_providers = []
+    end
+
+    it "ignores an invalid stay and says what is wrong" do
+      listing = create(:listing, property: amfora)
+
+      get guide_path(guide_slug, check_in: (check_in + 3).iso8601, check_out: check_in.iso8601, adults: 2)
+
+      expect(response).to have_http_status(:ok)
+      expect(document.at_css(".guide-ranking__list a.offer__link")["href"]).to eq(outbound_path(listing))
+      expect(document.at_css(".guide-stay .form-error")).to be_present
+      expect(document.at_css(".guide-stay__current")).to be_nil
+    end
+
+    it "is not indexed with a stay, and keeps the JSON-LD" do
+      get guide_path(guide_slug, stay_params)
+
+      expect(document.at_css("meta[name=robots]")["content"]).to eq("noindex")
+      expect(document.at_css("link[rel=canonical]")).to be_nil
+      expect(json_ld("ItemList")["itemListElement"].map { |item| item["url"] }.first).to eq(property_url(amfora))
     end
   end
 

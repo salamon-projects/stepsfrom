@@ -1,4 +1,4 @@
--# locals: (offers:, dates_url: "#check_in")
+-# locals: (offers:)
 -# With prices: the cheapest site as a deal block, then the others by price.
 -# Without: every site as a tile, and a prompt to add dates for prices.
 - link_options = { rel: "sponsored nofollow noopener", target: "_blank" }
@@ -22,7 +22,7 @@
       - if (saving = offers_saving(offers))
         %p.offers__saving= t("offers.saving", amount: format_price(saving, best.quote.currency))
     - elsif current_stay.nil?
-      %a.offers__dates{ href: dates_url, data: { open_calendar: true } }= t("offers.add_dates")
+      %a.offers__dates{ href: "#check_in", data: { open_calendar: true } }= t("offers.add_dates")
     - if others.any?
       %ul.offer-list{ class: ("offer-list--tiles" unless best) }
         - others.each do |offer|

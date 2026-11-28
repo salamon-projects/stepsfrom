@@ -234,6 +234,19 @@ RSpec.describe "Public pages" do
       expect(Nokogiri::HTML(response.body).at_css("link[rel=canonical]")["href"]).to eq(property_url(hotel))
     end
 
+    it "keeps the dates, guests and children's ages in the form and the booking links" do
+      listing = create(:listing, property: hotel)
+      family = stay_params.merge(children: 2, child_ages: [ 4, 9 ])
+
+      get property_path(hotel, family)
+
+      document = Nokogiri::HTML(response.body)
+      expect(document.at_css(".booking-panel form")["action"]).to eq(property_path(hotel))
+      expect(document.at_css("a.offer__link")["href"]).to eq(outbound_path(listing, family))
+      expect(document.css(".child-ages select[name='child_ages[]']").map { |select| select.at_css("option[selected]")["value"] }).to eq(%w[4 9])
+      expect(document.at_css("meta[name=robots]")["content"]).to eq("noindex")
+    end
+
     it "shows the official website instead of a price form when no booking site lists it" do
       hotel.update!(website: "https://hotel-riva.example")
 

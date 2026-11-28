@@ -67,6 +67,10 @@ en:
       one: The closest to the water
       other: "The %{count} closest to the water"
     eyebrow: Guide
+    stay:
+      title: Your dates
+      text: Add dates and guests to check availability and see prices on the booking sites. The ranking stays by measured distance to the water.
+      submit: See prices
 
   properties:
     kinds:

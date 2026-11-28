@@ -1,7 +1,6 @@
--# locals: (property:, offers:, place: nil, heading: :h2, note: nil, dates_url: "#check_in")
+-# locals: (property:, offers:, place: nil, heading: :h2, note: nil)
 -# place: the destination, on pages that mix several. note: a line under the
--# measurement (guides). dates_url: where "Add dates" leads, on pages without
--# a date field.
+-# measurement (guides).
 -# Without booking links the card stays one column, with a link to the
 -# property page (map and measurement) instead of an empty offers panel.
 %article.property-card{ class: ("property-card--no-offers" if offers.empty?) }
@@ -13,7 +12,7 @@
       %p.property-card__note= note
   - if offers.any?
     .property-card__offers
-      = render "shared/offers", offers:, dates_url:
+      = render "shared/offers", offers:
   - else
     .property-card__more
       = link_to "Map and measurement", property_path(property, stay_params), class: "text-link",

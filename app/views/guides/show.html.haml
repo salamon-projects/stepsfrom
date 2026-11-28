@@ -37,17 +37,33 @@
     %p= paragraph
   %p= link_to "How we verify and rank", how_we_verify_path, class: "text-link"
 
+-# Dates and guests for the booking links and prices below; the ranking
+-# stays by measured distance whatever the stay.
+%section.guide-stay{ "aria-labelledby": "guide-stay-title" }
+  .container
+    .guide-stay__panel
+      .guide-stay__head
+        %h2.guide-stay__title#guide-stay-title= t("guides.stay.title")
+        - if current_stay
+          %p.guide-stay__current= stay_summary(current_stay)
+        - else
+          %p.guide-stay__text= t("guides.stay.text")
+      = form_with url: guide_path(@guide), method: :get, class: "filter-form guide-stay__form" do
+        = render "shared/stay_fields", stay: @stay
+        .field.field--submit
+          = submit_tag t("guides.stay.submit"), name: nil, class: "button button--primary"
+
 %section.guide-ranking
   .container
     %h2.guide-ranking__title= t("guides.list_title", count: @properties.size)
     %ol.property-list.guide-ranking__list
       - @properties.each do |property|
         %li= render "destinations/property_card", property:, offers: @offers.fetch(property.id, []), heading: :h3,
-          note: guide_fact(property), dates_url: property_path(property, anchor: "check_in")
+          note: guide_fact(property)
     %p.ranking-note
       = t("guides.ranking_note")
       = t("offers.disclosure")
-    %p= link_to "See all #{pluralize(number_with_delimiter(facts[:listed_count]), 'verified stay')} in #{destination.name}", destination_path(destination), class: "text-link"
+    %p= link_to "See all #{pluralize(number_with_delimiter(facts[:listed_count]), 'verified stay')} in #{destination.name}", destination_path(destination, stay_params), class: "text-link"
     = render "shared/activities", destination:
 
 - if faq.any?

@@ -214,6 +214,14 @@ it is not linked from the destination and country pages or listed in
 `sitemap.xml`. Keep the copy in line with the "How we verify" page: the
 distance is a straight line to the shoreline, not a walking route.
 
+A guide page has the same dates and guests form as destination and property
+pages (`shared/_stay_fields`, a plain GET back to the guide). With a valid stay
+its booking buttons pass the dates, guests and children's ages to `/go/:listing_id`
+and prices are fetched and shown as on destination pages, but the ranking stays
+by measured distance. A guide with stay parameters is `noindex` and has no
+canonical link, like destination and property pages; the sitemap and JSON-LD do
+not change.
+
 ## Affiliate links
 
 Buttons go through `/go/:listing_id`. That route logs the click (provider, dates and
