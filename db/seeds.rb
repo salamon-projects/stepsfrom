@@ -41,8 +41,10 @@ DESTINATIONS = [
   { name: "Crikvenica Riviera", country_code: "HR", sea_name: "Adriatic Sea", zoom: 12,
     south: 45.12, west: 14.65, north: 45.20, east: 14.80,
     summary: "Kvarner coast from Crikvenica and Selce to Novi Vinodolski." },
+  # Not a rectangle: the island only, without the mainland Omiš Riviera
+  # (config/destination_areas.yml).
   { name: "Brač", country_code: "HR", sea_name: "Adriatic Sea", zoom: 11,
-    south: 43.25, west: 16.38, north: 43.42, east: 16.90,
+    area: Destination.configured_area("brac"),
     summary: "Island of Bol's Zlatni Rat beach, Supetar and quiet harbour villages." },
   { name: "Dubrovnik", country_code: "HR", sea_name: "Adriatic Sea", zoom: 13,
     south: 42.63, west: 18.05, north: 42.67, east: 18.13,

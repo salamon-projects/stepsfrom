@@ -135,13 +135,20 @@ area, unless it is hidden, missing from OSM or of an excluded kind (below).
 
 A destination's area (`destinations.area`) is normally the rectangle of the
 bounding box entered in the admin. Where no rectangle fits the coast, the area is
-a polygon from `config/destination_areas.yml`, keyed by slug: Kassandra's box also
-covers the west coast of Sithonia (Nikiti, Porto Carras, Elia, Vourvourou), and
-Cape Kanistro, Kassandra's south-east tip, lies further east than Sithonia's west
-coast, so the area is the peninsula only. Seeds use the polygon on a fresh
-install; an existing database gets it from a migration
-(`20261128120000_give_kassandra_its_peninsula_area`); changing the file alone
-changes nothing.
+a polygon from `config/destination_areas.yml`, keyed by slug:
+
+- **Kassandra**: its box also covers the west coast of Sithonia (Nikiti, Porto
+  Carras, Elia, Vourvourou), and Cape Kanistro, Kassandra's south-east tip, lies
+  further east than Sithonia's west coast, so the area is the peninsula only.
+- **Brač**: its box also covers the mainland Omiš Riviera (Ruskamen, Mimice,
+  Nemira, Duće, Pisak), which once made up more than half of Brač's listed
+  stays, so the area is the island only (the box's north edge drops from 43.42
+  to 43.405 N with it).
+
+Seeds use the polygons on a fresh install; an existing database gets each from a
+migration (`20261128120000_give_kassandra_its_peninsula_area`,
+`20261128140000_give_brac_its_island_area`); changing the file alone changes
+nothing.
 
 - **Listing.** `Property.published` requires the property to lie inside its
   destination's area (`Property.in_destination_area`, compared in plain lon/lat
@@ -155,7 +162,8 @@ changes nothing.
 - **Admin.** The four bounding box numbers show the polygon's envelope. Saving
   the destination without changing them keeps the polygon. **Changing any of
   them replaces the area with that rectangle** (the edit form warns about it), and
-  for Kassandra that lists Sithonia's properties under Kassandra again. To change a
+  for Kassandra that lists Sithonia's properties under Kassandra again (for Brač,
+  the mainland's under Brač). To change a
   polygon, edit the file and add a migration that sets it.
 
 ### Excluded kinds

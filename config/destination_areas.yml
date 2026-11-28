@@ -23,3 +23,16 @@ shared:
     - [23.78, 39.90] # SE, past Cape Kanistro
     - [23.28, 39.90] # SW
     - [23.28, 40.22]
+
+  # The island of Brač only. Its bounding box (43.25-43.42 N, 16.38-16.90 E)
+  # also covers the mainland Omiš Riviera (Ruskamen, Mimice, Nemira, Duće,
+  # Pisak). East of 16.70 that coast is never south of 43.398 N, while Brač's
+  # north coast stays below about 43.39 N and east of Pučišća below 43.36 N.
+  brac:
+    - [16.38, 43.25]  # SW, west of Milna
+    - [16.38, 43.405] # NW, north of Sutivan, short of the mainland (43.44 N and more)
+    - [16.70, 43.405] # north of Postira, south of Ruskamen and Mala luka (43.418 N)
+    - [16.74, 43.36]  # east of Pučišća (43.35 N), south of Sagitta (43.408 N)
+    - [16.90, 43.36]  # east of Sumartin, south of Pisak (43.399 N)
+    - [16.90, 43.25]  # SE
+    - [16.38, 43.25]

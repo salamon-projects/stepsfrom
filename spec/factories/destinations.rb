@@ -21,5 +21,16 @@ FactoryBot.define do
       east { nil }
       area { Destination.configured_area("kassandra") }
     end
+
+    # The island of Brač from config/destination_areas.yml, without the
+    # mainland coast its rectangle covered (see BracHelpers).
+    trait :brac do
+      name { "Brač" }
+      south { nil }
+      west { nil }
+      north { nil }
+      east { nil }
+      area { Destination.configured_area("brac") }
+    end
   end
 end
